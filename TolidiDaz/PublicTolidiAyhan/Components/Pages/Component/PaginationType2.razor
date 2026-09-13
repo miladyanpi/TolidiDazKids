@@ -1,0 +1,150 @@
+﻿@using Dto.Models
+
+<div class="flex space-x-1">
+
+    <button @onclick="@(async () => await SelectButton("First"))" class="px-3 py-1 bFavoritUserProduct rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 bFavoritUserProduct-gray-300 dark:bFavoritUserProduct-gray-600">
+        اولی
+    </button>
+    <button @onclick="@(async () => await SelectButton("Prev"))" class="px-3 py-1 bFavoritUserProduct rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 bFavoritUserProduct-gray-300 dark:bFavoritUserProduct-gray-600">
+        قبلی
+    </button>
+    @if (pagingModel.PagePer10Counter >= 2)
+    {
+        <button @onclick="@(async () => await SetPagePer10Sub())" class="px-3 py-1 bFavoritUserProduct rounded-lg text-sm font-medium text-white bg-primary dark:bg-primary-dark bFavoritUserProduct-primary dark:bFavoritUserProduct-primary-dark">
+            <span>...</span>
+        </button>
+    }
+    @for (decimal i = pagingModel.PagePer10; i <= pagingModel.CountPage && i <= pagingModel.PagePer10 * 10; i++)
+    {
+        decimal j = i;
+        <button @onclick="@(async () => await SetPageAndCallBack(j))"
+                class="px-3 py-1 rounded-lg text-sm font-medium transition
+                @(pagingModel.Page == i
+                                ? "bg-blue-600 text-white shadow"
+                                : "text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600")">
+            @i
+        </button>
+    }
+    @if (pagingModel.PagePer10Counter >= 1 && pagingModel.PagePer10Counter < pagingModel.CountPagePer10)
+    {
+        <button @onclick="@(async () => await SetPagePer10Add())" class="px-3 py-1 bFavoritUserProduct rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 bFavoritUserProduct-gray-300 dark:bFavoritUserProduct-gray-600">
+            <span>....</span>
+        </button>
+    }
+    
+    <button @onclick="@(async () => await SelectButton("Next"))" class="px-3 py-1 bFavoritUserProduct rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 bFavoritUserProduct-gray-300 dark:bFavoritUserProduct-gray-600">
+        بعدی
+    </button>
+    <button @onclick="@(async () => await SelectButton("Last"))" class="px-3 py-1 bFavoritUserProduct rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 bFavoritUserProduct-gray-300 dark:bFavoritUserProduct-gray-600">
+        آخری
+    </button>
+</div>
+
+
+@code {
+    [Parameter]
+    public decimal Page { get; set; }
+    [Parameter]
+    public PagingModel pagingModel { get; set; } = new();
+    [Parameter]
+    public EventCallback<decimal> OnClickcallBack { get; set; }
+    private string SelectedButton { get; set; } = "";
+
+    private async Task SelectButton(string buttonName)
+    {
+        SelectedButton = buttonName;
+        // اگر میخوای همزمان تابع مربوط به صفحه رو هم صدا بزنی، اینجا اضافه کن
+        switch (buttonName)
+        {
+            case "First":
+                _ = First();
+                break;
+            case "Prev":
+                _ = Prev(pagingModel.Page);
+                break;
+            case "Next":
+                _ = Next(pagingModel.Page);
+                break;
+            case "Last":
+                _ = Last();
+                break;
+        }
+    }
+
+    private async Task SetPageAndCallBack(decimal i)
+    {
+        Page = pagingModel.Page = i;
+        await OnClickcallBack.InvokeAsync(Page);
+    }
+    private async Task SetPagePer10Add()
+    {
+        pagingModel.PagePer10Counter++;
+        pagingModel.PagePer10 = pagingModel.PagePer10 + 10;
+
+        //await GetData(pagingModel.PagePer10);
+        Page = pagingModel.Page = pagingModel.PagePer10;
+
+
+    }
+    private async Task SetPagePer10Sub()
+    {
+        pagingModel.PagePer10Counter--;
+        pagingModel.PagePer10 = pagingModel.PagePer10 - 10;
+        //await GetData(pagingModel.PagePer10);
+        Page = pagingModel.Page = pagingModel.PagePer10;
+
+    }
+    private async Task Last()
+    {
+        pagingModel.PagePer10Counter = pagingModel.CountPagePer10;
+        pagingModel.PagePer10 = (pagingModel.CountPagePer10 - 1) * 10 + 1;
+        // await GetData(pagingModel.CountPage);
+        Page = pagingModel.Page = pagingModel.CountPage;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task First()
+    {
+        pagingModel.PagePer10Counter = 1;
+        pagingModel.PagePer10 = 1;
+        Page = pagingModel.Page = 1;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task Prev(decimal page = 1)
+    {
+        Page = pagingModel.Page = (page - 1) <= 0 ? 1 : (page - 1);
+        if (pagingModel.Page <= 10)
+        {
+            pagingModel.PagePer10Counter = 1;
+            pagingModel.PagePer10 = 1;
+        }
+        else
+        {
+            pagingModel.PagePer10Counter = Math.Ceiling(pagingModel.Page / 10);
+            pagingModel.PagePer10 = (pagingModel.PagePer10Counter - 1) * 10 + 1;
+        }
+
+        //Page=  pagingModel.Page = pagingModel.Page;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task Next(decimal page = 1)
+    {
+        Page = pagingModel.Page = (page + 1) > pagingModel.CountPage ? pagingModel.CountPage : (page + 1);
+        if (pagingModel.Page <= 10)
+        {
+            pagingModel.PagePer10Counter = 1;
+            pagingModel.PagePer10 = 1;
+        }
+        else
+        {
+            pagingModel.PagePer10Counter = Math.Ceiling(pagingModel.Page / 10);
+            pagingModel.PagePer10 = (pagingModel.PagePer10Counter - 1) * 10 + 1;
+        }
+
+        //   Page=  pagingModel.Page = pagingModel.Page;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+}

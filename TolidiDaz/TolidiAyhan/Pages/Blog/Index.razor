@@ -1,0 +1,94 @@
+﻿@using Dto.Models.DtoBlog
+@using Dto.Models.DtoUploadFile
+@inject RootApi<ResponseApiEntities<ResultBlog>> RootApiGet
+@using Newtonsoft.Json
+<section class="py-5" itemscope itemtype="https://schema.org/ItemList">
+    <div class="container">
+        <div class="mb-5">
+            <header class="grid place-items-center grid-cols-6 gap-y-10">
+                <div class="ps-15 section-heading sm:col-span-4 w-full col-span-6 relative space-y-3">
+                    <h2 class="font-black text-2xl">
+                        <span itemprop="name" class="dark:text-white">آخرین</span>
+                        <span class="text-primary font-bold">مقالات</span>
+                    </h2>
+                    <p class="text-neutral-600 dark:text-white" itemprop="description">مقالات را در پایین مشاهده میکنید</p>
+                </div>
+                <div class="w-full sm:col-span-2 col-span-6">
+                    <div class="sm:text-end text-start">
+                        <a href="#"
+                           class="btn bg-transparent border-secondary border-2 hover:bg-secondary hover:text-white dark:text-white dark:border-white"
+                           title="مشاهده تمامی محصولات پر بازدید" itemprop="url">
+                            مشاهده همه
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="swiper !px-2.3 blog-carousel">
+            <div class="swiper-wrapper items-center" style="padding-bottom: 0 !important;">
+                @foreach (var item in ResultBlogs)
+                {
+                    var ResultUploadFile = item.JsonPicture != null ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(item.JsonPicture) : new List<ResultUploadFile>();
+                    var filepath = ResultUploadFile.Count > 0 ? ApiLink.FullPath + ResultUploadFile[0].PathFileName : ApiLink.FullPath + "images/No-Product-Image.png"; ;
+                    <div class="swiper-slide space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/BlogPosting">
+                        <a href="/blog/راهنمای-خرید-لباس" class="w-full block" itemprop="url">
+                            <article class="p-4 space-y-3 rounded-xl hover:-translate-y-2 transition border border-gray-200 bg-white drop-shadow-md dark:bg-gray-800">
+                                <figure class="text-center block py-4" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+                                    <img src="@filepath" class="h-50 rounded-xl w-full block mx-auto object-cover" alt="تصویر @item.Title" itemprop="contentUrl">
+                                    <meta itemprop="caption" content="تصویر @item.Title">
+                                </figure>
+                                <section class="space-y-5">
+                                    <div class="space-y-4">
+                                        <h4 class="relative before:right-0 before:z-[-1] before:rounded-lg before:bg-gray-300 before:absolute before:top-1/2 before:h-px before:w-full before:-translate-y-1/2">
+                                            <span class="bg-secondary text-sm rounded text-white px-3 dark:bg-secondary-300" itemprop="articleSection">@item.ResultGroupBlog.Title</span>
+                                        </h4>
+                                        <h2 class="text-xl line-clamp-1 font-bold dark:text-white" itemprop="headline">@item.Title</h2>
+                                    </div>
+                                    <div class="flex mt-8 flex-wrap justify-between items-center">
+                                        <div class="flex items-center" itemprop="datePublished" content="2024-03-02">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            </svg>
+                                            <time class="mr-2 dark:text-white">@item.RegisterDate</time>
+                                        </div>
+                                        <div class="flex items-center" itemprop="interactionStatistic" itemscope itemtype="https://schema.org/InteractionCounter">
+                                            <meta itemprop="interactionType" content="https://schema.org/WatchAction">
+                                            <meta itemprop="userInteractionCount" content="128">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                            </svg>
+                                            <time class="mr-2 dark:text-white">@item.NumberOfVisits بازدید</time>
+                                        </div>
+                                    </div>
+                                </section>
+                            </article>
+                        </a>
+                    </div>
+
+                }
+           
+            </div>
+            <div class="swiper-button-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                 aria-label="اسلاید بعدی"></div>
+            <div class="swiper-button-prev bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                 aria-label="اسلاید قبلی"></div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private List<ResultBlog>? ResultBlogs { get; set; } = new List<ResultBlog>();
+    protected override async Task OnInitializedAsync()
+    {
+        await GetData();
+    }
+    private async Task GetData(string? SearchText = "")
+    {
+        var (data, authorized) = await RootApiGet.RunMethodApi($"Blogs/Public/All", null, method: Method.Get);
+        ResultBlogs = data.Entities.ToList();
+
+        // StateHasChanged();
+    }
+
+}

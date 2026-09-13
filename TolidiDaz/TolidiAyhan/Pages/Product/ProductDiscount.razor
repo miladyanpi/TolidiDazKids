@@ -1,0 +1,198 @@
+﻿@using Dto.Models.DtoProduct
+@using TolidiAyhan.Services.Cart
+@inject NavigationManager NavManager
+@inject RootApi<ResponseApiEntities<ResultProduct>> RootApiGet
+@inject SweetAlertService Swal
+@inject CartService CartService
+<section class="py-5" itemscope itemtype="http://schema.org/ItemList">
+    <h2 class="sr-only" itemprop="name">محصولات شگفت انگیز</h2>
+    <div class="container">
+        <div class="bg-primary dark:bg-primary-950 bg-contain bg-[url(../images/slider/patterns.png)] p-5 rounded-lg">
+            <div class="swiper amazing-carousel">
+                <div class="swiper-wrapper items-center" style="padding-bottom: 0 !important;">
+                    <div class="swiper-slide !ml-0 !w-40 p-1">
+                        <article class="flex flex-col space-y-3 items-center justify-center">
+                            <img class="size-35" src="assets/images/slider/Amazing.svg" alt="آیکن محصولات شگفت انگیز"
+                                 loading="lazy">
+                            <a class="flex text-white items-center" href="/Shop" aria-label="مشاهده همه محصولات">
+                                مشاهده همه
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="size-4 ms-1" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                </svg>
+                            </a>
+                        </article>
+                    </div>
+                    @foreach (var item in ResultProducts)
+                    {
+                        var NewPrice = item.Discount>0? (item.Price - item.Discount):item.Price;
+                        float percent = ((float)item.Discount / (float)item.Price) * 100;
+                        percent = (float)Math.Round(percent, 2);
+                        <div class="swiper-slide !w-auto p-1">
+                            <article class="bg-white w-75 product-box-item drop-shadow-lg shadow-lg rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1"
+                                     itemscope itemtype="http://schema.org/Product">
+                                <header class="flex items-center relative justify-between">
+                                    <div class="flex flex-col bg-white absolute top-1 start-0 p-1 rounded space-y-3  dark:bg-transparent">
+                                        <button class="hover:text-gray-400 relative group cursor-pointer"
+                                                aria-label="افزودن به علاقه‌مندی‌ها">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                            </svg>
+                                            <span class="absolute text-nowrap right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                                <span class="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                                افزودن به علاقه‌مندی‌ها
+                                            </span>
+                                        </button>
+                                        <button class="hover:text-gray-400 cursor-pointer relative group"
+                                                aria-label="مشاهده جزئیات">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                            </svg>
+                                            <span class="absolute text-nowrap right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                                <span class="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                                مشاهده جزئیات
+                                            </span>
+                                        </button>
+                                        <button class="hover:text-gray-400 cursor-pointer relative group"
+                                                aria-label="مقایسه محصول">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                                            </svg>
+                                            <span class="absolute text-nowrap right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                                <span class="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                                مقایسه محصول
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="flex flex-col bg-white absolute top-1 end-0 p-1 rounded dark:bg-transparent" itemprop="offers"
+                                         itemscope itemtype="http://schema.org/Offer">
+                                        <meta itemprop="color" content="خاکستری">
+                                        <meta itemprop="color" content="زرد">
+                                        <meta itemprop="color" content="سبز">
+                                        <span class="size-4 rounded-full bg-gray-300" title="خاکستری"></span>
+                                        <span class="size-4 rounded-full bg-amber-300" title="زرد"></span>
+                                        <span class="size-4 rounded-full bg-green-300" title="سبز"></span>
+                                    </div>
+                                </header>
+                                <figure class="flex image justify-center my-4">
+                                    <a href="#" @onclick="@(() => GotoProductDetails(item.IdentityCode.ToString()))" itemprop="url">
+                                        @if(item.ResultUploadFiles.Count>0)
+                                        {
+                                            string filepath1 = ApiLink.FullPath + item.ResultUploadFiles[0].PathFileName;
+                                            <img class="one-image" src="@filepath1" loading="lazy"
+                                            alt="@item.Title" itemprop="image">
+                                        }
+                                        else
+                                        {
+                                            string filepath1 = ApiLink.FullPath + "images/No-Product-Image.png";
+                                            <img class="one-image" src="@filepath1" loading="lazy"
+                                            alt="@item.Title" itemprop="image">
+                                        }
+                                        @if (item.ResultUploadFiles.Count > 1)
+                                        {
+                                            string filepath2 = ApiLink.FullPath + item.ResultUploadFiles[1].PathFileName;
+
+                                            <img class="two-image" src="@filepath2" loading="lazy"
+                                                 alt="@item.Title" itemprop="image">
+                                        }
+                                      
+                                       
+                                    </a>
+                                </figure>
+                                <h3 class="text-base leading-8  line-clamp-2 mb-2">
+                                    <a href="/product/iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">
+                                       @item.Title
+                                    </a>
+                                </h3>
+                                <footer itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                                    <link itemprop="availability" href="http://schema.org/InStock">
+                                    <meta itemprop="priceCurrency" content="IRR">
+                                    <div class="flex items-center justify-between">
+                                        <button @onclick="@(async () => await AddToCart(item.ID))" class="bg-primary-grad text-white p-3 rounded-lg transition"
+                                                aria-label="افزودن به سبد خرید">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                            </svg>
+                                        </button>
+                                        <span class="
+                                                        text-gray text-sm font-medium
+                                                        bg-gradient-to-r from-indigo-500 to-purple-500
+                                                        px-3 py-1
+                                                        rounded-full
+                                                        shadow
+                                                        whitespace-nowrap
+                                                    ">
+                                            تعداد: @item.Count
+                                        </span>
+                                        <div class="text-gray-700 flex flex-col items-center">
+                                            <div class="flex justify-between items-center">
+                                                <del class="text-zinc-400" itemprop="priceSpecification" itemscope
+                                                     itemtype="http://schema.org/UnitPriceSpecification">
+                                                    <meta itemprop="priceCurrency" content="IRR">
+                                                    <span itemprop="price">@item.Price</span>
+                                                </del>
+                                                <span class="bg-secondary px-3 rounded-bl-none text-sm rounded-xl text-white ms-3"
+                                                      itemprop="discount">@percent%</span>
+                                            </div>
+                                            <span class="text-xl font-bold dark:text-white" itemprop="price"
+                                                  content="@NewPrice">@NewPrice.ToString("N0")<span class="text-xs">تومان</span></span>
+                                        </div>
+                                    </div>
+                                </footer>
+                            </article>
+                        </div>
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private List<ResultProduct>? ResultProducts { get; set; } = new List<ResultProduct>();
+    private int? SelectedId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await GetData();
+    }
+    private async Task GetData(string? SearchText = "")
+    {
+        var (data, authorized) = await RootApiGet.RunMethodApi($"Products/Discount", null, method: Method.Get);
+        ResultProducts = data.Entities.ToList();
+        // StateHasChanged();
+    }
+    private async Task GotoProductDetails(string UniqCode)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"UniqCode", UniqCode},
+
+
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/ProductDetails", parameter!));
+    }
+    private async Task AddToCart(int productID)
+    {
+        var Result = await CartService.AddToCart(productID);
+        _ = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "پیام",
+            Text = Result.Message,
+            Icon = Result.Status,
+            ShowConfirmButton = true,
+        });
+    }
+}

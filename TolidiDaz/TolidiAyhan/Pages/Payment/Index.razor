@@ -1,0 +1,33 @@
+﻿@page "/RedirectToBank"
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = ConstantRoles.CustomerName)]
+<form id="sepForm"
+      action="https://sep.shaparak.ir/OnlinePG/OnlinePG"
+      method="post">
+    <input type="hidden" name="Token" value="@Token" />
+    <input type="hidden" name="GetMethod" value="">
+</form>
+
+<h3>در حال انتقال به درگاه پرداخت ...</h3>
+
+<script>
+    window.submitSepForm = function () {
+        document.getElementById("sepForm").submit();
+    }
+</script>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Token { get; set; }
+
+    private bool _submitted = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_submitted)
+        {
+            _submitted = true;
+            await JS.InvokeVoidAsync("submitSepForm");
+        }
+    }
+}

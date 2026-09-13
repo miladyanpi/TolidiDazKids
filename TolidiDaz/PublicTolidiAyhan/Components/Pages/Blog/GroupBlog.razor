@@ -1,0 +1,49 @@
+﻿@using Dto.Models.DtoGroupBlog
+@inject IRootApi<ResponseApiEntities<ResultGroupBlog>> RootApiResultGroupBlog
+
+<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-colors duration-200">
+    <h3 class="font-bold dark:text-white text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">دسته‌بندی‌ها</h3>
+    <ul class="space-y-3">
+        <li>
+            <a @onclick="@(async () => await CallGetData(null))" class="flex justify-between text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                <span>همه</span>
+                <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-medium px-2.5 py-0.5 rounded-full">@ResultGroupBlogs.Sum(s => s.CountBlog).Value</span>
+            </a>
+        </li>
+        @foreach (var item in ResultGroupBlogs)
+        {
+            <li>
+                <a @onclick="@(async () => await CallGetData(item.IdentityCode.ToString()))" class="flex justify-between text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                    <span>@item.Title</span>
+                    <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-medium px-2.5 py-0.5 rounded-full">@item.CountBlog</span>
+                </a>
+            </li>
+        }
+
+    </ul>
+</div>
+
+@code {
+    List<ResultGroupBlog> ResultGroupBlogs { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<string?> GetDate { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDataGroupBlogs();
+    }
+
+    private async Task CallGetData(string? identityCode)
+    {
+        await GetDate.InvokeAsync(identityCode);
+    }
+    private async Task GetDataGroupBlogs()
+    {
+        var resdata = await RootApiResultGroupBlog.RunMethodApi($"GroupBlogs/All", null, method: Method.Get);
+        if (resdata != null)
+        {
+            ResultGroupBlogs = resdata.Entities.ToList();
+        }
+
+    }
+}

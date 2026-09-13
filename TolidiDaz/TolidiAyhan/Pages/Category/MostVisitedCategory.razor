@@ -1,0 +1,111 @@
+﻿@inject RootApi<ResponseApiEntities<ResultCategory>> RootApiGet
+@inject IJSRuntime JS
+<section class="py-5">
+    <div class="container">
+        <div class="mb-10">
+            <header class="grid place-items-center grid-cols-6 gap-y-10" itemscope
+                    itemtype="https://schema.org/CollectionPage">
+                <div class="ps-15 section-heading sm:col-span-4 w-full col-span-6 relative space-y-3">
+                    <h2 class="font-black text-2xl">
+                        <span itemprop="name" class="dark:text-white">دسته بندی</span>
+                        <span class="text-primary font-bold">فروشگاه</span>
+                    </h2>
+                    <p class="text-neutral-600 dark:text-white" itemprop="description">پربازدیدترین دسته بندی ها</p>
+                </div>
+                <div class="w-full sm:col-span-2 col-span-6">
+                    <div class="sm:text-end text-start">
+                        <a href="#"
+                           class="btn bg-transparent border-secondary border-2 hover:bg-secondary hover:text-white dark:text-white dark:border-white"
+                           title="مشاهده تمامی دسته‌بندی‌ها" itemprop="url">
+                            مشاهده همه
+                        </a>
+                    </div>
+                </div>
+                <!-- Breadcrumbs (hidden from users but still available for search engines) -->
+                <div itemprop="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList"
+                     style="display: none;">
+                    <meta itemprop="position" content="1">
+                    <span itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" href="/">
+                            <span itemprop="name">خانه</span>
+                        </a>
+                        <meta itemprop="position" content="1">
+                    </span>
+                    &gt;
+                    <span itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" href="/shop">
+                            <span itemprop="name">فروشگاه</span>
+                        </a>
+                        <meta itemprop="position" content="2">
+                    </span>
+                    &gt;
+                    <span itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" href="/shop/categories">
+                            <span itemprop="name">دسته بندی ها</span>
+                        </a>
+                        <meta itemprop="position" content="3">
+                    </span>
+                </div>
+            </header>
+        </div>
+        <div class="grid grid-cols-12 gap-4">
+            @foreach (var item in ResultCategorys)
+            {
+                <button @onclick="@(() => GoToShop(item.IdentityCode.ToString()))" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
+                    <article itemscope itemtype="https://schema.org/CategoryCode"
+                             class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
+                        <section class="space-y-2">
+                            <h3 itemprop="name" class="text-lg font-bold dark:text-white">@item.Title</h3>
+                            <span class="text-xs font-light text-neutral-500" itemprop="description">@item.Description</span>
+                        </section>
+                        <figure>
+                            @if(item.ResultUploadFiles!=null && item.ResultUploadFiles.Count>0)
+                            {
+                                var path = ApiLink.FullPath + item.ResultUploadFiles[0].PathFileName;
+                                <img src="@path" class="size-20" loading="lazy"
+                                alt="@item.Title" itemprop="image">
+                            }
+                            else
+                            {
+                                <img src="images/No-Product-Image.png" class="size-20" loading="lazy"
+                                alt="@item.Title" itemprop="image">
+                            }
+
+                        </figure>
+                    </article>
+                </button>
+
+            }
+           
+        </div>
+    </div>
+</section>
+
+@code {
+    @inject NavigationManager NavManager
+
+    private List<ResultCategory>? ResultCategorys { get; set; } = new List<ResultCategory>();
+    protected override async Task OnInitializedAsync()
+    {
+        await GetData();
+    }
+    private async Task GetData(string? SearchText = "")
+    {
+        var (data, authorized) = await RootApiGet.RunMethodApi($"Categorys/Public?ParentID={null}", null, method: Method.Get);
+        if(authorized)
+        {
+             ResultCategorys = data.Entities.ToList();
+        }
+       
+         // StateHasChanged();
+    }
+
+    private void GoToShop(string? guid)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"Code", guid},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/Shop", parameter!));
+    }
+}

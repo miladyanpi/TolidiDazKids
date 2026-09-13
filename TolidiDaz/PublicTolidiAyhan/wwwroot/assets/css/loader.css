@@ -1,0 +1,94 @@
+﻿
+#loading-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #d8eddc; /* مطابق با رنگ پس‌زمینه body شما */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* اطمینان از نمایش روی همه عناصر */
+    transition: opacity 0.5s ease-out; /* انیمیشن محو شدن */
+}
+
+.spinner {
+    border: 8px solid #f3f3f3; /* رنگ پس‌زمینه اسپینر */
+    border-top: 8px solid #3498db; /* رنگ اسپینر */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* کلاس برای مخفی کردن لودینگ */
+#loading-indicator.hidden {
+    opacity: 0;
+    pointer-events: none; /* جلوگیری از کلیک روی عناصر زیرین */
+}
+/* استایل اسپینر (مثال ساده - می‌توانید استایل خودتان را نگه دارید) */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #09f; /* رنگ دلخواه */
+    animation: spin 1s linear infinite;
+    margin-top: 15px; /* فاصله کمی از متن بالا */
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* استایل اصلی نشانگر بارگذاری */
+#loading-indicator {
+    position: fixed; /* یا absolute، بسته به صفحه شما */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9); /* پس‌زمینه کمی شفاف‌تر */
+    display: flex; /* فعال کردن Flexbox */
+    flex-direction: column; /* چیدمان عمودی عناصر */
+    justify-content: center; /* مرکز کردن عمودی محتوا */
+    align-items: center; /* مرکز کردن افقی محتوا */
+    z-index: 9999; /* اطمینان از نمایش روی همه عناصر */
+    text-align: center; /* برای اطمینان از مرکز بودن متن */
+}
+
+    #loading-indicator h3 {
+        font-size: 1.8em; /* اندازه فونت بزرگتر برای خوش آمد گویی */
+        color: #333; /* رنگ متن تیره */
+        margin-bottom: 10px; /* فاصله کمی از اسپینر */
+        /* اگر می‌خواهید متن هم کاملاً وسط باشد (و چند خطی شد) */
+        /* max-width: 80%; */ /* برای شکستن متن در چند خط در صورت نیاز */
+    }
+
+/* اگر شمارنده دارید، استایل آن را هم اینجا تنظیم کنید */
+/*
+#countdown-timer {
+    font-size: 2em;
+    font-weight: bold;
+    margin-top: 15px;
+    color: #333;
+}
+*/
+

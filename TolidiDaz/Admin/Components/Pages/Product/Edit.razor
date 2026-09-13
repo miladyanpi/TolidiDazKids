@@ -1,0 +1,429 @@
+﻿@page "/UpdateProduct"
+@using Admin.Services.Category
+@using Dto.Models.DtoCategory
+@using Dto.Models.DtoProduct
+@using Dto.Models.DtoProductFeature
+@using Dto.Models.DtoUploadFile
+@using System.Net.Http.Headers
+@using Newtonsoft.Json
+
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">ویرایش مشخصات محصول</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات مشخصات محصول را ویرایش نمایید</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Add category form -->
+    <EditForm Model="updateProduct" OnValidSubmit="Update" FormName="AddForm">
+        <DataAnnotationsValidator />
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left column - Product info -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Basic info card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">اطلاعات پایه محصول</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div>
+
+                            <CustomLabel ForId="ProductFeature-category1" For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
+                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( ()=>  _CategoryService.GetCategoryParent1(_CategoryService.addCategory.ParentID1))" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _CategoryService.ResultCategorys1)
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+
+                        </div>
+                        <div>
+
+                            <CustomLabel ForId="ProductFeature-category2" For="@(() => _CategoryService.addCategory.ParentID2)"></CustomLabel>
+                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID2" @bind-Value:after="@( ()=> _CategoryService.GetCategoryParent2(_CategoryService.addCategory.ParentID2))" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _CategoryService.ResultCategorys2)
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div>
+
+                            <CustomLabel ForId="ProductFeature-category3" For="@(() => _CategoryService.CategoryID)"></CustomLabel>
+                            <InputSelect @bind-Value="_CategoryService.CategoryID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _CategoryService.ResultCategorys3)
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <CustomLabel ForId="product-name" For="@(() => updateProduct.Title)"></CustomLabel>
+                            <ValidationMessage For="@(() => updateProduct.Title)" class="validate" />
+                            <InputText id="product-name" @bind-Value="updateProduct.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div>
+                            <CustomLabel ForId="product-brand" For="@(() => updateProduct.Brand)"></CustomLabel>
+                            <ValidationMessage For="@(() => updateProduct.Brand)" class="validate" />
+                            <InputText id="product-brand" @bind-Value="updateProduct.Brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <CustomLabel ForId="Blog-description" For="@(() => updateProduct.ShortDescription)"></CustomLabel>
+                        <TextEditor @bind-Value="updateProduct.ShortDescription" />
+                    </div>
+
+                    <div class="row">
+                        <CustomLabel ForId="Blog-description" For="@(() => updateProduct.Description)"></CustomLabel>
+                        <TextEditor @bind-Value="updateProduct.Description" />
+                    </div>
+                </div>
+
+                <!-- Pricing card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">قیمت‌گذاری و موجودی</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <CustomLabel ForId="product-price" For="@(() => updateProduct.Price)"></CustomLabel>(تومان)
+                            <ValidationMessage For="@(() => updateProduct.Price)" class="validate" />
+                            <InputNumber id="product-price" @bind-Value="updateProduct.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div>
+                            <CustomLabel ForId="product-discount" For="@(() => updateProduct.Discount)"></CustomLabel>(تومان)
+                            <ValidationMessage For="@(() => updateProduct.Discount)" class="validate" />
+                            <InputNumber id="product-discount" @bind-Value="updateProduct.Discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div>
+                            <CustomLabel ForId="product-stock" For="@(() => updateProduct.Count)"></CustomLabel>
+                            <ValidationMessage For="@(() => updateProduct.Count)" class="validate" />
+                            <InputNumber id="product-stock" @bind-Value="updateProduct.Count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div>
+                            <CustomLabel ForId="product-sku" For="@(() => updateProduct.SkuCode)"></CustomLabel>
+                            <ValidationMessage For="@(() => updateProduct.SkuCode)" class="validate" />
+                            <InputText id="product-sku" @bind-Value="updateProduct.SkuCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div class="mb-4">
+                            <CustomLabel For="@(() => updateProduct.Visible)"></CustomLabel>
+                            <InputRadioGroup @bind-Value="updateProduct.ProductExistStatus" Name="stock-status">
+                                <div class="flex flex-row items-center space-x-6">
+
+                                    <div class="flex items-center">
+                                        <InputRadio o Value="@Dto.Enum.EnumConstant.ProductExistStatus.Existent"
+                                                    id="in-stock"
+                                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                        <label for="in-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">موجود</label>
+                                    </div>
+
+                                    <div class="flex items-center">
+                                        <InputRadio Value="@Dto.Enum.EnumConstant.ProductExistStatus.Nonexistent"
+                                                    id="out-of-stock"
+                                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                        <label for="out-of-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">ناموجود</label>
+                                    </div>
+
+                                </div>
+                            </InputRadioGroup>
+
+                            <ValidationMessage For="@(() => updateProduct.ProductExistStatus)" class="validate" />
+                        </div>
+
+                        <div class="mb-4">
+                            <CustomLabel ForId="Visible-stock" For="@(() => updateProduct.Visible)"></CustomLabel>
+                            <InputRadioGroup @bind-Value="updateProduct.Visible" Name="status">
+                                <InsertUpdateVisible />
+                            </InputRadioGroup>
+                            <ValidationMessage For="@(() => updateProduct.Visible)" class="validate" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                        ذخیره دسته‌بندی
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right column - Publish and attributes -->
+            <div class="space-y-6">
+                <!-- Publish card -->
+                @*   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">انتشار</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">وضعیت انتشار</label>
+                            <select class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option>منتشر شده</option>
+                                <option>پیش‌نویس</option>
+                                <option>در انتظار بررسی</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="publish-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">تاریخ انتشار</label>
+                            <input type="datetime-local" id="publish-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+
+                        <div class="pt-4">
+                            <button class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                ذخیره و انتشار محصول
+                            </button>
+                        </div>
+                    </div>
+                </div>
+ *@
+                <!-- Attributes card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">ویژگی‌های محصول</h3>
+                    <div class="space-y-4">
+                        @if (UpdateProductFeatureValues.Count > 0)
+                        {
+                            int i = -1;
+                            @foreach (var item in UpdateProductFeatureValues)
+                            {
+                                i++;
+                                int k = i;
+                                <div>
+                                    <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@UpdateProductFeatureValues[k].ResultProductFeature.Title</label>
+                                    <ValidationMessage For="@(() => UpdateProductFeatureValues[k].Value)" class="validate" />
+                                    <InputText id="product-sku" @bind-Value="UpdateProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                </div>
+                                @*  <div>
+                                <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@item.ResultProductFeature.Title</label>
+                                <input type="number" id="product-weight" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="@item.ResultProductFeature.Title">
+                            </div> *@
+                            }
+
+
+                        }
+                        @if (AddProductFeatureValues.Count > 0)
+                        {
+                            int i = -1;
+                            @foreach (var item in AddProductFeatureValues)
+                            {
+                                i++;
+                                int k = i;
+                                <div>
+                                    <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@AddProductFeatureValues[k].ResultProductFeature.Title</label>
+
+                                    <ValidationMessage For="@(() => AddProductFeatureValues[k].Value)" class="validate" />
+                                    <InputText id="product-sku" @bind-Value="AddProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                </div>
+                                @*  <div>
+                                <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@item.ResultProductFeature.Title</label>
+                                <input type="number" id="product-weight" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="@item.ResultProductFeature.Title">
+                            </div> *@
+                            }
+
+
+                        }
+                    </div>
+
+                </div>
+
+                <!-- Shipping card -->
+                @*       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">حمل و نقل</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">نحوه ارسال</label>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <input id="shipping-standard" name="shipping-method" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                                    <label for="shipping-standard" class="mr-2 block text-sm text-gray-900 dark:text-gray-300">ارسال عادی</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="shipping-express" name="shipping-method" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                                    <label for="shipping-express" class="mr-2 block text-sm text-gray-900 dark:text-gray-300">ارسال سریع</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="shipping-free" name="shipping-method" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                                    <label for="shipping-free" class="mr-2 block text-sm text-gray-900 dark:text-gray-300">ارسال رایگان</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="shipping-cost" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">هزینه ارسال (تومان)</label>
+                            <input type="number" id="shipping-cost" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="هزینه ارسال">
+                        </div>
+                    </div>
+                </div> *@
+            </div>
+        </div>
+    </EditForm>
+</main>
+@code {
+    @inject CategoryService _CategoryService
+    @inject SweetAlertService Swal
+    @inject NavigationManager NavManager
+    @inject IToastMessage JS
+    @inject IRootApi<ResponseApiEntity<UpdateProduct>> RootApiUpdateProduct
+    @inject IRootApi<ResponseApiEntity<UpdateCategory>> RootApiUpdateCategory
+    @inject IRootApi<ResponseApiEntities<ResultProduct>> RootApiResultProducts
+    @inject IRootApi<ResponseApiEntities<ResultProductFeature>> RootApiResultProductFeature
+    @inject IRootApi<ResponseApiEntities<AddProductFeatureValue>> RootApiAddProductFeatureValue
+    @inject IRootApi<ResponseApiEntities<UpdateProductFeatureValue>> RootApiUpdateProductFeatureValue
+    @inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+    @inject IRootApi<ResponseApiEntities<ResultCategory>> RootApiResultCategorys
+    private AddCategory? addCategory { get; set; } = new() { Visible = true };
+    private UpdateProduct? updateProduct { get; set; } = new() { Visible = true, ProductExistStatus = Dto.Enum.EnumConstant.ProductExistStatus.Existent };
+    public List<ResultUploadFile> ResultUploadImages { get; set; } = new List<ResultUploadFile>();
+    public List<AddProductFeatureValue> AddProductFeatureValues { get; set; } = new List<AddProductFeatureValue>();
+    public List<UpdateProductFeatureValue> UpdateProductFeatureValues { get; set; } = new List<UpdateProductFeatureValue>();
+
+    [SupplyParameterFromQuery]
+    public int ID { get; set; }
+   
+    protected async override Task OnInitializedAsync()
+    {
+        await _CategoryService.GetInitialData();
+        await GetData();
+
+    }
+    private async Task Update()
+    {
+        updateProduct.CategoryID = _CategoryService.CategoryID;
+        if (updateProduct.CategoryID == null)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "دسته بندی سطح 3 را انتخاب کنید",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        if (updateProduct.Discount > updateProduct.Price)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "تخفیف نمیتونه بیشتر از قیمت اصلی باشه",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        if (updateProduct.Price == 0)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "قیمت اصلی نمیتونه صفر باشه",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+
+        }
+        if (updateProduct.Count <= 0)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "تعداد نمیتونه صفر باشه",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+
+        }
+        var resdata = await RootApiUpdateProduct.RunMethodApi("Products", updateProduct, method: Method.Patch);
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+            if (AddProductFeatureValues.Count > 0)
+            {
+                var resdataProductFeatureValues = await RootApiAddProductFeatureValue.RunMethodApi("ProductFeatureValues/List", AddProductFeatureValues, method: Method.Post);
+                AddProductFeatureValues.Clear();
+            }
+            if (UpdateProductFeatureValues.Count > 0)
+            {
+                var resdataProductFeatureValues = await RootApiUpdateProductFeatureValue.RunMethodApi("ProductFeatureValues/List", UpdateProductFeatureValues, method: Method.Patch);
+
+            }
+            await JS.CallAlertToast(resdata.Message);
+            
+            await GetData();
+
+        }
+        else
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdata.Message,
+                Icon = resdata.Status,
+                ShowConfirmButton = true,
+            });
+        }
+    }
+    public async Task GetData()
+    {
+        var resdataEdit = await RootApiUpdateProduct.RunMethodApi($"Products/{ID}", null, method: Method.Get);
+        updateProduct = resdataEdit.Entity;
+
+        var resdataProductFeatureValue = await RootApiUpdateProductFeatureValue.RunMethodApi($"ProductFeatureValues/All/{updateProduct.ID}", null, method: Method.Get);
+        UpdateProductFeatureValues = resdataProductFeatureValue.Entities.ToList();
+        var resdataProductFeature = await RootApiResultProductFeature.RunMethodApi($"ProductFeatures/All/{updateProduct.CategoryID}", null, method: Method.Get);
+        var ResultProductFeatures = resdataProductFeature.Entities.ToList();
+        if (UpdateProductFeatureValues.Count == 0)
+        {
+            foreach (var item in ResultProductFeatures)
+            {
+                AddProductFeatureValues.Add(new AddProductFeatureValue
+                {
+                    ResultProductFeature = item,
+                    Value = null,
+                    ProductID = updateProduct.ID,
+                    ProductFeatureID = item.ID,
+                });
+            }
+        }
+        else if (UpdateProductFeatureValues.Count != ResultProductFeatures.Count)
+        {
+            foreach (var item in ResultProductFeatures)
+            {
+                if (UpdateProductFeatureValues.Where(s => s.ProductFeatureID == item.ID).FirstOrDefault() == null)
+                {
+                    AddProductFeatureValues.Add(new AddProductFeatureValue
+                    {
+                        ResultProductFeature = item,
+                        Value = null,
+                        ProductID = updateProduct.ID,
+                        ProductFeatureID = item.ID,
+                    });
+                }
+
+            }
+        }
+
+
+    }
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/Product");
+    }
+}
+

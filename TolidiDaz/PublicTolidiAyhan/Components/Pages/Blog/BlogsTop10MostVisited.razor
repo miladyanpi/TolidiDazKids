@@ -1,0 +1,53 @@
+﻿@using Dto.Models.DtoBlog
+@using Dto.Models.DtoGroupBlog
+@using Newtonsoft.Json
+@using Dto.Models.DtoUploadFile
+@inject IRootApi<ResponseApiEntities<ResultBlog>> RootApiResultBlog
+@inject NavigationManager NavManager
+<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-colors duration-200">
+    <h3 class="font-bold dark:text-white text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">مقالات پرطرفدار</h3>
+    <div class="space-y-4">
+        @foreach (var item in ResultBlogsTop10MostVisited)
+        {
+            var ResultUploadFile = item.JsonPicture != null ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(item.JsonPicture) : new List<ResultUploadFile>();
+            var filepath = ResultUploadFile.Count > 0 ? ApiLink.FullPath + ResultUploadFile[0].PathFileName : ApiLink.FullPath + "images/No-Blog-Image.png"; ;
+
+            <a @onclick="@(async () => await GoToBlogDetails(item.IdentityCode.ToString()))" class="flex items-start space-x-3 group">
+                <img src="@filepath" alt="@item.Title" class="w-16 h-16 object-cover rounded-lg">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400">@item.Title</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">@item.RegisterDate</span>
+                </div>
+            </a>
+        }
+    </div>
+</div>
+
+@code {
+    List<ResultBlog> ResultBlogsTop10MostVisited { get; set; } = new();
+    [Parameter]
+    public EventCallback<string?> GetDate { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await GetBlogsTop10MostVisited();
+    }
+   
+    private async Task GetBlogsTop10MostVisited()
+    {
+        var resdata = await RootApiResultBlog.RunMethodApi($"Blogs/MostVisitedBlog", null, method: Method.Get);
+        if (resdata != null && resdata.Status == ResultMessageApi.Success)
+        {
+            ResultBlogsTop10MostVisited = resdata.Entities.ToList();
+        }
+    }
+    private async Task GoToBlogDetails(string identityCode)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"Code", identityCode},
+        };
+        await GetDate.InvokeAsync(identityCode);
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/BlogDetails", parameter!));
+
+    }
+}

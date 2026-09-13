@@ -1,0 +1,99 @@
+﻿@page "/About"
+@using Admin.Services.About
+@inject AboutService _AboutService
+<AccessAdminRoles />
+<!--Page content-->
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!--Page header-->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">درباره ما</h2>
+            <p class="text-gray-600 dark:text-gray-400">مدیریت درباره ما</p>
+        </div>
+    </div>
+
+    <!--General Abouts-->
+    @if (_AboutService.ResultAbouts.Count == 0)
+    {
+        <EditForm Model="_AboutService.addAbout" OnValidSubmit="_AboutService.AddAsync" FormName="AddForm">
+            <DataAnnotationsValidator />
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold mb-6">درباره ما</h3>
+                    <div>
+                    <CustomLabel For="@(() => _AboutService.addAbout.ShortDescription)"></CustomLabel>
+                    <ValidationMessage For="@(() => _AboutService.addAbout.ShortDescription)" class="validate" />
+                    <InputTextArea rows="10" @bind-Value="_AboutService.addAbout.ShortDescription" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+             
+                    <div >
+                    <CustomLabel For="@(() => _AboutService.addAbout.LongDescription)"></CustomLabel>
+                    <ValidationMessage For="@(() => _AboutService.addAbout.LongDescription)" class="validate" />
+                    <TextEditor @bind-Value="_AboutService.addAbout.LongDescription" />
+
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500">ذخیره</button>
+                    </div>
+               
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        <EditForm Model="_AboutService.updateAbout" OnValidSubmit="_AboutService.UpdateAsync" FormName="AddForm">
+            <DataAnnotationsValidator />
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 p-6 border border-gray-200 dark:border-gray-700">
+                <Files guid="_AboutService.Guid" />
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold mb-6">درباره ما</h3>
+                    <div>
+                    <CustomLabel For="@(() => _AboutService.updateAbout.ShortDescription)"></CustomLabel>
+                    <ValidationMessage For="@(() => _AboutService.updateAbout.ShortDescription)" class="validate" />
+                    <InputTextArea rows="10" @bind-Value="_AboutService.updateAbout.ShortDescription" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+            
+                <div >
+                    <CustomLabel For="@(() => _AboutService.updateAbout.LongDescription)"></CustomLabel>
+                    <ValidationMessage For="@(() => _AboutService.updateAbout.LongDescription)" class="validate" />
+                    <InputTextArea rows="10" @bind-Value="_AboutService.updateAbout.LongDescription" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-0" />
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500">ذخیره تغییرات</button>
+                </div>
+               
+            </div>
+        </EditForm>
+    }
+
+
+</main>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        _AboutService.OnChange += HandleStateChange;
+        await _AboutService.GetDataAsync();
+    }
+    private async void HandleStateChange()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+    public void Dispose()
+    {
+        _AboutService.OnChange -= HandleStateChange;
+    }
+    private async Task CallBackPagingAsync(decimal page)
+    {
+        _AboutService.pagingModel.Page = page;
+        await _AboutService.GetDataAsync();
+    }
+    private void Edit(Guid? GUID)
+    {
+        NavManager.NavigateTo($"/UpdateAbout/{GUID}");
+    }
+    private void ListFiles(Guid? GUID)
+    {
+        NavManager.NavigateTo($"/AboutFiles/{GUID}");
+    }
+}

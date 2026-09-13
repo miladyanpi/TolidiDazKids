@@ -1,0 +1,196 @@
+﻿@page "/Factor"
+@layout FactorLayout
+@using Dto.Models.DtoOrder
+@using Dto.Models.DtoOrderItem
+@using Utility
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+<div class="flex h-screen overflow-hidden max-w-[1920px] mx-auto">
+    <!-- main content -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+        <!-- page content -->
+        <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+
+            <div class="max-w-4xl mx-auto">
+                <!-- Buttons -->
+                <div class="mb-6 flex justify-end gap-3 no-print">
+                    <button onclick="window.print()" class="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm">
+                        چاپ فاکتور
+                    </button>
+                   @*  <button class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        دانلود PDF
+                    </button> *@
+                </div>
+
+                <!--Invoice body-->
+                <div class="invoice-box bg-white rounded-xl shadow-md p-8 border border-gray-200 print:shadow-none print:border-none print:max-w-[794px] print:mx-auto print:w-full print:text-black">
+
+                    <!-- heather -->
+                    <div class="flex flex-row justify-between items-center  gap-4 mb-8 border-b pb-6">
+                        <!--right side-->
+                        <div class="text-start">
+                            <h2 class="text-2xl print:text-xl font-bold text-yellow-600">تولیدی پوشاک آیهان</h2>
+                            <p class="text-sm text-gray-600">
+                                آدرس: گلستان-آق قلا-محله محمدآلق- خیابان بابا آل هوز 2-تولیدی پوشاک آیهان<br>
+                                کد پستی: 4931797355<br>
+                                شماره تماس: 01734526169<br>
+                            </p>
+                        </div>
+
+                        <!--left side-->
+                        <div class="text-left">
+                            <h1 class="text-3xl print:text-xl font-bold mb-2">فاکتور فروش</h1>
+                            <div class="text-sm space-y-1 text-gray-600">
+                                <p>شماره فاکتور: #Ayhan-@resultOrder.OrderCode</p>
+                                <p>تاریخ صدور: @resultOrder.RegisterDate</p>
+                                <p>زمان: @resultOrder.RegisterTime</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!--Customer and vendor information-->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-gray-600">
+                        <div>
+                            <h3 class="text-sm font-medium mb-2">فروشنده:</h3>
+                            <p>
+                                فروشگاه الکترونیک تولیدی آیهان<br>
+                                حساب بانکی: 0119050261000<br>
+                                شبای بانکی: IR130190000000119050261000<br>
+                                بانک صادرات
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium mb-2">مشتری:</h3>
+                            <p>
+                                @resultOrder.ResultCustomer.Name @resultOrder.ResultCustomer.LastName<br>
+                                آدرس:@resultOrder.ResultCustomerAddress.Address<br>
+                                واحد: @resultOrder.ResultCustomerAddress.BuildingUnit<br>
+                                پلاک: @resultOrder.ResultCustomerAddress.Plaque<br>
+                                کد پستی: @resultOrder.ResultCustomerAddress.PostalCode<br>
+                                شماره تماس: @resultOrder.ResultCustomer.Mobile<br>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!--Table of products-->
+                    <div class="mb-8 overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-right py-3 px-4 font-medium">
+                                        <CustomLabel For="@(() => resultOrderItem.ResultProduct.Title)"></CustomLabel>
+
+                                    </th>
+                                    <th class="text-center py-3 px-4 font-medium">
+                                        <CustomLabel For="@(() => resultOrderItem.PriceAtOrder)"></CustomLabel>
+                                    </th>
+                                    <th class="text-center py-3 px-4 font-medium">
+                                        <CustomLabel For="@(() => resultOrderItem.Quantity)"></CustomLabel>
+                                    </th>
+                                    <th class="text-left py-3 px-4 font-medium">
+                                        <CustomLabel For="@(() => resultOrderItem.FinalAmount)"></CustomLabel>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in resultOrderItems)
+                                {
+                                    var ResultUploadImages = !string.IsNullOrEmpty(@item.ResultProduct.JsonPicture) ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(@item.ResultProduct.JsonPicture) : new List<ResultUploadFile>();
+
+                                    <tr class="border-t">
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                @if (ResultUploadImages.Count > 0)
+                                                {
+                                                    var path = @ApiLink.FullPath + @ResultUploadImages[0].PathFileName;
+                                                    <img src="@path" class="w-12 h-12 rounded-lg object-cover ml-3">
+                                                }
+                                                <div>
+                                                    <p class="font-medium">@item.ResultProduct.Title</p>
+                                                    <p class="text-xs text-gray-500">کد:@item.ResultProduct.SkuCode</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-center">@item.PriceAtOrder.ToString("N0") تومان</td>
+                                        <td class="py-3 px-4 text-center">@item.Quantity</td>
+                                        <td class="py-3 px-4 text-left">@item.FinalAmount.ToString("N0") تومان</td>
+                                    </tr>
+                                }
+                               
+                                
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!--Financial calculations-->
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">جمع کل:</span>
+                                <span class="font-medium">@resultOrder.TotalAmount.ToString("N0") تومان</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">تخفیف:</span>
+                                <span class="text-red-600">-@resultOrder.Discount.ToString("N0") تومان</span>
+                            </div>
+@*                             <div class="flex justify-between">
+                                <span class="text-gray-600">مالیات:</span>
+                                <span class="font-medium">۱۸۷,۵۰۰ تومان</span>
+                            </div> *@
+                            <div class="flex justify-between border-t pt-3">
+                                <span class="font-bold">مبلغ قابل پرداخت:</span>
+                                <span class="font-bold text-blue-600">@resultOrder.FinalAmount.ToString("N0") تومان</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--Final explanation-->
+                    <div class="mt-8 pt-6 border-t text-xs text-gray-500 text-center">
+                        <p>مبلغ به حروف: @LetterPrice تومان</p>
+                        <p class="mt-2">مهلت پرداخت: ۷۲ ساعت • شرایط بازگشت کالا مطابق قوانین فروشگاه</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+@code {
+    private PagingModel pagingModel { get; set; } = new();
+    @inject IRootApi<ResponseApiEntity<ResultOrder>> RootApiGet
+    @inject IRootApi<ResponseApiEntities<ResultOrderItem>> RootApiGetResultOrderItem
+
+    public ResultOrder? resultOrder { get; set; } = new();
+    public List<ResultOrderItem>? resultOrderItems { get; set; } = new();
+    public ResultOrderItem? resultOrderItem { get; set; } = new();
+    [SupplyParameterFromQuery]
+    public int? ID { get; set; }
+    public string? LetterPrice { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        pagingModel.Page = 1;
+        pagingModel.Take = BaseCode.GetCountShowRecord();
+
+        var resdata = await RootApiGet.RunMethodApi($"Orders/Result/{ID}", null, method: Method.Get);
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+            resultOrder = resdata.Entity;
+            LetterPrice = DigitToLetter.ConvertNumberToPersianWords(resultOrder.FinalAmount);
+        }
+        await GetData();
+
+    }
+    private async Task GetData(string? SearchText = "")
+    {
+        var Search = BaseCode.GetSearchText(SearchText);
+        var resdata = await RootApiGetResultOrderItem.RunMethodApi($"OrderItems?Page={pagingModel.Page}&Take={pagingModel.Take}{Search}&OrderID={ID}", null, method: Method.Get);
+        decimal Count = resdata.CountAllRecordTable;
+        resultOrderItems = resdata.Entities.ToList();
+        pagingModel.CountPage = Math.Ceiling(Count / pagingModel.Take);
+        pagingModel.CountPagePer10 = Math.Ceiling(pagingModel.CountPage / 10);
+    }
+   
+}
+
+

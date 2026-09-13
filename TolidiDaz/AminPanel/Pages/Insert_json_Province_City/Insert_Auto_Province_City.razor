@@ -1,0 +1,43 @@
+﻿@* @page "/Insert_Province_City"
+@using Dto.Models.DtoCity
+@using Dto.Models.DtoProvince
+
+<h1>@Message</h1>
+<button @onclick="() => sendData()">load</button>
+@code {
+    string json = string.Empty;
+    List<ProvinceModel> provinces = new();
+    private AddProvince? addProvince { get; set; } = new() { Visible = true };
+    private AddCity? addCity { get; set; } = new() { Visible = true };
+    @inject IRootApi<ResponseApiEntity<AddProvince>> RootApiAddProvince
+
+    @inject IRootApi<ResponseApiEntity<AddCity>> RootApiAddCity
+    string Message = "Saving data in database!";
+    public class ProvinceModel
+    {
+        public string Province { get; set; }
+        public List<string> Cities { get; set; }
+    }
+
+    private async Task sendData()
+    {
+        json = File.ReadAllText(@"D:\Drives\E\Project\Developping\TolidiAyhan\TolidiAyhan3-GitHub\TolidiAyhan\AminPanel\Pages\Product\provinces.json");
+        provinces = JsonConvert.DeserializeObject<List<ProvinceModel>>(json);
+        foreach (var item in provinces)
+        {
+            addProvince.Title = item.Province;
+            var resdataProvince = await RootApiAddProvince.RunMethodApi("Provinces", addProvince, method: Method.Post);
+            foreach (var city in item.Cities)
+            {
+                addCity.Title = city;
+                addCity.ProvinceID = resdataProvince.ID;
+                var resdataCitys = await RootApiAddCity.RunMethodApi("Citys", addCity, method: Method.Post);
+            }
+
+        }
+        Message = "Finish Save!";
+
+    }
+
+}
+ *@

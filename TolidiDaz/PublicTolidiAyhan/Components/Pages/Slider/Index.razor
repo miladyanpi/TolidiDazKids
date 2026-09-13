@@ -1,0 +1,42 @@
+﻿@using Dto.Models.DtoSlider
+@using Dto.Models.DtoUploadFile
+@using Newtonsoft.Json
+
+<section class="py-5">
+    <h2 class="sr-only">اسلایدر فروشگاه</h2>
+    <!-- for seo -->
+    <div class="w-full overflow-hidden">
+        <div class="swiper max-w-[1920px] mx-auto !relative default-carousel swiper-container"
+             aria-label="اسلایدر فروشگاه">
+            <div class="swiper-wrapper" style="padding-bottom: 0 !important;">
+                @foreach (var item in ResultSliders)
+                {
+                    var ResultUploadFile = item.JsonPicture != null ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(item.JsonPicture) : new List<ResultUploadFile>();
+                    var filepath = ResultUploadFile.Count > 0 ? ApiLink.FullPath + ResultUploadFile[0].PathFileName : ApiLink.FullPath + "images/No-Product-Image.png"; ;
+                    <div class="swiper-slide max-w-[1920px]" role="group" aria-roledescription="slide">
+                        <a href="#" aria-label="@item.Title">
+                            <div class="h-90 flex justify-center items-center">
+                                <img src="@filepath" class="h-full w-full object-cover rounded-lg"
+                                     loading="lazy"
+                                     alt="@item.Title">
+                            </div>
+                        </a>
+                    </div>
+                }
+               
+          
+            </div>
+            <div class="swiper-button-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                 aria-label="اسلاید بعدی"></div>
+            <div class="swiper-button-prev bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                 aria-label="اسلاید قبلی"></div>
+            <div class="swiper-pagination !z-30 !bottom-0" aria-label="صفحه بندی اسلایدر"></div>
+            <div class="slider-pagination-bg absolute w-40 h-10 -translate-x-1/2 -mb-3 pt-1 left-1/2 bottom-0 z-10"></div>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public List<ResultSlider>? ResultSliders { get; set; } = new List<ResultSlider>();
+}

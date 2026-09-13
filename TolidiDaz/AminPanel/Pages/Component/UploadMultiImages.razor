@@ -1,0 +1,95 @@
+﻿@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+@using System.Net.Http.Headers
+<label>آپلود تصاویر</label>
+
+<div class="form-group ">
+    <label>انتخاب فایل</label>
+    <InputFile type="file" OnChange="UploadFile" multiple accept=".jpg,.jpeg,.png" />
+</div>
+<hr />
+@code {
+
+    public ResultUploadFile resultUploadFile { get; set; } = new();
+    public List<ResultUploadFile> ResultUploadFiles { get; set; } = new List<ResultUploadFile>();
+    [Parameter]
+    public EventCallback<List<ResultUploadFile>> OnChangeUpload { get; set; }
+
+    [Parameter]
+    public int ID { get; set; }
+
+    private long maxFileSize = 1024 * 1024 * 1024;
+
+    public async Task UploadFile(InputFileChangeEventArgs e)
+    {
+       
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            if (file != null)
+            {
+                var fileContent =
+                           new StreamContent(file.OpenReadStream(maxFileSize));
+
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                content.Add(fileContent, file.ContentType, file.Name);
+                var resdata = await RootApiResultUploadFile.UploadImage($"Upload", content, method: Method.Post);
+                var data = resdata.Entities.First();
+                ResultUploadFiles.Add(data);
+
+            }
+        }
+        await OnChangeUpload.InvokeAsync(ResultUploadFiles);
+
+        ResultUploadFiles.Clear();
+
+    }
+}
+
+
+
+
+
+
+
+@* @inject ILocalStorageService localStorageService
+
+<input type="file" @ref="_input"  multiple accept=".jpg, .jpeg, .png" />
+
+
+@code {
+    private ElementReference _input;
+    public List<ResultUploadFile> ResultUploadImages { get; set; } = new List<ResultUploadFile>();
+    [Parameter]
+    public EventCallback<List<ResultUploadFile>> OnChange { get; set; }
+    [Inject]
+    public IFileReaderService FileReaderService { get; set; }
+    [Parameter]
+    public int ID { get; set; }
+
+    public async Task<List<ResultUploadFile>> UploadFile()
+    {
+
+        var files = await FileReaderService.CreateReference(_input).EnumerateFilesAsync();
+        foreach (var file in files)
+        {
+            if (file != null)
+            {
+                var fileInfo = await file.ReadFileInfoAsync();
+
+                using (var ms = await file.CreateMemoryStreamAsync())
+                {
+                    var content = new MultipartFormDataContent();
+                    content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                    content.Add(new StreamContent(ms, Convert.ToInt32(ms.Length)), fileInfo.Type, fileInfo.Name);
+                    var resdata = await new RootApi<ResponseApiEntities<ResultUploadFile>>(localStorageService).UploadImage($"Upload", content, method: Method.Post);
+                    ResultUploadImages.Add(resdata.Entities.First());
+                }
+            }
+        }
+        return ResultUploadImages;
+        await OnChange.InvokeAsync(ResultUploadImages);
+
+    }
+}
+ *@

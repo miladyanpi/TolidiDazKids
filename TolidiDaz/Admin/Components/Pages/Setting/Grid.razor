@@ -1,0 +1,532 @@
+﻿@page "/Setting"
+@using Dto.Models.DtoSetting
+@using Dto.Models.DtoUploadFile
+@using Microsoft.AspNetCore.Components.Authorization
+@inject SweetAlertService Swal
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService localStorageService
+@inject NavigationManager NavManager
+@inject IRootApi<ResponseApiEntity<AddSetting>> RootApiAddSetting
+@inject IToastMessage JS
+@inject SweetAlertService Swal
+@inject IRootApi<ResponseApiEntities<ResultSetting>> RootApiResultSettings
+@inject IRootApi<ResponseApiEntity<ResultSetting>> RootApiResultSetting
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFiles
+@inject IRootApi<ResponseApiEntity<UpdateSetting>> RootApiUpdateSetting
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+<!--Page content-->
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!--Page header-->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">تنظیمات سیستم</h2>
+            <p class="text-gray-600 dark:text-gray-400">مدیریت تنظیمات کلی سیستم فروشگاه</p>
+        </div>
+    </div>
+
+    <!--General settings-->
+    @if (ResultSettings.Count == 0)
+    {
+        <EditForm Model="addSetting" OnValidSubmit="Add" FormName="AddForm">
+            <DataAnnotationsValidator />
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold mb-6">تنظیمات عمومی</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <CustomLabel For="@(() => addSetting.Name)"></CustomLabel>
+                        <ValidationMessage For="@(() => addSetting.Name)" class="validate" />
+                        <InputText @bind-Value="addSetting.Name" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => addSetting.Email)"></CustomLabel>
+                        <ValidationMessage For="@(() => addSetting.Email)" class="validate" />
+                        <InputText @bind-Value="addSetting.Email" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => addSetting.CountShowRecord)"></CustomLabel>
+                        <ValidationMessage For="@(() => addSetting.CountShowRecord)" class="validate" />
+                        <InputNumber @bind-Value="addSetting.CountShowRecord" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <CustomLabel For="@(() => addSetting.Address)"></CustomLabel>
+                        <ValidationMessage For="@(() => addSetting.Address)" class="validate" />
+                        <InputTextArea @bind-Value="addSetting.Address" class=" w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" rows="3" />
+                    </div>
+                    <hr />
+                    <hr />
+                </div>
+                <h3 class="text-lg font-semibold mb-6">شماره تماس ها</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <div class="md:col-span-2">
+                        <table class="w-full text-right border border-1">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => addTel.Tel)"></CustomLabel></th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                                <!-- User 1 -->
+                                @{
+                                    decimal i = 0;
+
+                                }
+                                @foreach (var item in ResultTels)
+                                {
+                                    i++;
+                                    decimal k = i;
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Tel</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button title="حذف" @onclick="@(async () => await DeleteTel(item))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                }
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@(ResultTels.Count + 1)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        <div>
+                                            <ValidationMessage For="@(() => addTel.Tel)" class="validate" />
+                                            <InputText @bind-Value="addTel.Tel" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button @onclick="@(() => AddTel())" type="button" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                                            ثبت
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr />
+                    <hr />
+                </div>
+                <h3 class="text-lg font-semibold mb-6">شماره موبایل ها</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <div class="md:col-span-2">
+                        <table class="w-full text-right border border-1">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => addMobile.Mobile)"></CustomLabel></th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                                <!-- User 1 -->
+                                @{
+                                    decimal j = 0;
+
+                                }
+                                @foreach (var item in ResultMobiles)
+                                {
+                                    j++;
+                                    decimal k2 = j;
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k2</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Mobile</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button title="حذف" @onclick="@(async () => await DeleteMobile(item))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                }
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@(ResultTels.Count + 1)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        <div>
+                                            <ValidationMessage For="@(() => addMobile.Mobile)" class="validate" />
+                                            <InputText @bind-Value="addMobile.Mobile" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button @onclick="@(() => AddMobile())" type="button" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                                            ثبت
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr />
+                    <hr />
+                </div>
+                <h3 class="text-lg font-semibold mb-6">تنظیمات پیامک</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <CustomLabel For="@(() => addSetting.PhoneSender)"></CustomLabel>
+                        <ValidationMessage For="@(() => addSetting.PhoneSender)" class="validate" />
+                        <InputText @bind-Value="addSetting.PhoneSender" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => addSetting.UserName)"></CustomLabel>
+                        <ValidationMessage For="@(() => addSetting.UserName)" class="validate" />
+                        <InputText @bind-Value="addSetting.UserName" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => addSetting.Password)"></CustomLabel>
+                        <ValidationMessage For="@(() => addSetting.Password)" class="validate" />
+                        <InputText @bind-Value="addSetting.Password" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="City-parent" For="@(() => addSetting.CurrencyUnit)"></CustomLabel>
+                        <ValidationMessage For="@(() => addSetting.CurrencyUnit)" class="validate" />
+                        <InputSelect @bind-Value="addSetting.CurrencyUnit" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700">
+                            @foreach (var item in CurrencyList)
+                            {
+                                <option value="@item.ID">@item.Title</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500">ذخیره تغییرات</button>
+                </div>
+                
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        <EditForm Model="updateSetting" OnValidSubmit="Update" FormName="AddForm">
+            @* <DataAnnotationsValidator /> *@
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold mb-6">تنظیمات عمومی</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <CustomLabel For="@(() => updateSetting.Name)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateSetting.Name)" class="validate" />
+                        <InputText @bind-Value="updateSetting.Name" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => updateSetting.Email)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateSetting.Email)" class="validate" />
+                        <InputText @bind-Value="updateSetting.Email" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => updateSetting.CountShowRecord)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateSetting.CountShowRecord)" class="validate" />
+                        <InputNumber @bind-Value="updateSetting.CountShowRecord" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <CustomLabel For="@(() => updateSetting.Address)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateSetting.Address)" class="validate" />
+                        <InputTextArea @bind-Value="updateSetting.Address" class=" w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" rows="3" />
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold mb-6">شماره تماس ها</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <div class="md:col-span-2">
+                        <table class="w-full text-right border border-1">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => addTel.Tel)"></CustomLabel></th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                                <!-- User 1 -->
+                                @{
+                                    decimal i = 0;
+
+                                }
+                                @foreach (var item in ResultTels)
+                                {
+                                    i++;
+                                    decimal k = i;
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Tel</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button type="button" title="حذف" @onclick="@(async () => await DeleteTel(item))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                }
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@(ResultTels.Count + 1)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        <div>
+                                            <InputText @bind-Value="addTel.Tel" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button @onclick="@(() => AddTel())" type="button" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                                            ثبت
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold mb-6">شماره موبایل ها</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <div class="md:col-span-2">
+                        <table class="w-full text-right border border-1">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => addMobile.Mobile)"></CustomLabel></th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                                <!-- User 1 -->
+                                @{
+                                    decimal j = 0;
+
+                                }
+                                @foreach (var item in ResultMobiles)
+                                {
+                                    j++;
+                                    decimal k2 = j;
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k2</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Mobile</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button type="button" title="حذف" @onclick="@(async () => await DeleteMobile(item))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                }
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@(ResultTels.Count + 1)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        <div>
+                                            <InputText @bind-Value="addMobile.Mobile" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button @onclick="@(() => AddMobile())" type="button" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                                            ثبت
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr />
+                    <hr />
+                </div>
+                <h3 class="text-lg font-semibold mb-6">تنظیمات پیامک</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <CustomLabel For="@(() => updateSetting.PhoneSender)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateSetting.PhoneSender)" class="validate" />
+                        <InputText @bind-Value="updateSetting.PhoneSender" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => updateSetting.UserName)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateSetting.UserName)" class="validate" />
+                        <InputText @bind-Value="updateSetting.UserName" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => updateSetting.Password)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateSetting.Password)" class="validate" />
+                        <InputText @bind-Value="updateSetting.Password" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700" />
+                    </div>
+                    <div>
+                        <CustomLabel  For="@(() => updateSetting.CurrencyUnit)"></CustomLabel>
+                        <InputSelect @bind-Value="updateSetting.CurrencyUnit" class="w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700">
+                            @foreach (var item in CurrencyList)
+                            {
+                                <option value="@item.ID">@item.Title</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500">ذخیره تغییرات</button>
+                </div>
+            </div>
+        </EditForm>
+    }
+
+
+</main>
+
+@code {
+    private AddSetting? addSetting { get; set; } = new();
+    private TelJson? addTel { get; set; } = new();
+    private MobileJson? addMobile { get; set; } = new();
+    private List<TelJson>? ResultTels { get; set; } = new();
+    private List<MobileJson>? ResultMobiles { get; set; } = new();
+    List<(int? ID, string Title)> CurrencyList = new List<(int?, string)>();
+    private List<ResultSetting> ResultSettings { get; set; } = new();
+    private UpdateSetting? updateSetting { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        CurrencyList = EnumConstant.GetListCurrencyUnit();
+        addSetting.CurrencyUnit = CurrencyList[0].ID;
+        await GetData();
+    }
+    public async Task GetData(string? SearchText = "")
+    {
+        var Search = BaseCode.GetSearchText(SearchText);
+        var resdata = await RootApiResultSettings.RunMethodApi($"Settings/All", null, method: Method.Get);
+        if (resdata is null)
+        {
+            NavManager.NavigateTo("/login", true);
+            return;
+        }
+        int Count = resdata.CountAllRecordTable;
+        ResultSettings = resdata.Entities!.ToList();
+        if(ResultSettings.Count>0)
+        {
+            updateSetting.ID = ResultSettings[0].ID;
+            updateSetting.Name = ResultSettings[0].Name;
+            updateSetting.CountShowRecord = ResultSettings[0].CountShowRecord;
+            updateSetting.PhoneSender = ResultSettings[0].PhoneSender;
+            updateSetting.UserName = ResultSettings[0].UserName;
+            updateSetting.Password = ResultSettings[0].Password;
+            updateSetting.CurrencyUnit = ResultSettings[0].CurrencyUnit2;
+            updateSetting.Email = ResultSettings[0].Email;
+            updateSetting.JsonTel = ResultSettings[0].JsonTel;
+            updateSetting.JsonMobile = ResultSettings[0].JsonMobile;
+            updateSetting.Address = ResultSettings[0].Address;
+            updateSetting.RegisterDate = ResultSettings[0].RegisterDate;
+            updateSetting.RegisterTime = ResultSettings[0].RegisterTime;
+            updateSetting.EditDate = ResultSettings[0].EditDate;
+            updateSetting.EditTime = ResultSettings[0].EditTime;
+            updateSetting.Visible = ResultSettings[0].Visible;
+            updateSetting.JsonPicture = ResultSettings[0].JsonPicture;
+            updateSetting.Slug = ResultSettings[0].Slug;
+            updateSetting.IdentityCode = ResultSettings[0].IdentityCode;
+            ResultTels = ResultSettings[0].ResultTels;
+            ResultMobiles = ResultSettings[0].ResultMobiles;
+        }
+        else
+        {
+            ResultTels.Clear();
+            ResultMobiles.Clear();
+        }
+
+    }
+    private async Task Add()
+    {
+        addSetting.JsonTel = ResultTels.Count > 0 ? JsonConvert.SerializeObject(ResultTels) : null;
+        addSetting.JsonMobile = ResultMobiles.Count > 0 ? JsonConvert.SerializeObject(ResultMobiles) : null;
+
+        var resdata = await RootApiAddSetting.RunMethodApi("Settings", addSetting, method: Method.Post);
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+            addSetting = new AddSetting();
+            await JS.CallAlertToast(resdata.Message);
+            await GetData();
+        }
+    }
+  
+    private async Task AddTel()
+    {
+        if (string.IsNullOrEmpty(addTel.Tel))
+        {
+            _ = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "شماره تلفن ثابت را وارد کنید",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        addTel.Id = Guid.NewGuid();
+        ResultTels.Add(addTel);
+        addTel = new();
+    }
+    private async Task DeleteTel(TelJson item)
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "برای حذف مطمئن هستید؟",
+            Text = "درصورت تایید شما، رکورد انتخاب شده حذف خواهد شد",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+            ResultTels.Remove(item);
+        }
+    }
+    private async Task AddMobile()
+    {
+        if (string.IsNullOrEmpty(addMobile.Mobile))
+        {
+            _ = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "شماره موبایل را وارد کنید",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        addMobile.Id = Guid.NewGuid();
+        ResultMobiles.Add(addMobile);
+        addMobile = new();
+    }
+    private async Task DeleteMobile(MobileJson item)
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "برای حذف مطمئن هستید؟",
+            Text = "درصورت تایید شما، رکورد انتخاب شده حذف خواهد شد",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+            ResultMobiles.Remove(item);
+        }
+    }
+    private async Task Update()
+    {
+        updateSetting.JsonTel = ResultTels.Count > 0 ? JsonConvert.SerializeObject(ResultTels) : null;
+        updateSetting.JsonMobile = ResultMobiles.Count > 0 ? JsonConvert.SerializeObject(ResultMobiles) : null;
+
+        var Result = await RootApiUpdateSetting.RunMethodApi("Settings", updateSetting, method: Method.Patch);
+        if (Result!=null && Result.Status == ResultMessageApi.Success)
+        {
+            await JS.CallAlertToast(Result.Message);
+        }
+        else
+        {
+            _ = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = Result.Message,
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+        }
+
+    }
+
+}

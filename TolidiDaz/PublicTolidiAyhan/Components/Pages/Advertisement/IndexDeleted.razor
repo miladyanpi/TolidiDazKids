@@ -1,0 +1,48 @@
+﻿@* @using Dto.Models.DtoAdvertisement
+@using Dto.Models.DtoUploadFile
+@using Newtonsoft.Json
+<section class="py-5" aria-label="تبلیغات ویژه"
+         itemscope
+         itemtype="https://schema.org/ItemList"
+         id="advertisements">
+    <h2 class="sr-only" itemprop="name">تبلیغات و پیشنهادات ویژه</h2>
+    <div class="container">
+        <div class="grid grid-cols-2 gap-4 place-items-center">
+            @foreach (var item in ResultAdvertisements)
+            {
+                var ResultUploadFile = item.JsonPicture != null ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(item.JsonPicture) : new List<ResultUploadFile>();
+
+
+                var filepath = ResultUploadFile.Count > 0 ? ApiLink.FullPath + ResultUploadFile[0].PathFileName : ApiLink.FullPath + "images/No-Product-Image.png";;
+                <div class="lg:col-span-1 col-span-2"
+                itemprop="itemListElement"
+                itemscope
+                     itemtype="@item.SiteUrl"
+                itemid="#summer-promo">
+                    <a href="@item.SiteUrl"
+                    aria-label="مشاهده پیشنهادات"
+                    itemprop="url">
+                        <img src="@filepath"
+                        class="rounded-lg transition block duration-300 hover:-translate-y-2"
+                        alt="@item.Description"
+                        loading="lazy"
+                        itemprop="image">
+                        <meta itemprop="name" content=" @item.Title">
+                        <meta itemprop="description" content="@item.Description">
+                        <div itemprop="validFrom" content=""></div>
+                        <div itemprop="validThrough" content=""></div>
+                        <div itemprop="publisher" itemscope itemtype="@item.SiteUrl">
+                            <meta itemprop="name" content="@item.SiteName">
+                            <meta itemprop="url" content="@item.SiteUrl">
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+@code {
+    [Parameter]
+    public List<ResultAdvertisement>? ResultAdvertisements { get; set; } = new List<ResultAdvertisement>();
+
+} *@

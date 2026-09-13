@@ -1,0 +1,62 @@
+﻿@* @page "/SettingFiles"
+@using Dto.Models.DtoSetting
+@inject SweetAlertService Swal
+@inject ILocalStorageService localStorageService
+@inject NavigationManager NavManager
+@inject IRootApi<ResponseApiEntity<UpdateSetting>> RootApiUpdateSetting
+@attribute [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+<div class="card custom-card p-5">
+    <div class="card-body">
+        <div class="row">
+    <div class="col-sm-12 col-md-4 col-lg-4">
+        <UploadPublicFilesToFtp Title="آپلود عکس" StaticFileAccept="@StaticFileAccept.ImageFiles" OnChangeUpload="AddToListImages" />
+        <AdminWebPanel.Components.Pages.Component.GridFilesftpPublic Title="تصاویر آپلود شده" ResultUploadFiles="ResultUploadImages" OnClickcallBack="DeleteImage" />
+    </div>
+    <div class="form-group">
+        <NavLink class="btn btn-danger float-end" href="Setting">بازگشت</NavLink>
+    </div>
+</div>
+    </div>
+</div>
+
+
+@code{
+    public List<ResultUploadFile> ResultUploadImages { get; set; } = new List<ResultUploadFile>();
+
+    private UpdateSetting? updateSetting { get; set; } = new();
+    private ResponseApiEntity<UpdateSetting> resdataEdit { get; set; }
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? ID { get; set; } 
+
+  
+
+     private async Task AddToListImages(List<ResultUploadFile> resultUploadFiles)
+    {
+        ResultUploadImages.AddRange(resultUploadFiles);
+        if (ResultUploadImages != null)
+            updateSetting.JsonPictures = JsonConvert.SerializeObject(ResultUploadImages);
+
+
+        var Result = await RootApiUpdateSetting.RunMethodApi("Settings", updateSetting, method: Method.Patch);
+    }
+ 
+    protected async override Task OnInitializedAsync()
+    {
+        resdataEdit = await RootApiUpdateSetting.RunMethodApi($"Settings/{ID}", null, method: Method.Get);
+        updateSetting = resdataEdit.Entity;
+        if (resdataEdit.Entity.JsonPictures != null)
+            ResultUploadImages = JsonConvert.DeserializeObject<List<ResultUploadFile>>(resdataEdit.Entity.JsonPictures);
+      
+    }
+
+    private async Task DeleteImage(List<ResultUploadFile> resultUploadImages)
+    {
+        ResultUploadImages = resultUploadImages;
+        resdataEdit.Entity.JsonPictures = JsonConvert.SerializeObject(resultUploadImages);
+        var Result = await RootApiUpdateSetting.RunMethodApi("Settings", resdataEdit.Entity, method: Method.Patch);
+    }
+  
+}
+  
+ *@

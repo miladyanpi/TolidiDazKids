@@ -1,0 +1,197 @@
+﻿@inherits LayoutComponentBase
+@Body
+
+
+
+<script src="assets/js/dependencies/app.js"></script>
+
+
+<script>
+    // Function to show/hide password
+    function togglePassword(id) {
+        const passwordInput = document.getElementById(id);
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+    }
+
+    // Function to switch between login tabs
+    function switchTab(tab) {
+        const passwordTab = document.getElementById('password-tab');
+        const smsTab = document.getElementById('sms-tab');
+        const passwordForm = document.getElementById('password-form');
+        const smsForm = document.getElementById('sms-form');
+
+        if (tab === 'password') {
+            passwordTab.classList.add('active');
+            smsTab.classList.remove('active');
+            passwordForm.classList.remove('hidden');
+            smsForm.classList.add('hidden');
+        } else {
+            passwordTab.classList.remove('active');
+            smsTab.classList.add('active');
+            passwordForm.classList.add('hidden');
+            smsForm.classList.remove('hidden');
+        }
+    }
+
+    // Function to send OTP code
+    function sendOTP() {
+        const mobile = document.getElementById('mobile');
+        const mobileError = document.getElementById('mobile-error');
+        const otpSection = document.getElementById('otp-section');
+        const sendOtpBtn = document.getElementById('send-otp-btn');
+        const verifyOtpBtn = document.getElementById('verify-otp-btn');
+        const countdown = document.getElementById('countdown');
+        const resendOtp = document.getElementById('resend-otp');
+
+        // Mobile number validation
+        mobile.classList.remove('input-error');
+        mobileError.classList.add('hidden');
+
+        if (!mobile.value) {
+            mobile.classList.add('input-error');
+            mobileError.textContent = 'لطفا شماره موبایل را وارد کنید';
+            mobileError.classList.remove('hidden');
+            return;
+        } else if (!/^09\d{9}$/.test(mobile.value)) {
+            mobile.classList.add('input-error');
+            mobileError.textContent = 'شماره موبایل معتبر نیست';
+            mobileError.classList.remove('hidden');
+            return;
+        }
+
+        // Simulate sending OTP
+        // In real case, this should send a request to the server
+        console.log('کد تایید برای شماره ' + mobile.value + ' ارسال شد');
+
+        // Show OTP section
+        otpSection.classList.remove('hidden');
+        sendOtpBtn.classList.add('hidden');
+        verifyOtpBtn.classList.remove('hidden');
+
+        // Start countdown timer
+        startCountdown();
+    }
+
+    // Countdown timer for resending the code
+    function startCountdown() {
+        const countdown = document.getElementById('countdown');
+        const countdownTime = document.getElementById('countdown-time');
+        const resendOtp = document.getElementById('resend-otp');
+
+        let timeLeft = 120;
+
+        countdown.classList.remove('hidden');
+        resendOtp.classList.add('hidden');
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownTime.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                countdown.classList.add('hidden');
+                resendOtp.classList.remove('hidden');
+            }
+        }, 1000);
+    }
+
+    // Form validation for password login
+    document.getElementById('password-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+        const usernameError = document.getElementById('username-error');
+        const passwordError = document.getElementById('password-error');
+
+        let isValid = true;
+
+        // Clear previous errors
+        username.classList.remove('input-error');
+        password.classList.remove('input-error');
+        usernameError.classList.add('hidden');
+        passwordError.classList.add('hidden');
+
+        // Validate username or mobile
+        if(!username.value) {
+            username.classList.add('input-error');
+            usernameError.textContent = 'لطفا نام کاربری یا شماره موبایل را وارد کنید';
+            usernameError.classList.remove('hidden');
+            isValid = false;
+        } else if(/^09\d{9}$/.test(username.value)) {
+            // Valid mobile number
+        } else if(username.value.length < 3) {
+            username.classList.add('input-error');
+            usernameError.textContent = 'نام کاربری باید حداقل ۳ کاراکتر باشد';
+            usernameError.classList.remove('hidden');
+            isValid = false;
+        }
+
+        // Validate password
+        if(!password.value) {
+            password.classList.add('input-error');
+            passwordError.textContent = 'لطفا رمز عبور را وارد کنید';
+            passwordError.classList.remove('hidden');
+            isValid = false;
+        } else if(password.value.length < 6) {
+            password.classList.add('input-error');
+            passwordError.textContent = 'رمز عبور باید حداقل ۶ کاراکتر باشد';
+            passwordError.classList.remove('hidden');
+            isValid = false;
+        }
+
+        // Submit if form is valid
+        if(isValid) {
+            // You can send data to server here
+            alert('ورود با موفقیت انجام شد! (این یک پیام نمونه است)');
+        }
+    });
+
+    // Form validation for SMS login
+    document.getElementById('sms-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const otpCode = document.getElementById('otp-code');
+        const otpError = document.getElementById('otp-error');
+
+        // Validate OTP code
+        otpCode.classList.remove('input-error');
+        otpError.classList.add('hidden');
+
+        if (!otpCode.value) {
+            otpCode.classList.add('input-error');
+            otpError.textContent = 'لطفا کد تایید را وارد کنید';
+            otpError.classList.remove('hidden');
+            return;
+        } else if (!/^\d{5}$/.test(otpCode.value)) {
+            otpCode.classList.add('input-error');
+            otpError.textContent = 'کد تایید باید ۵ رقم باشد';
+            otpError.classList.remove('hidden');
+            return;
+        }
+
+        // You can send OTP to server here
+        alert('ورود با موفقیت انجام شد! (این یک پیام نمونه است)');
+    });
+
+    // Function to show login error message
+    function showLoginError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl';
+        errorDiv.textContent = message || 'نام کاربری یا رمز عبور اشتباه است';
+
+        const form = document.getElementById('login-form');
+        form.insertBefore(errorDiv, form.firstChild);
+
+        // Automatically remove error message after 5 seconds
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    }
+
+</script>
+
+
+
+

@@ -1,0 +1,87 @@
+﻿@using System.Net.Http.Headers
+@inject IToastMessage JS
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+<label>@Title</label>
+
+@if (Uploading)
+{
+    <div class="text-center my-3">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">در حال آپلود...</span>
+        </div>
+        <p class="mt-2">لطفاً منتظر بمانید، در حال آپلود فایل...</p>
+    </div>
+}
+
+
+else
+{
+    <div class="form-group ">
+        <CustomLabel For="@(() => resultUploadFile.Title)"></CustomLabel>
+        <label style="color:red">@Message</label>
+        <InputText @bind-Value="resultUploadFile.Title" class="form-control" />
+    </div>
+    <div class="form-group ">
+        <label>انتخاب فایل</label>
+        <InputFile type="file" OnChange="UploadFile" accept="@StaticFileAccept" />
+    </div>
+    <hr/>
+}
+
+@code {
+    public string? Message { get; set; } = string.Empty;
+    public ResultUploadFile resultUploadFile { get; set; } = new();
+    public List<ResultUploadFile> ResultUploadFiles { get; set; } = new List<ResultUploadFile>();
+    [Parameter]
+    public EventCallback<List<ResultUploadFile>> OnChangeUpload { get; set; }
+    [Parameter]
+    public int? LessonHeadingID { get; set; }
+    [Parameter]
+    public string? StaticFileAccept { get; set; }
+    [Parameter]
+    public string? Title { get; set; }
+    private long maxFileSize = 1024 * 1024 * 1024;
+    bool Uploading = false;
+    public async Task UploadFile(InputFileChangeEventArgs e)
+    {
+        if (string.IsNullOrEmpty(resultUploadFile.Title))
+        {
+            Message = "|الزامی است. فایل انتخابی شما آپلود نشد دوباره انتخاب کنید";
+            return;
+        }
+        else
+        {
+            Message = string.Empty;
+        }
+        Uploading = true;
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            if (file != null)
+            {
+                var fileContent =
+                           new StreamContent(file.OpenReadStream(maxFileSize));
+
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                content.Add(fileContent, file.ContentType, file.Name);
+
+                var resdataUploadFile = await RootApiResultUploadFile.UploadImage($"Ftp/UploadFiles?LessonHeadingID={LessonHeadingID}", content, method: Method.Post);
+                await JS.CallAlertToast(resdataUploadFile.Message);
+                var data = resdataUploadFile.Entities.First();
+                data.Title = resultUploadFile.Title;
+                ResultUploadFiles.Add(data);
+
+            }
+        }
+        Uploading = false;
+        StateHasChanged();
+        await OnChangeUpload.InvokeAsync(ResultUploadFiles);
+
+        ResultUploadFiles.Clear();
+
+    }
+}
+
+
+

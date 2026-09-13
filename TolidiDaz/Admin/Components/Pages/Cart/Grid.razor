@@ -1,0 +1,245 @@
+﻿@page "/Cart"
+@using Dto.Models.DtoCart
+@using Dto.Models.DtoProvince
+@using Newtonsoft.Json
+@using System.ComponentModel
+@using static Dto.Enum.EnumConstant
+@inject SweetAlertService Swal
+@inject NavigationManager NavManager
+@inject IToastMessage JS
+@inject IRootApi<ResponseApiEntities<ResultCart>> RootApiGet
+@inject IRootApi<ResponseApiEntity<ResultCart>> RootApiDelete
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFiles
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+
+<!-- page content -->
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">مدیریت سبد خرید</h2>
+            <p class="text-gray-600 dark:text-gray-400">لیست تمام سبد خرید ثبت شده در سیستم</p>
+        </div>
+       
+    </div>
+
+    <!-- Carts table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="px-6 pb-2 border-b border-gray-200 flex-wrap dark:border-gray-700 flex items-center justify-between">
+            <div>
+
+
+                <CustomLabel For="@(() => CartStatusID)"></CustomLabel>
+                <InputSelect @bind-Value="CartStatusID" @bind-Value:after="@(async ()=>await GetData())" class="w-full md:w-40 px-3 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                    @foreach (var item in CartStatuses)
+                    {
+                        <option value="@item.ID">@item.Title</option>
+                    }
+                </InputSelect>
+            </div>
+            <Search OnClickcallBack="@GetData" PlaceHolder="جستجو..." />
+        </div>
+        <!-- Carts list -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                           ردیف
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => resultCart.ResultCustomer.Name)"></CustomLabel>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => resultCart.RegisterDate)"></CustomLabel>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => resultCart.TotalAmount)"></CustomLabel>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => resultCart.Discount)"></CustomLabel>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => resultCart.FinalAmount)"></CustomLabel>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => resultCart.CountCartItems)"></CustomLabel>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => resultCart.CartStatus)"></CustomLabel>
+                        </th>
+                     
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            اقدامات
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                    @{
+                        decimal i = (pagingModel.Page - 1) * pagingModel.Take;
+
+                    }
+                    @foreach(var item in ResultCarts)
+                    {
+                        i++;
+                        decimal k = i;
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">@k</div>
+                            </td>
+                           
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <img class="h-10 w-10 rounded-full" src="assets/images/user/user.jpg" alt="">
+                                    </div>
+                                    <div class="mr-4">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">@item.ResultCustomer.Name @item.ResultCustomer.LastName</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">@item.ResultCustomer.Mobile</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 dark:text-white">@item.RegisterDate</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">@item.RegisterTime</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">@item.TotalAmount.ToString("N0") تومان</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">@item.Discount.ToString("N0") </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">@item.FinalAmount.ToString("N0") تومان</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">@item.CountCartItems</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @GetStatusClass(item.CartStatus2)" >
+                                        @item.CartStatus
+                                    </span>
+                            </td>
+                           
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button @onclick="@(async () => await Delete(item.ID))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                    <button @onclick="() => GoToCartItems(item.IdentityCode.ToString())" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300">جزئیات اقلام</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                 
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <Pagination pagingModel="pagingModel" OnClickcallBack="@CallBackPaging" />
+    </div>
+</main>
+@code {
+    public EnumComponentName.ComponentNameType ComponentNameType { get; set; } = EnumComponentName.ComponentNameType.Insert;
+
+    private PagingModel pagingModel { get; set; } = new();
+    private ResultCart resultCart { get; set; } = new();
+    private List<ResultCart>? ResultCarts { get; set; } = new List<ResultCart>();
+    public List<(string Title, CartStatus ID)> CartStatuses = new List<(string, CartStatus)>();
+    [DisplayName("وضعیت سبد خرید")]
+    public CartStatus? CartStatusID { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        var item0 = ("همه", EnumConstant.CartStatus.All);
+        var item1 = ("رها شده و مدت زیادی گذشته", EnumConstant.CartStatus.abandoned);
+        var item2 = ("باز", EnumConstant.CartStatus.active);
+        var item3 = ("سفارش-پرداخت شده", EnumConstant.CartStatus.checked_out);
+        CartStatuses.Add(item0);
+        CartStatuses.Add(item1);
+        CartStatuses.Add(item2);
+        CartStatuses.Add(item3);
+        CartStatusID =EnumConstant.CartStatus.All;
+        pagingModel.Page = 1;
+        pagingModel.Take = BaseCode.GetCountShowRecord();
+        await GetData();
+    }
+
+    private async Task CallBackPaging(decimal page)
+    {
+        pagingModel.Page = page;
+        await GetData();
+    }
+
+    private async Task GetData(string? SearchText = "")
+    {
+        var Search = BaseCode.GetSearchText(SearchText);
+        var resdata = await RootApiGet.RunMethodApi($"Carts?Page={pagingModel.Page}&Take={pagingModel.Take}{Search}&CartStatus={CartStatusID}", null, method: Method.Get);
+        decimal Count = resdata?.CountAllRecordTable ?? 0;
+        ResultCarts = resdata.Entities?.ToList() ?? new List<ResultCart>();
+        pagingModel.CountPage = Math.Ceiling(Count / pagingModel.Take);
+        pagingModel.CountPagePer10 = Math.Ceiling(pagingModel.CountPage / 10);
+    }
+
+    private async Task Delete(int ID)
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "برای حذف مطمئن هستید؟",
+            Text = "درصورت تایید شما، رکورد انتخاب شده حذف خواهد شد",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+
+            var resdata = await RootApiDelete.RunMethodApi($"Carts/{ID}", null, method: Method.Delete);
+            if (resdata.Status == ResultMessageApi.Success)
+            {
+                await JS.CallAlertToast(resdata.Message);
+                await GetData();
+            }
+            else
+            {
+                _ = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = resdata.Message,
+                    Icon = resdata.Status,
+                    ShowConfirmButton = true,
+                });
+            }
+        }
+    }
+    private void GoToCartItems(string IdentityCode)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"IdentityCode",IdentityCode},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/CartItems", parameter!));
+    }
+   
+    string GetStatusClass(CartStatus status) => status switch
+    {
+        CartStatus.active => "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+        CartStatus.checked_out => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+        CartStatus.abandoned => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+
+        _ => "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+    };
+    string GetPaymentStatusClass(PaymentStatus status) => status switch
+    {
+        PaymentStatus.PendingPayment => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+        PaymentStatus.Refunded => "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+        PaymentStatus.paid => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+        PaymentStatus.Expired => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+        PaymentStatus.failed => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+
+        _ => "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+    };
+}

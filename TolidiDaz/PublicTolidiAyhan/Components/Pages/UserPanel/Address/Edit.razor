@@ -1,0 +1,246 @@
+﻿@page "/EditAddress"
+@using Dto.Models.DtoCity
+@using Dto.Models.DtoCustomerAddress
+@using Dto.Models.DtoProvince
+@using PublicTolidiAyhan.Code
+@attribute [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-background-dark">
+    <!-- Page header -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-dark dark:text-light">ویرایش آدرس</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات آدرس خود را به روزرسانی کنید</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button onclick="history.back()" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Address edit form -->
+    <div class="bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark p-6">
+        <EditForm class="space-y-6" Model="updateCustomerAddress" OnValidSubmit="Update" FormName="UpdateForm">
+        <DataAnnotationsValidator />
+    
+            <!-- address title -->
+         @*    <div>
+                <label for="editAddressTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">عنوان آدرس <span class="text-danger dark:text-danger-dark">*</span></label>
+                <div class="relative">
+                    <input type="text" id="editAddressTitle" value="منزل" class="w-full pl-10 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="مثال: منزل، محل کار" required>
+                    <div class="absolute left-3 top-3 text-gray-400 dark:text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+            </div> *@
+
+            <!-- Province and city -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="relative">
+                    <div>
+                        <CustomLabel ForId="Province-parent" For="@(() => updateCustomerAddress.ProvinceID)" IsRequired="true"></CustomLabel>
+                        <ValidationMessage For="@(() => updateCustomerAddress.ProvinceID)" class="validate" />
+                        <InputSelect @bind-Value="updateCustomerAddress.ProvinceID" @bind-Value:after="@(async ()=>await GetCity(updateCustomerAddress.ProvinceID))" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item1 in ResultProvinces)
+                            {
+                                <option value="@item1.ID">@item1.Title</option>
+                            }
+                        </InputSelect>
+                    </div>
+                   
+                </div>
+                <div class="relative">
+                    <div>
+                        <CustomLabel ForId="City-parent" For="@(() => updateCustomerAddress.CityID)" IsRequired="true"></CustomLabel>
+                        <ValidationMessage For="@(() => updateCustomerAddress.CityID)" updateCustomerAddresss="validate" />
+                        <InputSelect @bind-Value="updateCustomerAddress.CityID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item2 in ResultCitys)
+                            {
+                                <option value="@item2.ID">@item2.Title</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exact address -->
+         @*    <div>
+                <label for="editAddress" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">آدرس دقیق <span class="text-danger dark:text-danger-dark">*</span></label>
+                <textarea id="editAddress" rows="3" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="خیابان، کوچه، پلاک، واحد" required>تهران، منطقه 5، خیابان اشرفی اصفهانی، کوچه 15، پلاک 12، واحد 3</textarea>
+            </div> *@
+            <div>
+                <CustomLabel ForId="CustomerAddress-Address" For="@(() => updateCustomerAddress.Address)"></CustomLabel>
+                <ValidationMessage For="@(() => updateCustomerAddress.Address)" class="validate" />
+                <InputTextArea @bind-Value="updateCustomerAddress.Address" id="updateCustomerAddress-Address" rows="3" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+
+            </div>
+            <!-- Postal code and phone number -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <div class="relative">
+                        <CustomLabel ForId="CustomerAddress-PostalCode" For="@(() => updateCustomerAddress.PostalCode)"><span class="text-danger dark:text-danger-dark">*</span></CustomLabel>
+                        <ValidationMessage For="@(() => updateCustomerAddress.PostalCode)" class="validate" />
+                        <InputText id="CustomerAddress-PostalCode" @bind-Value="updateCustomerAddress.PostalCode" class="w-full pl-10 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                </div>
+                <div>
+                    <div class="relative">
+                        <CustomLabel ForId="CustomerAddress-Plaque" For="@(() => updateCustomerAddress.Plaque)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateCustomerAddress.Plaque)" class="validate" />
+                        <InputText id="CustomerAddress-Plaque" @bind-Value="updateCustomerAddress.Plaque" class="w-full pl-10 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <div class="relative">
+                        <CustomLabel ForId="CustomerAddress-BuildingUnit" For="@(() => updateCustomerAddress.BuildingUnit)"><span class="text-danger dark:text-danger-dark">*</span></CustomLabel>
+                        <ValidationMessage For="@(() => updateCustomerAddress.BuildingUnit)" class="validate" />
+                        <InputText id="CustomerAddress-BuildingUnit" @bind-Value="updateCustomerAddress.BuildingUnit" class="w-full pl-10 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                </div>
+                
+            </div>
+            <!-- Name of the recipient -->
+            <div>
+                <CustomLabel ForId="CustomerAddress-Address" For="@(() => updateCustomerAddress.Description)"></CustomLabel>
+                <InputTextArea @bind-Value="updateCustomerAddress.Description" id="updateCustomerAddress-Description" rows="3" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+
+            </div>
+
+            <!-- Default address -->
+          @*   <div class="flex items-center">
+                <input id="editDefaultAddress" type="checkbox" checked class="form-checkbox h-5 w-5 text-primary dark:text-primary-dark rounded border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark">
+                <label for="editDefaultAddress" class="mr-2 block text-sm text-gray-700 dark:text-gray-300">
+                    تنظیم به عنوان آدرس پیش‌فرض
+                </label>
+            </div> *@
+
+            <!-- Action buttons -->
+            <div class="flex flex-col-reverse md:flex-row md:justify-end md:space-x-4 mt-8">
+          @*       <button type="button" onclick="confirmDelete()" class="px-6 mb-2 py-2 border border-danger dark:border-danger-dark text-danger dark:text-danger-dark rounded-lg hover:bg-danger/10 dark:hover:bg-danger/20 transition-colors">
+                    حذف آدرس
+                </button> *@
+                <button type="submit" class="px-6 mb-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary/80 transition-colors">
+                    ذخیره تغییرات
+                </button>
+            </div>
+        </EditForm>
+    </div>
+
+    <!-- Address map -->
+    <div class="mt-6 bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-dark dark:text-light">موقعیت آدرس روی نقشه</h3>
+        </div>
+        <div class="h-64 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+            <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="mt-2 text-gray-500 dark:text-gray-400">نقشه آدرس نمایش داده می‌شود</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+@code {
+    @inject IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces
+    @inject IRootApi<ResponseApiEntity<UpdateCustomerAddress>> RootApiUpdateCustomerAddress
+    @inject IRootApi<ResponseApiEntities<ResultCity>> RootApiResultCitys
+    @inject IRootApi<ResponseApiEntity<UpdateCity>> RootApiUpdateCity
+    @inject SweetAlertService Swal
+    @inject NavigationManager NavManager
+    @inject IToastMessage JS
+    private List<ResultCity>? ResultCitys { get; set; } = new();
+    private UpdateCustomerAddress? updateCustomerAddress { get; set; } = new() { Visible = true };
+    [SupplyParameterFromQuery]
+    public string? identityCode { get; set; }
+   
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProvinces();
+        await GetData();
+
+    }
+    public async Task GetData()
+    {
+        var resdataEdit = await RootApiUpdateCustomerAddress.RunMethodApi($"CustomerAddresss/Public/{identityCode}", null, method: Method.Get);
+        updateCustomerAddress = resdataEdit.Entity;
+        if (updateCustomerAddress.CityID != null)
+        {
+            var resdataUpdateCity = await RootApiUpdateCity.RunMethodApi($"Citys/{updateCustomerAddress.CityID}", null, method: Method.Get);
+            updateCustomerAddress.ProvinceID = resdataUpdateCity.Entity.ResultProvince.ID;
+            await GetCity(resdataUpdateCity.Entity.ProvinceID);
+        }
+        else
+        {
+            if (ResultProvinces.Count > 0)
+            {
+                await GetCity(ResultProvinces[0].ID);
+            }
+        }
+
+    }
+    private List<ResultProvince>? ResultProvinces { get; set; } = new();
+
+    private async Task GetProvinces()
+    {
+        var data = await RootApiResultProvinces.RunMethodApi($"Provinces/Public/All", null, method: Method.Get);
+        ResultProvinces = data.Entities.ToList();
+        if (ResultProvinces.Count > 0)
+        {
+            updateCustomerAddress.ProvinceID = ResultProvinces[0].ID;
+        }
+
+
+    }
+    private async Task GetCity(int? ProvinceID)
+    {
+        var data = await RootApiResultCitys.RunMethodApi($"Citys/All?ProvinceID={ProvinceID}", null, method: Method.Get);
+        ResultCitys = data.Entities.ToList();
+        if (updateCustomerAddress.CityID == null)
+            if (ResultCitys.Count > 0)
+            {
+                updateCustomerAddress.CityID = ResultCitys[0].ID;
+            }
+
+
+    }
+    private async Task Update()
+    {
+        var resdata = await RootApiUpdateCustomerAddress.RunMethodApi("CustomerAddresss/Update/Public", updateCustomerAddress, method: Method.Patch);
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+            if (resdata.Status == ResultMessageApi.Success)
+            {
+                await JS.CallAlertToast(resdata.Message);
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = resdata.Message,
+                    Icon = resdata.Status,
+                    ShowConfirmButton = true,
+                });
+            }
+            else
+            {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = resdata.Message,
+                    Icon = resdata.Status,
+                    ShowConfirmButton = true,
+                });
+            }
+        }
+      
+
+
+    }
+}

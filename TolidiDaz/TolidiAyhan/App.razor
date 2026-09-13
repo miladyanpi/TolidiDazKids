@@ -1,0 +1,20 @@
+﻿
+ <Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"  >
+         <NotAuthorized>
+                <TolidiAyhan.Pages.Login.RedirectToLogin />
+          </NotAuthorized>
+                <Authorizing>
+                <TolidiAyhan.Pages.Login.Authorizing />
+                </Authorizing>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>صفحه پیدا نشد</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">دسترسی به این صفحه امکان پذیر نیست</p>
+        </LayoutView>
+    </NotFound>
+</Router>

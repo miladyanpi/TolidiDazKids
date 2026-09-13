@@ -1,0 +1,391 @@
+﻿@using Dto.Models.DtoCart
+@using Dto.Models.DtoCartItem
+@using Dto.Models.DtoFavoritUserProduct
+@using Dto.Models.DtoProduct
+@using Microsoft.AspNetCore.Components.Authorization
+@using ServicesLibrary.Services.PricingRuleSrv
+@using System.Threading.Tasks
+@inject CartPublicService CartService
+@inject SweetAlertService Swal
+@inject IPricingRuleService _pricingRuleService
+@inject LoginStatusCheckService _LoginStatusCheckService
+@inject IRootApi<ResponseApiEntity<AddFavoritUserProduct>> RootApiAddFavoritUserProduct
+@inject FavoritUserProduct_PublicService _FavoritUserProductService
+
+<div class="lg:col-span-4 md:col-span-6 col-span-12 w-full">
+    <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1"
+             itemscope itemtype="http://schema.org/Product">
+        <header class="flex items-center relative justify-between">
+            <div class="flex flex-col bg-white absolute top-1 start-0 p-1 rounded space-y-3  dark:bg-transparent">
+                <button @onclick="@(async () => await AddFavoritUserProduct(item.ID))" class="hover:text-gray-400 relative group cursor-pointer"
+                        aria-label="افزودن به علاقه‌مندی‌ها">
+                    @if (_FavoritUserProductService.CheckExistsProduct(item.ID))
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white"
+                             fill="red">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                        </svg>
+                    }
+
+
+                    <span class="absolute text-nowrap right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                        <span class="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                        افزودن به علاقه‌مندی‌ها
+                    </span>
+                </button>
+                <button @onclick="@(() => GotoProductDetails(item.IdentityCode.ToString()))" class="hover:text-gray-400 cursor-pointer relative group"
+                        aria-label="مشاهده جزئیات">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                    <span class="absolute text-nowrap right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                        <span class="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                        مشاهده جزئیات
+                    </span>
+                </button>
+                <button class="hover:text-gray-400 cursor-pointer relative group"
+                        aria-label="مقایسه محصول">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                    </svg>
+                    <span class="absolute text-nowrap right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                        <span class="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                        مقایسه محصول
+                    </span>
+                </button>
+            </div>
+            <div class="flex flex-col bg-white absolute top-1 end-0 p-1 rounded dark:bg-transparent" itemprop="offers"
+                 itemscope itemtype="http://schema.org/Offer">
+                <meta itemprop="color" content="خاکستری">
+                <meta itemprop="color" content="زرد">
+                <meta itemprop="color" content="سبز">
+                <span class="size-4 rounded-full bg-gray-300" title="خاکستری"></span>
+                <span class="size-4 rounded-full bg-amber-300" title="زرد"></span>
+                <span class="size-4 rounded-full bg-green-300" title="سبز"></span>
+            </div>
+        </header>
+        <figure class="flex image justify-center my-4">
+            <a href="#" @onclick="@(() => GotoProductDetails(item.IdentityCode.ToString()))" itemprop="url">
+                @if (item.ResultUploadFiles.Count > 0)
+                {
+                    string filepath1 = ApiLink.FullPath + item.ResultUploadFiles[0].PathFileName;
+                    <img class="one-image rounded-md object-cover shadow-sm" src="@filepath1" loading="lazy"
+                         alt="@item.Title" itemprop="image">
+                }
+                else
+                {
+                    string filepath2 = "images/No-Product-Image.png";
+
+                    <img class="one-image rounded-md object-cover shadow-sm" src="@filepath2" loading="lazy"
+                         alt="@item.Title" itemprop="image">
+                    <img class="two-image rounded-md object-cover shadow-sm" src="@filepath2" loading="lazy"
+                         alt="@item.Title" itemprop="image">
+                }
+                @if (item.ResultUploadFiles.Count > 1)
+                {
+                    string filepath2 = ApiLink.FullPath + item.ResultUploadFiles[1].PathFileName;
+
+                    <img class="two-image rounded-md object-cover shadow-sm" src="@filepath2" loading="lazy"
+                         alt="@item.Title" itemprop="image">
+                }
+
+            </a>
+        </figure>
+        <h3 class="text-base leading-8  line-clamp-2 mb-2">
+            <button @onclick="@(() => GotoProductDetails(item.IdentityCode.ToString()))" class="text-gray-800 dark:text-white" itemprop="name">
+                @item.Title
+            </button>
+        </h3>
+        <h6 class="text-base leading-8  line-clamp-2 mb-2">
+            <span>کد:</span> <span>@item.ProductCode</span>
+        </h6>
+        <footer itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+            <link itemprop="availability" href="http://schema.org/InStock">
+            <meta itemprop="priceCurrency" content="IRR">
+            <div class="flex items-center justify-between">
+                <AuthorizeView Roles="@($"{ConstantRoles.CustomerName},{ConstantRoles.BranchStoreName}")">
+                    <Authorized>
+                        @if (item.ProductExistStatus2 == EnumConstant.ProductExistStatus.Existent && item.Count > 0)
+                        {
+                            @if (resultCartItem == null)
+                            {
+                                <button @onclick="@(async () => await AddToCart(item.ID))" class="bg-green-600 text-white p-3 rounded-lg transition"
+                                        aria-label="افزودن به سبد خرید">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                    </svg>
+                                </button>
+                            }
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 bg-red-100 border border-red-300 rounded-lg shadow-sm">
+                                ناموجود
+                            </span>
+                        }
+                    </Authorized>
+                    <NotAuthorized>
+                        @if (item.ProductExistStatus2 == EnumConstant.ProductExistStatus.Existent && item.Count > 0)
+                        {
+                            <button @onclick="@(async () => await AddToCart(item.ID))" class="bg-green-600 text-white p-3 rounded-lg transition"
+                                    aria-label="افزودن به سبد خرید">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                </svg>
+                            </button>
+                        }
+
+                        else
+                        {
+                            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 bg-red-100 border border-red-300 rounded-lg shadow-sm">
+                                ناموجود
+                            </span>
+                        }
+                    </NotAuthorized>
+                </AuthorizeView>
+                @if (item.ProductExistStatus2 == EnumConstant.ProductExistStatus.Existent && item.Count > 0)
+                {
+                    <span class="
+                                                                    text-gray text-sm font-medium
+                                                                    bg-gradient-to-r from-indigo-500 to-purple-500
+                                                                    px-3 py-1
+                                                                    rounded-full
+                                                                    shadow
+                                                                    whitespace-nowrap
+                                    ">
+                        انبار: @item.Count
+                    </span>
+                }
+                else
+                {
+                    <span class="text-gray text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-500  px-3 py-1 rounded-full shadow whitespace-nowrap ">
+                        انبار: 0
+                    </span>
+                }
+                @if (item.ProductExistStatus2 == EnumConstant.ProductExistStatus.Existent && item.Count > 0)
+                {
+                    <div class="text-gray-700 flex flex-col items-center">
+                        <div class="flex justify-between items-center">
+                            @if (item.Discount > 0)
+                            {
+                                <del class="text-zinc-400" itemprop="priceSpecification" itemscope
+                                     itemtype="http://schema.org/UnitPriceSpecification">
+                                    <meta itemprop="priceCurrency" content="IRR">
+                                    <span itemprop="price">@Price</span>
+                                </del>
+                                <span class="bg-secondary px-3 rounded-bl-none text-sm rounded-xl text-white ms-3"
+                                      itemprop="discount">@percent%</span>
+                            }
+                        </div>
+                        <span class="text-xl font-bold dark:text-white" itemprop="price"
+                              content="@NewPrice.ToString("N0") ">@NewPrice.ToString("N0")  <span class="text-xs">تومان</span></span>
+
+
+                    </div>
+
+                }
+            </div>
+            @if (Results.Count > 0 && item.ProductExistStatus2 == EnumConstant.ProductExistStatus.Existent && item.Count > 0)
+            {
+                <div class="mt-3 space-y-2">
+                    @foreach (var result in Results)
+                    {
+                        <div class="bg-green-50 text-green-700 text-xs font-medium rounded-full px-4 py-2 border border-green-200">
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-green-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                <span class="dark:text-green-200">@result.Message</span>
+                            </div>
+                            @if (result.Price > 0)
+                            {
+                                <span class="font-bold text-green-800 dark:text-green-300">
+                                    قیمت عمده: @result.Price.ToString("N0") تومان
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            <AuthorizeView Roles="@($"{ConstantRoles.CustomerName},{ConstantRoles.BranchStoreName}")">
+                <Authorized>
+                    @if (@resultCartItem != null && resultCartItem.Quantity >= 1)
+                    {
+                        <div class="flex items-center my-3">
+                            <div class="inline-flex items-center space-x-2 border rounded-full px-4 py-2 dark:bg-zinc-800 bg-white shadow">
+                                <h1>سبد</h1>
+
+                                <button @onclick="@(async () => await AddToCart1Item(item.ID))" class="bg-gray-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg">
+                                    +
+                                </button>
+
+                                @if (resultCartItem != null)
+                                {
+                                    <span id="count2" class="text-lg  px-5 inline-block">
+                                        @resultCartItem.Quantity
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span id="count2" class="text-lg  px-5 inline-block">
+                                        0
+                                    </span>
+                                }
+
+                                <button @onclick="@(async () => await SubFromCart1Item(item.ID))" class="bg-gray-200 text-gray-600 w-8 h-8 rounded-full flex items-center justify-center text-lg">
+                                    -
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+
+                </Authorized>
+                <NotAuthorized>
+
+                </NotAuthorized>
+            </AuthorizeView>
+
+        </footer>
+    </article>
+</div>
+
+@code {
+    @inject NavigationManager NavManager
+    long NewPrice = 0;
+    long Price = 0;
+    float percent = 0;
+    [Parameter]
+    public ResultProduct? item { get; set; }
+    List<(Int64 Price, string Message)> Results = new List<(Int64, string)>();
+    public ResultCartItem? resultCartItem { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Calculate();
+    }
+
+    private async Task Calculate()
+    {
+        List<string> Roles = new();
+        resultCartItem = CartService.resultCartItems.Where(s => s.ProductID == item.ID).FirstOrDefault();
+        var ResulLoginStatus = await _LoginStatusCheckService.GetLoginStatusCheck();
+        Roles.Add(ResulLoginStatus.Role);
+
+        Price = _pricingRuleService.CalculatePrice(item, resultCartItem == null ? 0 : resultCartItem.Quantity, Roles, ResulLoginStatus.IsLoggedIn);
+        Results = _pricingRuleService.GetAllPrice(item, resultCartItem == null ? 0 : resultCartItem.Quantity, Roles, ResulLoginStatus.IsLoggedIn);
+
+        NewPrice = item.Discount > 0 ? (Price - item.Discount) : Price;
+        percent = ((float)item.Discount / (float)Price) * 100;
+        percent = (float)Math.Round(percent, 2);
+    }
+
+    private async Task GotoProductDetails(string UniqCode)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"UniqCode", UniqCode},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/ProductDetails", parameter!));
+    }
+    private async Task AddFavoritUserProduct(int? ProductID)
+    {
+
+        var resdata = await RootApiAddFavoritUserProduct.RunMethodApi($"FavoritUserProducts?ProductID={ProductID}", null, method: Method.Post);
+        if (resdata != null && resdata.Status == ResultMessageApi.Success)
+        {
+            await _FavoritUserProductService.GetData();
+
+
+        }
+
+        else
+            _ = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "ابتدا وارد اکانت کاربری خود شوید",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+    }
+    private async Task AddToCart(int productID)
+    {
+        var Result = await CartService.AddToCart(productID);
+        if (Result.Status == ResultMessageApi.Success)
+        {
+            // resultCartItem = CartService.resultCartItems.Where(s => s.ProductID == productID).FirstOrDefault();
+            await Calculate();
+
+        }
+        _ = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "پیام",
+            Text = Result.Message,
+            Icon = Result.Status,
+            ShowConfirmButton = true,
+        });
+
+
+    }
+    private async Task AddToCart1Item(int productID)
+    {
+        var Result = await CartService.AddToCart1Item(productID);
+        if (Result.Status == ResultMessageApi.Success)
+        {
+            // resultCartItem = CartService.resultCartItems.Where(s => s.ProductID == productID).FirstOrDefault();
+            await Calculate();
+
+        }
+        else
+        {
+            _ = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = Result.Message,
+                Icon = Result.Status,
+                ShowConfirmButton = true,
+            });
+        }
+    }
+    private async Task SubFromCart1Item(int productID)
+    {
+        var Result = await CartService.SubFromCart1Item(productID);
+        if (Result.Status == ResultMessageApi.Success)
+        {
+            // resultCartItem = CartService.resultCartItems.Where(s => s.ProductID == productID).FirstOrDefault();
+            // resultCartItem.Quantity = resultCartItem.Quantity <= 0 ? 1 : resultCartItem.Quantity;
+            await Calculate();
+
+        }
+        else
+        {
+            _ = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = Result.Message,
+                Icon = Result.Status,
+                ShowConfirmButton = true,
+            });
+        }
+    }
+}

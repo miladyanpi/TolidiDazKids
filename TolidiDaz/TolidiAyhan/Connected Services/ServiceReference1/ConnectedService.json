@@ -1,0 +1,42 @@
+{
+  "ExtendedData": {
+    "inputs": [
+      "http://payamakapi.ir/SendService.svc"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, ServiceReference1"
+    ],
+    "references": [
+      "AutoMapper, {AutoMapper, 13.0.1}",
+      "Blazored.LocalStorage, {Blazored.LocalStorage, 4.5.0}",
+      "CurrieTechnologies.Razor.SweetAlert2, {CurrieTechnologies.Razor.SweetAlert2, 5.6.0}",
+      "D:\\Drives\\E\\Project\\Developping\\TolidiAyhan\\TolidiAyhan3-GitHub\\TolidiAyhan\\TolidiAyhan\\bin\\Release\\net9.0\\publish\\Dto.dll",
+      "D:\\Drives\\E\\Project\\Developping\\TolidiAyhan\\TolidiAyhan3-GitHub\\TolidiAyhan\\TolidiAyhan\\bin\\Release\\net9.0\\publish\\Utility.dll",
+      "Microsoft.AspNetCore.Authorization, {Microsoft.AspNetCore.Authorization, 9.0.0}",
+      "Microsoft.AspNetCore.Components, {Microsoft.AspNetCore.Components, 9.0.0}",
+      "Microsoft.AspNetCore.Components.Forms, {Microsoft.AspNetCore.Components.Forms, 8.0.0}",
+      "Microsoft.AspNetCore.Components.Web, {Microsoft.AspNetCore.Components.Web, 8.0.0}",
+      "Microsoft.AspNetCore.Metadata, {Microsoft.AspNetCore.Metadata, 9.0.0}",
+      "Microsoft.Extensions.DependencyInjection, {Microsoft.Extensions.DependencyInjection, 8.0.0}",
+      "Microsoft.Extensions.DependencyInjection.Abstractions, {Microsoft.Extensions.DependencyInjection.Abstractions, 9.0.0}",
+      "Microsoft.Extensions.Logging.Abstractions, {Microsoft.Extensions.Logging.Abstractions, 9.0.0}",
+      "Microsoft.Extensions.Options, {Microsoft.Extensions.Options, 9.0.0}",
+      "Microsoft.Extensions.Primitives, {Microsoft.Extensions.Primitives, 9.0.0}",
+      "Microsoft.IdentityModel.Abstractions, {Microsoft.IdentityModel.Abstractions, 7.3.0}",
+      "Microsoft.IdentityModel.JsonWebTokens, {Microsoft.IdentityModel.JsonWebTokens, 7.3.0}",
+      "Microsoft.IdentityModel.Logging, {Microsoft.IdentityModel.Logging, 7.3.0}",
+      "Microsoft.IdentityModel.Tokens, {Microsoft.IdentityModel.Tokens, 7.3.0}",
+      "Microsoft.JSInterop, {Microsoft.JSInterop, 9.0.0}",
+      "Newtonsoft.Json, {Newtonsoft.Json, 13.0.4}",
+      "RestSharp, {RestSharp, 112.1.0}",
+      "System.IdentityModel.Tokens.Jwt, {System.IdentityModel.Tokens.Jwt, 7.3.0}",
+      "System.IO.Pipelines, {System.IO.Pipelines, 8.0.0}"
+    ],
+    "targetFramework": "net9.0",
+    "typeReuseMode": "All"
+  }
+}

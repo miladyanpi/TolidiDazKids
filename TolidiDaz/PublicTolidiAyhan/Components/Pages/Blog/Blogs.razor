@@ -1,0 +1,226 @@
+﻿@page "/Blogs"
+@using Dto.Models
+@using Dto.Models.DtoBlog
+@using Dto.Models.DtoGroupBlog
+@using PublicTolidiAyhan.Base
+@using Newtonsoft.Json
+@using Dto.Models.DtoUploadFile
+@inject NavigationManager NavManager
+@inject IRootApi<ResponseApiEntities<ResultBlog>> RootApiResultBlog
+@inject IRootApi<ResponseApiEntity<ResultGroupBlog>> RootApiResultGroupBlog
+
+<section class="py-5">
+    <div class="container">
+        <!--Hero section-->
+        <section class="bg-[url('../images/Blog/cover.jpg')] bg-cover bg-center rounded-lg shadow-md py-25 transition-colors duration-200 relative">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-lg"></div>
+            <div class="container mx-auto px-4 text-center relative z-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-100 dark:text-white mb-4">وبلاگ فروشگاه اینترنتی</h1>
+                <p class="text-lg text-gray-300 dark:text-gray-300 max-w-2xl mx-auto">آخرین مقالات، راهنماهای خرید و نکات مفید برای تجربه خریدی بهتر</p>
+                <div class="mt-8 max-w-md mx-auto relative">
+                    <input type="text" placeholder="جستجو در مقالات..." class="w-full py-3 px-4 pr-12 rounded-full border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-zinc-900 dark:text-white">
+                    <button class="absolute left-3 top-3 text-gray-400 dark:text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!--Original content-->
+        <!-- Horizontal Header -->
+        <div class="w-full my-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 rounded-xl px-6 py-4 shadow-md border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800 backdrop-blur">
+
+                <!-- Title -->
+                <div>
+                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-800 dark:text-gray-100">
+                        دسته بندی: @ResultGroupBlog.Title
+                    </h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        لیست مطالب منتشر شده در وبلاگ
+                    </p>
+                </div>
+
+                <!-- Counter -->
+                <div class="shrink-0">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 px-4 py-2 text-sm font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
+                                  d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0 1 18 0z" />
+                        </svg>
+                        @ResultBlogs.Count مقاله
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <main class="container !px-0 my-10">
+            <div class="flex flex-col xl:flex-row gap-4">
+
+                <!-- Articles -->
+                <div class="xl:w-3/4">
+                    @if (ResultBlogs.Count == 0)
+                    {
+                        <div class="w-full relative">
+                            <div class="pb-4 bg-white dark:bg-gray-800 px-6 pt-4 border-t border-gray-200 dark:border-gray-700 my-3 align-items-center">
+                                <h3 class="font-bold text-center">هیچ اطلاعاتی ثبت نشده است</h3>
+                            </div>
+                        </div>
+
+                    }
+                    <div class="grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-4">
+
+                        @foreach (var item in ResultBlogs)
+                        {
+                            var ResultUploadFile = item.JsonPicture != null ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(item.JsonPicture) : new List<ResultUploadFile>();
+                            var filepath = ResultUploadFile.Count > 0 ? ApiLink.FullPath + ResultUploadFile[0].PathFileName : ApiLink.FullPath + "images/No-Blog-Image.png"; ;
+
+                            <div class="space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/BlogPosting">
+                                <a @onclick="@(() => GoToBlogDetails(item.IdentityCode.ToString()))" class="w-full block" itemprop="url">
+                                    <article class="p-4 space-y-3 rounded-xl hover:-translate-y-2 transition border border-gray-200 bg-white drop-shadow-md dark:bg-gray-800">
+                                        <figure class="text-center block py-4" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+                                            <img src="@filepath" class="h-50 rounded-xl w-full block mx-auto object-cover" alt="@item.Title" itemprop="contentUrl">
+                                            <meta itemprop="caption" content="@item.Title">
+                                        </figure>
+                                        <section class="space-y-5">
+                                            <div class="space-y-4">
+                                                <h4 class="relative before:right-0 before:z-[-1] before:rounded-lg before:bg-gray-300 before:absolute before:top-1/2 before:h-px before:w-full before:-translate-y-1/2">
+                                                    <span class="bg-secondary text-sm rounded text-white px-3 dark:bg-secondary-300" itemprop="articleSection">
+                                                        @item.ResultGroupBlog.Title
+                                                    </span>
+                                                </h4>
+                                                <h2 class="text-xl line-clamp-1 font-bold dark:text-white" itemprop="headline">@item.Title</h2>
+                                            </div>
+                                            <div class="flex mt-8 flex-wrap justify-between items-center">
+                                                <div class="flex items-center" itemprop="datePublished" content="2024-03-02">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                    </svg>
+                                                    <time class="mr-2 dark:text-white">@item.RegisterDate</time>
+                                                </div>
+                                                <div class="flex items-center" itemprop="interactionStatistic" itemscope itemtype="https://schema.org/InteractionCounter">
+                                                    <meta itemprop="interactionType" content="https://schema.org/WatchAction">
+                                                    <meta itemprop="userInteractionCount" content="128">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                    </svg>
+                                                    <time class="mr-2 dark:text-white">@item.NumberOfVisits بازدید</time>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </article>
+                                </a>
+                            </div>
+                        }
+
+                    </div>
+                    @if (ResultBlogs.Count > 0)
+                    {
+                        <Pagination pagingModel="pagingModel" OnClickcallBack="@CallBackPaging" />
+                    }
+
+                </div>
+
+                <!-- sidebar -->
+                <aside class="xl:w-1/4 relative">
+                    <div class="space-y-8 sticky top-0">
+                        <GroupBlog GetDate="@GetData" />
+
+                        <!--Popular articles-->
+                        <BlogsTop10MostVisited />
+                        <!-- newsletter -->
+                        <div class="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-xl border border-primary-100 dark:border-primary-800 transition-colors duration-200">
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-3">عضویت در خبرنامه</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">با عضویت در خبرنامه از آخرین مقالات و تخفیف‌های ویژه مطلع شوید.</p>
+                            <form class="space-y-3">
+                                <input type="email" placeholder="آدرس ایمیل شما" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-zinc-900 dark:text-white">
+                                <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white py-2 px-4 rounded-lg transition duration-300">عضویت</button>
+                            </form>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+
+    </div>
+</section>
+
+@code {
+    ResultGroupBlog? ResultGroupBlog { get; set; } = new();
+    List<ResultBlog> ResultBlogs { get; set; } = new();
+
+    PagingModel pagingModel { get; set; } = new();
+    string? Code { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        pagingModel.Page = 1;
+        pagingModel.Take = 15;
+        await GetData();
+     
+
+
+    }
+    private async Task CallBackPaging(decimal page)
+    {
+        pagingModel.Page = page;
+        await GetData();
+
+    }
+  
+    private async Task GetData(string? identityCode = null)
+    {
+        if (string.IsNullOrEmpty(Code) || string.IsNullOrWhiteSpace(Code))
+            Code = identityCode;
+        var Search = BaseCode.GetSearchText(string.Empty);
+        var resdata = await RootApiResultBlog.RunMethodApi($"Blogs/Public/IdentityCode?Page={pagingModel.Page}&Take={pagingModel.Take}{Search}&Code={Code}", null, method: Method.Get);
+        int Count = 0;
+        if (resdata != null && resdata.Status == ResultMessageApi.Success)
+        {
+            Count = resdata.CountAllRecordTable;
+            ResultBlogs = resdata.Entities.ToList();
+        }
+
+        pagingModel.CountPage = Math.Ceiling(Count / pagingModel.Take);
+        pagingModel.CountPagePer10 = Math.Ceiling(pagingModel.CountPage / 10);
+        var resdataGroupBlogs = await RootApiResultGroupBlog.RunMethodApi($"GroupBlogs/Public/IdentityCode/{Code}", null, method: Method.Get);
+        if (resdataGroupBlogs != null && resdataGroupBlogs.Status == ResultMessageApi.Success)
+        {
+            ResultGroupBlog = resdataGroupBlogs.Entity;
+        }
+        else
+        {
+            ResultGroupBlog.Title = "همه";
+        }
+        Code = null;
+
+    }
+    // private async Task GetData( int? GroupBlogID=null)
+    // {
+
+    //     var Search = BaseCode.GetSearchText(string.Empty);
+    //     var resdata = await RootApiResultBlog.RunMethodApi($"Blogs/Public?Page={pagingModel.Page}&Take={pagingModel.Take}{Search}&GroupBlogID={GroupBlogID}", null, method: Method.Get);
+    //     int Count = 0;
+    //     if (resdata != null)
+    //     {
+    //         Count = resdata.CountAllRecordTable;
+    //         ResultBlogs = resdata.Entities.ToList();
+    //     }
+
+    //     pagingModel.CountPage = Math.Ceiling(Count / pagingModel.Take);
+    //     pagingModel.CountPagePer10 = Math.Ceiling(pagingModel.CountPage / 10);
+    // }
+
+    private void GoToBlogDetails(string identityCode)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"Code", identityCode},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/BlogDetails", parameter!));
+    }
+}

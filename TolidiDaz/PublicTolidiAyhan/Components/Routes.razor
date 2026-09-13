@@ -1,0 +1,21 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+              <NotAuthorized>
+                <PublicTolidiAyhan.Components.Pages.Login.RedirectToLogin />
+          </NotAuthorized>
+                <Authorizing>
+                <PublicTolidiAyhan.Components.Pages.Login.Authorizing />
+                </Authorizing>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>صفحه پیدا نشد</PageTitle>
+        <LayoutView Layout="typeof(Layout.MainLayout)">
+            <p role="alert">دسترسی به این صفحه امکان پذیر نیست</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+

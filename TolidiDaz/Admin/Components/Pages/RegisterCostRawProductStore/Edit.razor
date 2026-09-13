@@ -1,0 +1,281 @@
+﻿@page "/UpdateRegisterCostRawProductStore"
+@using Admin.Services.Personel
+@using Admin.Services.Position
+@using Admin.Services.Product_CountAction_CostType
+@using Admin.Services.RawProductStore_Product
+@using Dto.Models.DtoPersonel
+@using Dto.Models.DtoPosition
+@using Dto.Models.DtoProduct_CountAction_CostType
+@using Dto.Models.DtoRawProductStore_Product
+@using Dto.Models.DtoRegisterCostRawProductStore
+@using static Dto.Enum.EnumConstant
+@inject SweetAlertService Swal
+@inject NavigationManager NavManager
+@inject IToastMessage JS
+@inject IRootApi<ResponseApiEntity<UpdateRegisterCostRawProductStore>> RootApiUpdateRegisterCostRawProductStore
+@inject IRootApi<ResponseApiEntity<AddRegisterCostRawProductStore>> RootApiAddRegisterCostRawProductStore
+@inject IRootApi<ResponseApiEntities<ResultPersonel>> RootApiResultPersonels
+@inject IRootApi<ResponseApiEntities<ResultPosition>> RootApiResultPositions
+@inject IRootApi<ResponseApiEntities<ResultProduct_CountAction_CostType>> RootApiResultProduct_CountAction_CostTypes
+@inject PositionService _PositionService
+@inject PersonelService _PersonelService
+@inject RawProductStore_ProductService _RawProductStore_ProductService
+@inject Product_CountAction_CostTypeService _Product_CountAction_CostTypeService
+
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">ویرایش اطلاعات هزینه تولید</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات هزینه تولید را ویرایش نمایید</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Add category form -->
+    <EditForm Model="updateRegisterCostRawProductStore" OnValidSubmit="Update" FormName="UpdateForm">
+        <DataAnnotationsValidator />
+        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                    فرم هزینه تولید
+                </h3>
+            </div>
+
+            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- RegisterCostRawProductStore Info -->
+                <div class="space-y-4">
+                    <div>
+                        <CustomLabel ForId="PositionId" For="@(() => _PositionService.addPosition.Title)"></CustomLabel>
+                        <ValidationMessage For="@(() => PositionId)" class="validate" />
+                        <InputSelect @bind-Value="PositionId" @bind-Value:after="@( ()=>  Product_CountAction_CostType__Or__Unit_CostType())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item in _PositionService.ResultPositions)
+                            {
+                                <option value="@item.ID">@item.Title (@item.CostType)</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div>
+                        <CustomLabel ForId="updateRegisterCostRawProductStore_ProductID" For="@(() => updateRegisterCostRawProductStore.RawProductStore_ProductID)"></CustomLabel>
+                        <InputSelect @bind-Value="ProductId" @bind-Value:after="@( ()=>  Product_CountAction_CostType__Or__Unit_CostType())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item in _RawProductStore_ProductService.ResultRawProductStore_Products)
+                            {
+                                <option value="@item.ResultProduct.ID">@item.ResultProduct.Title (@item.ResultProduct.ProductCode )</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div>
+                        <CustomLabel ForId="updateRegisterCostRawProductStore-PersonelID" For="@(() => updateRegisterCostRawProductStore.PersonelID)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateRegisterCostRawProductStore.PersonelID)" class="validate" />
+                        <InputSelect @bind-Value="updateRegisterCostRawProductStore.PersonelID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item in _PersonelService.ResultPersonels)
+                            {
+                                <option value="@item.ID">@item.Name @item.LastName</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+
+                      <div>
+                        <CustomLabel ForId="updateRegisterCostRawProductStore-Count" For="@(() => updateRegisterCostRawProductStore.Count)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateRegisterCostRawProductStore.Count)" class="validate" />
+                        <input type="number" @bind="updateRegisterCostRawProductStore.Count" @bind:event="oninput" @bind:after="@( ()=> Calculate())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="updateRegisterCostRawProductStore-Price" For="@(() => updateRegisterCostRawProductStore.Price)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateRegisterCostRawProductStore.Price)" class="validate" />
+                        <input type="number" @bind="updateRegisterCostRawProductStore.Price" @bind:event="oninput" @bind:after="@( ()=> Calculate())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+
+                    </div>
+                    <div>
+                        <CustomLabel ForId="updateRegisterCostRawProductStore-SumPrice" For="@(() => updateRegisterCostRawProductStore.SumPrice)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateRegisterCostRawProductStore.SumPrice)" class="validate" />
+                        <input readonly value="@updateRegisterCostRawProductStore.SumPrice.ToString("N0")" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+
+                  
+                </div>
+                <!-- Settings -->
+                <div class="space-y-4">
+
+                  @*   <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">وضعیت*</label>
+                        <InputRadioGroup @bind-Value="updateRegisterCostRawProductStore.Visible" Name="status">
+                            <InsertUpdateVisible />
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => updateRegisterCostRawProductStore.Visible)" class="validate" />
+                    </div> *@
+
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                    ذخیره
+                </button>
+
+            </div>
+        </div>
+
+    </EditForm>
+</main>
+@code {
+    int? PositionId;
+    int? ProductId;
+    int? RawProductStore_ProductID;
+    [SupplyParameterFromQuery]
+    public int RawProductStoreID { get; set; }
+    private UpdateRegisterCostRawProductStore? updateRegisterCostRawProductStore { get; set; } = new() { Visible = true };
+    [SupplyParameterFromQuery]
+    public int ID { get; set; }
+    List<ResultPersonel> resultPersonels = new();
+    List<ResultPosition> resultPositions = new();
+    ResultPosition SelectresultPosition = new();
+    List<ResultProduct_CountAction_CostType> resultProduct_CountAction_CostTypes = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetData();
+
+        await _PositionService.GetListDate();
+       
+
+
+
+        if (_PositionService.ResultPositions.Count > 0 && updateRegisterCostRawProductStore.ResultPersonel.PositionID == null)
+            PositionId = _PositionService.ResultPositions[0].ID;
+        else
+            PositionId = updateRegisterCostRawProductStore.ResultPersonel.PositionID;
+
+        await _RawProductStore_ProductService.GetData(RawProductStoreID);
+        if (_RawProductStore_ProductService.ResultRawProductStore_Products.Count > 0 && updateRegisterCostRawProductStore.ResultRawProductStore_Product.ProductID==null)
+            ProductId = _RawProductStore_ProductService.ResultRawProductStore_Products[0].ResultProduct.ID;
+            else
+            ProductId = updateRegisterCostRawProductStore.ResultRawProductStore_Product.ProductID;
+
+
+        // if (_RawProductStore_ProductService.ResultRawProductStore_Products.Count > 0)
+        //     updateRegisterCostRawProductStore.RawProductStore_ProductID = RawProductStore_ProductID = _RawProductStore_ProductService.ResultRawProductStore_Products[0].ID;
+        await _PersonelService.GetData(PositionId);
+
+        if (_PersonelService.ResultPersonels.Count > 0 && updateRegisterCostRawProductStore.PersonelID==null)
+            updateRegisterCostRawProductStore.PersonelID = _PersonelService.ResultPersonels[0].ID;
+      
+
+       // await Product_CountAction_CostType__Or__Unit_CostType();
+
+    }
+    private void Calculate()
+    {
+        updateRegisterCostRawProductStore.SumPrice = updateRegisterCostRawProductStore.Price * updateRegisterCostRawProductStore.Count;
+    }
+    private async Task Product_CountAction_CostType__Or__Unit_CostType()
+    {
+        // if (_isFirstLoad)
+        // {
+        //     _isFirstLoad = false;
+        //     return;
+        // }
+        SelectresultPosition = _PositionService.ResultPositions.Where(s => s.ID == PositionId).FirstOrDefault();
+        if (SelectresultPosition.CostType2 == CostType.Product_CountAction)
+        {
+            await _Product_CountAction_CostTypeService.GetData(PositionId, ProductId);
+            if (_Product_CountAction_CostTypeService.ResultProduct_CountAction_CostType != null)
+                updateRegisterCostRawProductStore.Price = _Product_CountAction_CostTypeService.ResultProduct_CountAction_CostType.Price;
+            else
+                updateRegisterCostRawProductStore.Price = 0;
+        }
+        else
+        {
+            updateRegisterCostRawProductStore.Price = SelectresultPosition.Price;
+        }
+        var q = _RawProductStore_ProductService.ResultRawProductStore_Products.Where(x => x.ProductID == ProductId).FirstOrDefault();
+        RawProductStore_ProductID =q!=null? q.ID:null;
+        await _PersonelService.GetData(PositionId);
+        if (_PersonelService.ResultPersonels.Count > 0)
+            updateRegisterCostRawProductStore.PersonelID = _PersonelService.ResultPersonels[0].ID;
+        else
+            updateRegisterCostRawProductStore.PersonelID = null;
+        Calculate();
+
+    }
+    private async Task Update()
+    {
+        if (updateRegisterCostRawProductStore.PersonelID == null)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "پرسنلی را انتخاب کنید",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        updateRegisterCostRawProductStore.RawProductStore_ProductID = RawProductStore_ProductID;
+        if (updateRegisterCostRawProductStore.Count <= 0)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "تعداد نمی تواند صفر باشد",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        if (updateRegisterCostRawProductStore.Price <= 0)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "مبلغ نمی تواند صفر باشد",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+
+        var resdata = await RootApiUpdateRegisterCostRawProductStore.RunMethodApi("RegisterCostRawProductStores", updateRegisterCostRawProductStore, method: Method.Patch);
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+            await JS.CallAlertToast(resdata.Message);
+        }
+        else
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdata.Message,
+                Icon = resdata.Status,
+                ShowConfirmButton = true,
+            });
+        }
+
+
+    }
+    public async Task GetData()
+    {
+        var resdataEdit = await RootApiUpdateRegisterCostRawProductStore.RunMethodApi($"RegisterCostRawProductStores/{ID}", null, method: Method.Get);
+        updateRegisterCostRawProductStore = resdataEdit.Entity;
+
+
+    }
+    private void GoBack()
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"RawProductStoreID", RawProductStoreID.ToString()},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/RegisterCostRawProductStore", parameter!), forceLoad: true);
+    }
+
+}
+

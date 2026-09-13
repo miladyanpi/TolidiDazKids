@@ -1,0 +1,250 @@
+﻿@page "/Personel"
+@using Admin.Services
+@using Dto.Models
+@using Dto.Models.DtoPersonel
+@using Dto.Models.DtoUploadFile
+@using Newtonsoft.Json
+@inject SweetAlertService Swal
+@inject NavigationManager NavManager
+@inject IToastMessage JS
+@inject IRootApi<ResponseApiEntities<ResultPersonel>> RootApiGet
+@inject IRootApi<ResponseApiEntity<ResultPersonel>> RootApiDelete
+@inject IRootApi<ResponseApiEntity<UpdatePersonel>> RootApiSetDefault
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFiles
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">مدیریت پرسنل</h2>
+            <p class="text-gray-600 dark:text-gray-400">لیست تمام پرسنل</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <a href="/InsertPersonel" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                پرسنل جدید
+            </a>
+        </div>
+    </div>
+
+    <!-- Users list -->
+    <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="px-6 pb-2 border-b border-gray-200 flex-wrap dark:border-gray-700 flex items-center justify-between">
+            <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                لیست پرسنل
+            </h3>
+            <Search OnClickcallBack="@GetData" PlaceHolder="جستجو..." />
+        </div>
+
+        <!-- Users table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultPersonel.ResultPosition.Title)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultPersonel.Name)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultPersonel.BirthDate)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultPersonel.Gender)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultPersonel.Mobile)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => resultPersonel.Visible)"></CustomLabel>
+                        </th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                    <!-- User 1 -->
+                    @{
+                        decimal i = (pagingModel.Page - 1) * pagingModel.Take;
+
+                    }
+                    @foreach (var item in ResultPersonels)
+                    {
+                        var ResultUploadImages = !string.IsNullOrEmpty(@item.JsonPicture) ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(@item.JsonPicture) : new List<ResultUploadFile>();
+                        i++;
+                        decimal k = i;
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.ResultPosition.Title</td>
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        @if (string.IsNullOrEmpty(item.ImageUIrl))
+                                        {
+                                            <img class="h-10 w-10 rounded-full object-cover" src="images/ManWoman.png" alt="بدون عکس" />
+                                        }
+                                        else
+                                        {
+                                            <img class="h-10 w-10 rounded-full object-cover" src="@item.ImageUIrl" alt="@item.Name @item.LastName" />
+                                        }
+                                    </div>
+                                    <div class="mr-4">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">@item.Name @item.LastName</div>
+                                    </div>
+
+                                </div>
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.BirthDate</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Gender</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Mobile</td>
+                           
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <Visible Value="item.Visible" />
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                               
+                                <button title="تصاویر" @onclick="@(async () => await ListFiles(item.ID))"
+                                        class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ml-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <title>تصاویر</title>
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M3 5.25C3 4.007 4.007 3 5.25 3h13.5C19.993 3 21 4.007 21 5.25v13.5c0 1.243-1.007 2.25-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18.75V5.25z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M8.25 13.5l2.25-3 3 3.75 4.5-6.75" />
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15 8.25a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                                    </svg>
+
+                                </button>
+                                <button title="ویرایش" @onclick="@(() => GoToUpdate(item.ID))" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ml-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                    </svg>
+                                </button>
+                                <button title="حذف" @onclick="@(async () => await Delete(item.ID))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <Pagination pagingModel="pagingModel" OnClickcallBack="@CallBackPaging" />
+    </div>
+</main>
+
+
+@code {
+    public EnumComponentName.ComponentNameType ComponentNameType { get; set; } = EnumComponentName.ComponentNameType.Insert;
+
+    private PagingModel pagingModel { get; set; } = new();
+    private ResultPersonel resultPersonel { get; set; } = new();
+    private List<ResultPersonel>? ResultPersonels { get; set; } = new List<ResultPersonel>();
+    public int ID { get; set; } = 0;
+
+    protected async override Task OnInitializedAsync()
+    {
+        pagingModel.Page = 1;
+        pagingModel.Take = BaseCode.GetCountShowRecord();
+        await GetData();
+    }
+
+    private async Task CallBackPaging(decimal page)
+    {
+        pagingModel.Page = page;
+        await GetData();
+    }
+
+    private async Task GetData(string? SearchText = "")
+    {
+        var Search = BaseCode.GetSearchText(SearchText);
+        var resdata = await RootApiGet.RunMethodApi($"Personels?Page={pagingModel.Page}&Take={pagingModel.Take}{Search}", null, method: Method.Get);
+        decimal Count = resdata.CountAllRecordTable;
+        ResultPersonels = resdata.Entities.ToList();
+        pagingModel.CountPage = Math.Ceiling(Count / pagingModel.Take);
+        pagingModel.CountPagePer10 = Math.Ceiling(pagingModel.CountPage / 10);
+    }
+
+    private async Task Delete(int ID)
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "برای حذف مطمئن هستید؟",
+            Text = "درصورت تایید شما، رکورد انتخاب شده حذف خواهد شد",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+            ///بخش حذف فایل
+            DeleteUploadFile deleteUploadFile = new DeleteUploadFile();
+            var dataTemp = ResultPersonels.Where(s => s.ID == ID).FirstOrDefault();
+            var resultUploadFiles = dataTemp != null && dataTemp.JsonPicture != null ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(dataTemp.JsonPicture) : new List<ResultUploadFile>();
+            deleteUploadFile.ResultUploadFiles = resultUploadFiles;
+            deleteUploadFile.ID = ID;
+
+            var resdata = await RootApiDelete.RunMethodApi($"Personels/{ID}", null, method: Method.Delete);
+            if (resdata.Status == ResultMessageApi.Success)
+            {
+                _ = await RootApiResultUploadFiles.RunMethodApi($"DeleteFile/MultiFiles", deleteUploadFile, method: Method.Post);
+
+                await JS.CallAlertToast(resdata.Message);
+                await GetData();
+            }
+            else
+            {
+                _ = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = resdata.Message,
+                    Icon = resdata.Status,
+                    ShowConfirmButton = true,
+                });
+            }
+        }
+    }
+
+
+    private async Task ListFiles(int id)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"ID", id.ToString()},
+
+
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/PersonelFiles", parameter!));
+    }
+    private void GoToInsert()
+    {
+        NavManager.NavigateTo("/InsertPersonel", forceLoad: true);
+    }
+    private void GoToUpdate(int id)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"ID", id.ToString()},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/UpdatePersonel", parameter!));
+    }
+    private void GoToRoles(int id)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"PersonelID", id.ToString()},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/PersonelRoles", parameter!));
+    }
+    private void GoToAddress(int id)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"PersonelID", id.ToString()},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/PersonelAddress", parameter!));
+    }
+}

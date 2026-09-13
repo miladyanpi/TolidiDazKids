@@ -1,0 +1,227 @@
+﻿@page "/InsertCustomer"
+@using Dto.Models.DtoAccount
+@using Dto.Models.DtoCategory
+@using Dto.Models.DtoCustomer
+@using Dto.Models.DtoUploadFile
+@using System.Net.Http.Headers
+@using Newtonsoft.Json
+@inject SweetAlertService Swal
+@inject NavigationManager NavManager
+@inject IToastMessage JS
+@inject IRootApi<ResponseApiEntity<AddCustomer>> RootApiAddCustomer
+@inject IRootApi<ResponseApiEntities<ResultRole>> RootApiResultRole
+@inject IRootApi<ResponseApiEntities<ResultCustomer>> RootApiResultCustomers
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+@inject IRootApi<ResponseApiEntities<ResultCategory>> RootApiResultCategorys
+@inject IRootApi<ResponseApiEntity<AddUser>> RootApiAddUser
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">افزودن کاربر جدید</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات کاربر جدید را وارد نمایید</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Add category form -->
+    <EditForm Model="addCustomer" OnValidSubmit="Add" FormName="AddForm">
+        <DataAnnotationsValidator />
+        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                    فرم اطلاعات کاربر
+                </h3>
+            </div>
+
+            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Category Info -->
+                <div class="space-y-4">
+
+                    
+                    <div>
+                        <CustomLabel ForId="Customer-name" For="@(() => addCustomer.Name)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.Name)" class="validate" />
+                        <InputText id="Customer-name" @bind-Value="addCustomer.Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="Customer-LastName" For="@(() => addCustomer.LastName)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.LastName)" class="validate" />
+                        <InputText id="Customer-LastName" @bind-Value="addCustomer.LastName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div class="form-group ">
+                        <CustomLabel For="@(() => addCustomer.BirthDate)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.BirthDate)" class="validate" />
+                        <InputPersianDatePicker @bind-Value="addCustomer.BirthDate"
+                                                MinDateSetOnToday="false"
+                                                Placeholder="تاریخ تولد"
+                                                CssClass="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="Customer-Mobile" For="@(() => addCustomer.Mobile)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.Mobile)" class="validate" />
+                        <InputText id="Customer-Mobile" @bind-Value="addCustomer.Mobile" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                
+
+                    <div class="mb-4">
+                        <CustomLabel ForId="Customer-stock" For="@(() => addCustomer.Gender)"></CustomLabel>
+
+                        <InputRadioGroup @bind-Value="addCustomer.Gender" Name="stock-status">
+                            <div class="flex flex-row items-center space-x-6">
+
+                                <div class="flex items-center">
+                                    <InputRadio o Value="@Dto.Enum.EnumConstant.Gender.Man"
+                                                id="in-stock"
+                                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                    <label for="in-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">مرد</label>
+                                </div>
+
+                                <div class="flex items-center">
+                                    <InputRadio Value="@Dto.Enum.EnumConstant.Gender.Woman"
+                                                id="out-of-stock"
+                                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                    <label for="out-of-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">زن</label>
+                                </div>
+
+                            </div>
+                        </InputRadioGroup>
+
+                        <ValidationMessage For="@(() => addCustomer.Gender)" class="validate" />
+                    </div>
+
+                </div>
+
+
+                <!-- Settings -->
+                <div class="space-y-4">
+                    <div>
+                        <CustomLabel ForId="Customer-UserName" For="@(() => addCustomer.UserName)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.UserName)" class="validate" />
+                        <InputText id="Customer-UserName" @bind-Value="addCustomer.UserName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="Customer-Email" For="@(() => addCustomer.Email)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.Email)" class="validate" />
+                        <InputText id="Customer-Email" @bind-Value="addCustomer.Email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div class="form-group ">
+                        <CustomLabel ForId="Customer-Password" For="@(() => addCustomer.Password)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.Password)" class="validate" />
+                        <InputText id="Customer-Password" @bind-Value="addCustomer.Password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div class="form-group ">
+                        <CustomLabel ForId="Customer-ConfirmPassword" For="@(() => addCustomer.ConfirmPassword)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.ConfirmPassword)" class="validate" />
+                        <InputText id="Customer-ConfirmPassword" @bind-Value="addCustomer.ConfirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+
+                    <div>
+
+                        <CustomLabel ForId="category-parent" For="@(() => addCustomer.roleID)"></CustomLabel>
+                        <ValidationMessage For="@(() => addCustomer.roleID)" class="validate" />
+                        <InputSelect @bind-Value=" addCustomer.roleID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item in ResultRoles)
+                            {
+                                <option value="@item.ID">@item.RoleTitle</option>
+                            }
+                        </InputSelect>
+
+                    </div>
+
+                    <div>
+                        <CustomLabel ForId="Customer-description" For="@(() => addCustomer.Description)"></CustomLabel>
+                        <InputTextArea @bind-Value="addCustomer.Description" id="Customer-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div class="mb-4">
+                        <CustomLabel For="@(() => addCustomer.Visible)"></CustomLabel>
+
+                        <InputRadioGroup @bind-Value="addCustomer.Visible" Name="status">
+                            <InsertUpdateVisible />
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => addCustomer.Visible)" class="validate" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                    ذخیره
+                </button>
+
+            </div>
+        </div>
+
+    </EditForm>
+</main>
+@code {
+    private AddCustomer? addCustomer { get; set; } = new() { Visible = true,Gender=EnumConstant.Gender.NotDefine };
+    private List<ResultRole> ResultRoles = new List<ResultRole>();
+    public List<ResultUploadFile> ResultUploadImages { get; set; } = new List<ResultUploadFile>();
+    protected async override Task OnParametersSetAsync()
+    {
+        var Roles = await RootApiResultRole.RunMethodApi($"Accounts/Roles/All", null, method: Method.Get);
+        ResultRoles = Roles.Entities.ToList();
+        addCustomer.roleID = ResultRoles.Count > 0 ? ResultRoles[0].ID : null;
+    }
+    private async Task Add()
+    {
+
+        var resdata = await RootApiAddCustomer.RunMethodApi("Customers", addCustomer, method: Method.Post);
+        AddUser addUser = new AddUser
+        {
+            CustomerID = resdata.ID,
+            Email = addCustomer.Email,
+            Mobile = addCustomer.Mobile,
+            RoleName = addCustomer.roleID,
+        };
+        addUser.UserName = addCustomer.UserName;
+        addUser.Password = addCustomer.Password;
+        addUser.ConfirmPassword = addCustomer.Password;
+
+
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+            await JS.CallAlertToast(resdata.Message);
+            var resdataUser = await RootApiAddUser.RunMethodApi("Accounts/User", addUser, method: Method.Post);
+            if (resdata.Status == ResultMessageApi.Error)
+            {
+                _ = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = resdataUser.Message,
+                    Icon = resdataUser.Status,
+                    ShowConfirmButton = true,
+                });
+            }
+            //  await JS.CallAlertToast(resdataUser.Message);
+            addCustomer = new AddCustomer();
+        }
+        else
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdata.Message,
+                Icon = resdata.Status,
+                ShowConfirmButton = true,
+            });
+        }
+
+
+    }
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/Customer");
+    }
+}
+

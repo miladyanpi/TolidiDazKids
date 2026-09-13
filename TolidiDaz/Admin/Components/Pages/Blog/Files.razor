@@ -1,0 +1,11 @@
+﻿@page "/BlogFiles"
+@using Admin.Services.Blog
+@inject NavigationManager NavManager
+<AccessAdminRoles />
+<ManageImagesPublicByFtp TService="BlogService"
+                         Guid="@guid"
+                         BackUrl="/Blog" />
+@code {
+    [Parameter]
+    public string? guid { get; set; }
+}

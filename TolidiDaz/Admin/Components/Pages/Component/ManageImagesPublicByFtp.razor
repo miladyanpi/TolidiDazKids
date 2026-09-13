@@ -1,0 +1,81 @@
+﻿@using Admin.Components.Constant
+@using Admin.Services.MageManagementService
+@typeparam TService where TService : class, IImageManagementByFtpService
+@implements IDisposable
+@inject TService ImageService
+
+<div class="card custom-card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+        <div>
+            <h5 class="mb-1 fw-bold text-dark">مدیریت تصاویر</h5>
+            <small class="text-muted">تصاویر موردنظر را انتخاب و بارگذاری کنید.</small>
+        </div>
+
+        <a href="@BackUrl" class="btn btn-outline-danger btn-sm px-3">
+            <i class="bi bi-arrow-return-right ms-1"></i>
+            بازگشت
+        </a>
+    </div>
+
+    <div class="card-body p-4">
+        <div class="row g-4">
+
+            <div class="col-12">
+                <div class="upload-section rounded-3 border bg-light p-4">
+                    <UploadPublicFilesToFtp Title="آپلود فایل" StaticFileAccept="@StaticFileAccept.ImageFiles" OnChangeUpload="ImageService.AddToListImagesAsync" />
+                </div>
+            </div>
+
+            @if (ImageService.ResultUploadImages?.Any() == true)
+            {
+                <div class="col-12">
+                    <Admin.Components.Pages.Component.GridFilesftpPublic Title="لیست فایلهای آپلود شده" ResultUploadFiles="ImageService.ResultUploadImages" OnClickcallBack="ImageService.DeleteImage" />
+                </div>
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="empty-images text-center rounded-3 border border-dashed p-5">
+                        <i class="bi bi-images fs-1 text-muted"></i>
+                        <p class="text-muted mb-0 mt-2">
+                            هنوز تصویری بارگذاری نشده است.
+                        </p>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string? Guid { get; set; }
+
+    [Parameter]
+    public string BackUrl { get; set; } = "/";
+
+    protected override void OnInitialized()
+    {
+        ImageService.OnChange += OnServiceChanged;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!System.Guid.TryParse(Guid, out _))
+            return;
+
+        ImageService.Guid = Guid;
+        await ImageService.GetUpdateDataAsync();
+    }
+
+    private void OnServiceChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ImageService.OnChange -= OnServiceChanged;
+    }
+}

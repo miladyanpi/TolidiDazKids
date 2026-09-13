@@ -1,0 +1,106 @@
+﻿@using Dto.Models.DtoProduct
+@inject NavigationManager NavManager
+@inject RootApi<ResponseApiEntities<ResultProduct>> RootApiGet
+
+<section class="py-5" itemscope itemtype="https://schema.org/ItemList">
+    <div class="container">
+        <div class="mb-5">
+            <header class="grid place-items-center grid-cols-6 gap-y-10">
+                <div class="ps-15 section-heading sm:col-span-4 w-full col-span-6 relative space-y-3">
+                    <h2 class="font-black text-2xl">
+                        <span itemprop="name" class="dark:text-white">پرپازدید ترین</span>
+                        <span class="text-primary font-bold">محصولات</span>
+                    </h2>
+                    <p class="text-neutral-600 dark:text-white" itemprop="description">آخرین محصولات پر بازدید هفته</p>
+                </div>
+                <div class="w-full sm:col-span-2 col-span-6">
+                    <div class="sm:text-end text-start">
+                        <a href="/Shop"
+                           class="btn bg-transparent border-secondary border-2 hover:bg-secondary hover:text-white dark:text-white dark:border-white"
+                           title="مشاهده تمامی محصولات پر بازدید" itemprop="url">
+                            مشاهده همه
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="swiper !px-2.3 product-list-carousel">
+            <div class="swiper-wrapper items-center" style="padding-bottom: 0 !important;">
+               @{
+                    int rowIndex = 0;
+               }
+                @for (int page = 1; page <= recordCount; page++)
+                {
+                    int Take = 3;
+                    int Skip = (Take * page) - Take;
+                    var Results = ResultProducts.Skip(Skip).Take(Take).ToList();
+
+                    <div class="swiper-slide space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/Product">
+                        @foreach (var item in Results)
+                        {
+                            string filepath = "images/No-Product-Image.png";
+                            if (item.ResultUploadFiles.Count > 0)
+                            {
+                                 filepath = ApiLink.FullPath + item.ResultUploadFiles[0].PathFileName;
+                            }
+                           
+                            rowIndex += 1;
+                            int k = rowIndex;
+                            <a href="#" @onclick="@(() => GotoProductDetails(item.IdentityCode.ToString()))" class="w-full block" itemprop="url">
+                                <article class="flex py-2 px-3 rounded-xl hover:bg-gray-200 transition border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800 dark:hover:bg-zinc-600">
+                                    <section class="w-1/6 border-l-2 border-gray-300">
+                                        <div class="text-center">
+                                            <span class="font-bold text-3xl text-primary">@k</span>
+                                        </div>
+                                    </section>
+                                    <section class="w-3/6 space-y-2 pr-3">
+                                        <h3 itemprop="name" class="font-bold leading-loose line-clamp-2 h-13 text-xs dark:text-white">@item.Title</h3>
+                                    </section>
+                                    <figure class="w-2/6" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+                                        <div class="text-end flex justify-end">
+                                            <img src="@filepath" class="size-20" loading="lazy"
+                                                 alt="@item.Title" itemprop="contentUrl">
+                                            <meta itemprop="caption" content="@item.Title">
+                                        </div>
+                                    </figure>
+                                </article>
+                            </a>
+
+                        }
+                    </div>
+                }
+
+
+            </div>
+            <div class="swiper-button-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                 aria-label="اسلاید بعدی"></div>
+            <div class="swiper-button-prev bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                 aria-label="اسلاید قبلی"></div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private List<ResultProduct>? ResultProducts { get; set; } = new List<ResultProduct>();
+    private double recordCount = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        await GetData();
+    }
+    private async Task GetData(string? SearchText = "")
+    {
+        var (data, authorized) = await RootApiGet.RunMethodApi($"Products/NewProductTop50", null, method: Method.Get);
+        ResultProducts = data.Entities.ToList();
+        recordCount = Math.Ceiling((float)ResultProducts.Count() / 3);
+    }
+    private async Task GotoProductDetails(string UniqCode)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"UniqCode", UniqCode},
+
+
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/ProductDetails", parameter!));
+    }
+}

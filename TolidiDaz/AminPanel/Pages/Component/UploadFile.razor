@@ -1,0 +1,48 @@
+﻿@using System.Net.Http.Headers
+ @inject ILocalStorageService localStorageService
+ @inject IToastMessage JS
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+<label>آپلود فایل فروشی</label>
+
+<div class="form-group ">
+    <label>انتخاب فایل</label>
+    <InputFile type="file" OnChange="UploadFileForSale" accept=".pdf,.docx,.xlsx,.jpg,.jpeg,.png,.zip,.rar,.bin" />
+</div>
+<hr />
+@code {
+    public string? Message { get; set; } = string.Empty;
+    public ResultUploadFile resultUploadFile { get; set; } = new();
+    public List<ResultUploadFile> ResultUploadFiles { get; set; } = new List<ResultUploadFile>();
+    [Parameter]
+    public EventCallback<List<ResultUploadFile>> OnChangeUpload { get; set; }
+
+    public async Task UploadFileForSale(InputFileChangeEventArgs e)
+    {
+        
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            if (file != null)
+            {
+                var fileContent =
+                           new StreamContent(file.OpenReadStream(long.MaxValue));
+
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                content.Add(fileContent, file.ContentType, file.Name);
+                var resdata = await RootApiResultUploadFile.UploadImage($"Upload", content, method: Method.Post);
+                await JS.CallAlertToast(resdata.Message);
+                var data = resdata.Entities.First();
+                ResultUploadFiles.Add(data);
+
+            }
+        }
+         await OnChangeUpload.InvokeAsync(ResultUploadFiles);
+
+        ResultUploadFiles.Clear();
+
+    }
+}
+
+
+

@@ -1,0 +1,10 @@
+﻿@using Admin.Services.About
+@inject NavigationManager NavManager
+<AccessAdminRoles />
+<ManageImagesPublicByFtp TService="AboutService"
+              Guid="@guid"
+              BackUrl="/About" />
+@code{
+    [Parameter]
+    public string? guid { get; set; }
+}

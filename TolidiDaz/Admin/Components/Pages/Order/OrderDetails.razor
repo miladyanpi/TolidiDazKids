@@ -1,0 +1,330 @@
+﻿@page "/OrderDetails"
+@using Dto.Models.DtoOrder
+@using Dto.Models.DtoOrderItem
+@using static Dto.Enum.EnumConstant
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- Breadcrumb -->
+    <nav class="mb-4 flex" aria-label="مسیر">
+        <ol class="inline-flex items-center space-x-2">
+            <li class="inline-flex items-center">
+                <a href="admin-panel-index.html" class="text-sm text-gray-600 hover:text-primary dark:text-gray-400">
+                    پیشخوان
+                </a>
+            </li>
+            <li class="inline-flex items-center">
+                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <a href="/Order" class="text-sm text-gray-600 hover:text-primary dark:text-gray-400">
+                    سفارشات
+                </a>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-primary dark:text-gray-400">
+                        سفارش #@resultOrder.OrderCode
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!--Order header-->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">جزئیات سفارش</h2>
+            <p class="text-gray-600 dark:text-gray-400">شماره سفارش: #@resultOrder.OrderCode</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex items-center space-x-3">
+            <a href="/Factor?ID=@resultOrder.ID" target="_blank" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                چاپ فاکتور
+            </a>
+            <a href="/Order" class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">
+               برگشت
+            </a>
+        </div>
+    </div>
+
+    <!--General order information-->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <!--Payment information-->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold mb-4">وضعیت سفارش</h3>
+            <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full @ClassText">
+                    @resultOrder.OrderStatus
+                </span>
+                @if (resultOrder.OrderStatus2 == OrderStatus.pending || resultOrder.OrderStatus2 == OrderStatus.shipped)
+                {
+                    <button @onclick="async () => await UpdateStatus()" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">
+                        تغییر وضعیت
+                    </button>
+                }
+               
+            </div>
+        </div>
+
+        <!--Payment information-->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold mb-4">اطلاعات پرداخت</h3>
+            <dl class="space-y-2">
+                <div class="flex justify-between">
+                    <dt class="text-gray-600 dark:text-gray-400">روش پرداخت:</dt>
+                    <dd class="text-gray-900 dark:text-white">آنلاین </dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600 dark:text-gray-400">وضعیت پرداخت:</dt>
+                    <dd class="text-green-600 dark:text-green-400">موفق</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!--Customer information-->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold mb-4">مشتری</h3>
+            <dl class="space-y-2">
+                <div class="flex justify-between">
+                    <dt class="text-gray-600 dark:text-gray-400">نام:</dt>
+                    <dd class="text-gray-900 dark:text-white">@resultOrder.ResultCustomer.Name @resultOrder.ResultCustomer.LastName</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600 dark:text-gray-400">تلفن:</dt>
+                    <dd class="text-gray-900 dark:text-white">@resultOrder.ResultCustomer.Mobile</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600 dark:text-gray-400">ایمیل:</dt>
+                    <dd class="text-gray-900 dark:text-white">@resultOrder.ResultCustomer.Email</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!--Shipping address and information-->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!--Billing address-->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold mb-4">روش ارسال</h3>
+            <address class="not-italic text-gray-600 dark:text-gray-400">
+                @resultOrder.ResultSendProductMethod.Title<br>
+                @resultOrder.ResultSendProductMethod.Description<br>
+            </address>
+        </div>
+
+        <!--Shipping address-->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold mb-4">آدرس ارسال</h3>
+            <address class="not-italic text-gray-600 dark:text-gray-400">
+                آدرس: @resultOrder.ResultCustomerAddress.Address<br>
+                واحد: @resultOrder.ResultCustomerAddress.BuildingUnit<br>
+                پلاک: @resultOrder.ResultCustomerAddress.Plaque<br>
+                کد پستی: @resultOrder.ResultCustomerAddress.PostalCode<br />
+                توضیحات: @resultOrder.ResultCustomerAddress.Description
+
+            </address>
+        </div>
+    </div>
+
+    <!--List of products-->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold">محصولات سفارش</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
+                            <CustomLabel For="@(() => resultOrderItem.ResultProduct.Title)"></CustomLabel>
+
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
+                            <CustomLabel For="@(() => resultOrderItem.PriceAtOrder)"></CustomLabel>
+
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
+                            <CustomLabel For="@(() => resultOrderItem.Quantity)"></CustomLabel>
+                        </th>
+                        
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
+                            <CustomLabel For="@(() => resultOrderItem.FinalAmount)"></CustomLabel>
+
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
+                            <CustomLabel For="@(() => resultOrderItem.RegisterDate)"></CustomLabel>
+
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <!--Product 1-->
+                    @foreach (var item in resultOrderItems)
+                    {
+                        var ResultUploadImages = !string.IsNullOrEmpty(@item.ResultProduct.JsonPicture) ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(@item.ResultProduct.JsonPicture) : new List<ResultUploadFile>();
+
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    @if (ResultUploadImages.Count > 0)
+                                    {
+                                        var path = @ApiLink.FullPath + @ResultUploadImages[0].PathFileName;
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img class="h-12 w-12 rounded-lg object-cover" src="@path" alt="@item.ResultProduct.Title">
+                                        </div>
+                                    }
+                                   
+                                    <div class="mr-4">
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">@item.ResultProduct.Title</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">کد انبار: @item.ResultProduct.SkuCode</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">@item.PriceAtOrder.ToString("N0") تومان</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">@item.Quantity</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">@item.FinalAmount.ToString("N0") تومان</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">@item.RegisterDate</td>
+                        </tr>
+                    }
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!--Totals and financial information-->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!--Status history-->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold mb-4">تاریخچه وضعیت</h3>
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="relative ml-4">
+                        <div class="h-2.5 w-2.5 bg-green-500 rounded-full mt-2"></div>
+                        <div class="h-full w-px bg-gray-200 dark:bg-gray-600 absolute left-1/2 -translate-x-1/2"></div>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">تحویل شده به مشتری</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">۱۴۰۲/۰۵/۲۲ - ۱۵:۳۰</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="relative ml-4">
+                        <div class="h-2.5 w-2.5 bg-primary-500 rounded-full mt-2"></div>
+                        <div class="h-full w-px bg-gray-200 dark:bg-gray-600 absolute left-1/2 -translate-x-1/2"></div>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">ارسال از مرکز توزیع</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">۱۴۰۲/۰۵/۲۰ - ۱۰:۱۵</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--total sum-->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold mb-4">جمع کل</h3>
+            <dl class="space-y-3">
+                <div class="flex justify-between">
+                    <dt class="text-gray-600 dark:text-gray-400">جمع اقلام:</dt>
+                    <dd class="text-gray-900 dark:text-white">@resultOrder.TotalAmount.ToString("N0") تومان</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600 dark:text-gray-400">جمع تخفیف:</dt>
+                    <dd class="text-gray-900 dark:text-white">@resultOrder.Discount.ToString("N0") تومان</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600 dark:text-gray-400">هزینه ارسال:</dt>
+                    <dd class="text-gray-900 dark:text-white">پس کرایه</dd>
+                </div>
+
+                <div class="flex justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <dt class="text-lg font-semibold text-gray-900 dark:text-white">مجموع کل:</dt>
+                    <dd class="text-lg font-bold text-primary-600 dark:text-primary-400">@resultOrder.FinalAmount.ToString("N0") تومان</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</main>
+
+
+@code {
+    
+    @inject IRootApi<ResponseApiEntity<ResultOrder>> RootApiGet
+    @inject IRootApi<ResponseApiEntities<ResultOrderItem>> RootApiGetResultOrderItem
+
+    @inject SweetAlertService Swal
+    private PagingModel pagingModel { get; set; } = new();
+    public ResultOrder? resultOrder { get; set; } = new();
+    public List<ResultOrderItem>? resultOrderItems { get; set; } = new();
+    public ResultOrderItem? resultOrderItem { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    public int? ID { get; set; }
+    
+    string ClassText = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        pagingModel.Page = 1;
+        pagingModel.Take = BaseCode.GetCountShowRecord();
+
+        var resdata = await RootApiGet.RunMethodApi($"Orders/Result/{ID}", null, method: Method.Get);
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+            resultOrder = resdata.Entity;
+        }
+        await GetData();
+
+    }
+    private async Task GetData(string? SearchText = "")
+    {
+        var Search = BaseCode.GetSearchText(SearchText);
+        var resdata = await RootApiGetResultOrderItem.RunMethodApi($"OrderItems?Page={pagingModel.Page}&Take={pagingModel.Take}{Search}&OrderID={ID}", null, method: Method.Get);
+        decimal Count = resdata.CountAllRecordTable;
+        resultOrderItems = resdata.Entities.ToList();
+        pagingModel.CountPage = Math.Ceiling(Count / pagingModel.Take);
+        pagingModel.CountPagePer10 = Math.Ceiling(pagingModel.CountPage / 10);
+    }
+    private async Task UpdateStatus()
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "جهت تغییر وضعیت مطمئن هستید؟",
+            Text = "درصورت تایید شما، وضعیت تغییر خواهد یافت",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+            var resdataUpdateOrder = await RootApiGet.RunMethodApi($"Orders/ChangeStatus/{ID}", null, method: Method.Get);
+            if (resdataUpdateOrder.Status == ResultMessageApi.Success)
+            {
+                resultOrder.OrderStatus = resdataUpdateOrder.Entity.OrderStatus;
+                resultOrder.OrderStatus2 = resdataUpdateOrder.Entity.OrderStatus2;
+                ClassText = GetStatusClass(resultOrder.OrderStatus2);
+                _ = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = resdataUpdateOrder.Message,
+                    Icon = resdataUpdateOrder.Status,
+                    ShowConfirmButton = true,
+                });
+            }
+            
+        }
+
+    }
+    string GetStatusClass(OrderStatus status) => status switch
+    {
+        OrderStatus.pending => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+        OrderStatus.shipped => "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+        OrderStatus.delivered => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+        OrderStatus.canceled => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+        OrderStatus.PendingPayment => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+        _ => "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+    };
+}

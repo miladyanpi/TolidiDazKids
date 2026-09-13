@@ -1,0 +1,142 @@
+﻿@using DNTCaptcha.Blazor
+@using PublicTolidiAyhan.Services.BlogComment
+@inject BlogCommentPublicService _BlogCommentPublicService
+<div class="mt-12">
+    <h3 class="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200 dark:text-gray-300">نظرات کاربران (@_BlogCommentPublicService.resultBlogComments.Count())</h3>
+    <EditForm Model="_BlogCommentPublicService.addBlogComment" OnValidSubmit="_BlogCommentPublicService.AddAsync" FormName="AddForm" class="space-y-6">
+        <DataAnnotationsValidator />
+        <!-- Name and Email -->
+        <div>
+            <CustomLabel For="@(() => _BlogCommentPublicService.addBlogComment.AuthorName)"></CustomLabel>
+            <ValidationMessage For="@(() => _BlogCommentPublicService.addBlogComment.AuthorName)" class="validate" />
+            <InputText placeholder="نام و نام خانوادگی" @bind-Value="_BlogCommentPublicService.addBlogComment.AuthorName" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition" />
+        </div>
+        <div>
+            <CustomLabel ForId="City-parent" For="@(() => _BlogCommentPublicService.addBlogComment.Body)"></CustomLabel>
+            <ValidationMessage For="@(() => _BlogCommentPublicService.addBlogComment.Body)" class="validate" />
+            <InputTextArea placeholder="نظر خود را بنویسید..." @bind-Value="_BlogCommentPublicService.addBlogComment.Body" class="w-full px-4 py-3 border placeholder-gray-500 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition" />
+        </div>
+
+        <div class="row form-group">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <ValidationMessage For="@(() => _BlogCommentPublicService.addBlogComment.EnteredCaptchaText1)" class="validate" />
+                    <CustomLabel For="@(() => _BlogCommentPublicService.addBlogComment.EnteredCaptchaText1)"></CustomLabel>
+                    <InputText @bind-Value="_BlogCommentPublicService.addBlogComment.EnteredCaptchaText1" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition" />
+                </div>
+                <DntInputCaptcha @bind-Value="_BlogCommentPublicService.addBlogComment.CaptchaText1"
+                                 Language="@NumberToWordLanguage.English"
+                                 DisplayMode="@DisplayMode.ShowDigits"
+                                 AllowThousandsSeparators="false"
+                                 Max="99999"
+                                 Min="11111"
+                                 AbsoluteExpiration="@TimeSpan.FromMinutes(2)"
+                                 ShowRefreshButton="true"
+                                 FontSize="21"
+                                 FontName="Times New Roman"
+                                 FontColor="#603F83FF"
+                                 BackgroundColor="#FCF6F5FF"
+                                 RandomLinesCount="2"
+                                 RandomCirclesCount="6"
+                                 BorderWidth="0.3"
+                                 BorderColor="grey"
+                                 NoisePointsCount="25"
+                                 Padding="11"
+                                 ShadowBlur="7"
+                                 ShadowColor="navy"
+                                 ShadowOffsetX="-3"
+                                 ShadowOffsetY="-3"
+                                 TimerInterval="@TimeSpan.FromMilliseconds(2500)"
+                                 CaptchaCanvasClass="d-flex align-self-center"
+                                 CaptchaDivClass="align-self-center ms-1"
+                                 RefreshButtonClass="p-4 bg-gray-100 rounded-full hover:bg-gray-200"
+                                 RefreshButtonTitle="Refresh" />
+
+            </div>
+
+        </div>
+        <!-- Submit button -->
+        <button type="submit"
+                class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-medium rounded-xl hover:opacity-90 transition duration-200 shadow-md shadow-primary-500/20">
+            ارسال پیام
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+        </button>
+    </EditForm>
+
+
+    <div class="space-y-6 mt-4">
+        <!--Comment 1-->
+        @foreach (var item in _BlogCommentPublicService.resultBlogComments)
+        {
+            <div class="flex items-start space-x-3">
+                <img src="assets/images/user/profile-img.jpg" alt="کاربر" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                <div>
+                    <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-lg">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-medium text-gray-800 dark:text-gray-300">@item.AuthorName</h4>
+                            <span class="text-xs text-gray-500 dark:text-gray-300">@item.RegisterDate</span>
+                        </div>
+                        <p class="mt-1 text-gray-700 dark:text-gray-300">@item.Body</p>
+                    </div>
+                    <div class="mt-2 flex space-x-4 text-sm">
+                        <button class="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400">پاسخ</button>
+                        @* <button class="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400">پسندیدم (5)</button> *@
+                    </div>
+                </div>
+            </div>
+        }
+      
+@* 
+        <!--Comment 2-->
+        <div class="flex items-start space-x-3">
+            <img src="assets/images/user/profile-img-2.jpg" alt="کاربر" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+            <div>
+                <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-medium text-gray-800 dark:text-gray-300">امیرحسین رضایی</h4>
+                        <span class="text-xs text-gray-500 dark:text-gray-300">1 هفته پیش</span>
+                    </div>
+                    <p class="mt-1 text-gray-700 dark:text-gray-300">آیا مدل‌های چینی مثل شیائومی و اوپو هم گزینه مناسبی هستند؟ به نظر من کیفیت ساخت این برندها در سال‌های اخیر خیلی بهتر شده.</p>
+                </div>
+                <div class="mt-2 flex space-x-4 text-sm">
+                    <button class="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400">پاسخ</button>
+                    <button class="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400">پسندیدم (2)</button>
+                </div>
+
+                <!--Reply to comment 2-->
+                <div class="mt-4 flex items-start space-x-3 pr-4">
+                    <img src="assets/images/user/user.png" alt="نویسنده" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                    <div>
+                        <div class="bg-primary-50 dark:bg-zinc-900 p-3 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-medium text-gray-800  dark:text-gray-300">محمد رضایی (نویسنده)</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-300">5 روز پیش</span>
+                            </div>
+                            <p class="mt-1 text-gray-700 dark:text-gray-300">بله کاملا درست می‌فرمایید. برندهای چینی در سال‌های اخیر پیشرفت چشمگیری داشته‌اند. به خصوص در زمینه دوربین و باتری عملکرد بسیار خوبی ارائه می‌دهند.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int BlogID { get; set; }
+  
+   
+    protected override async Task OnParametersSetAsync()
+    {
+        _BlogCommentPublicService.BlogID = BlogID;
+        _BlogCommentPublicService.OnChange += StateHasChanged;
+        await _BlogCommentPublicService.GetListDataAsync();
+    }
+    public void Dispose()
+    {
+        _BlogCommentPublicService.OnChange -= StateHasChanged;
+    }
+}

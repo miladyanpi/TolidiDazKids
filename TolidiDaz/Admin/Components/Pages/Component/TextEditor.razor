@@ -1,0 +1,43 @@
+﻿@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div @ref="editorElement" style="height:300px;"></div>
+
+@code {
+    private ElementReference editorElement;
+    private IJSObjectReference? module;
+    private IJSObjectReference? quillInstance;
+    private DotNetObjectReference<TextEditor>? dotNetRef;
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetRef = DotNetObjectReference.Create(this);
+            quillInstance = await JS.InvokeAsync<IJSObjectReference>("QuillFunctions.createQuill", editorElement, dotNetRef);
+
+            if (!string.IsNullOrWhiteSpace(Value))
+            {
+                await JS.InvokeVoidAsync("QuillFunctions.setHtml", quillInstance, Value);
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task UpdateHtml(string html)
+    {
+        Value = html;
+        await ValueChanged.InvokeAsync(html);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        dotNetRef?.Dispose();
+    }
+}

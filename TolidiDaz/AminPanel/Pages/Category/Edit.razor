@@ -1,0 +1,193 @@
+﻿@page "/UpdateCategory"
+@using Dto.Models.DtoCategory
+@using Dto.Models.DtoUploadFile
+@using System.Net.Http.Headers
+@using Newtonsoft.Json
+@inject SweetAlertService Swal
+@inject NavigationManager NavManager
+@inject IToastMessage JS
+@inject IRootApi<ResponseApiEntity<UpdateCategory>> RootApiUpdateCategory
+@inject IRootApi<ResponseApiEntities<ResultCategory>> RootApiResultCategorys
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+@attribute [Authorize()]
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">ویرایش اطلاعات دسته بندی</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات دسته بندی را ویرایش نمایید</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Add category form -->
+    <EditForm Model="updateCategory" OnValidSubmit="Update" FormName="UpdateForm">
+        <DataAnnotationsValidator />
+
+        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                    فرم اطلاعات دسته‌بندی
+                </h3>
+            </div>
+
+            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Category Info -->
+                <div class="space-y-4">
+                    <div>
+                        <CustomLabel ForId="category-name" For="@(() => updateCategory.Title)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateCategory.Title)" class="validate" />
+                        @* <label for="category-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام دسته‌بندی*</label> *@
+                        <InputText id="category-name" @bind-Value="updateCategory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+
+                    <div>
+                        <CustomLabel ForId="category-slug" For="@(() => updateCategory.Slug)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateCategory.Slug)" class="validate" />
+                        <InputText id="category-slug" @bind-Value="updateCategory.Slug" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+
+                    <div>
+
+                        <CustomLabel ForId="category-parent" For="@(() => updateCategory.ParentID1)"></CustomLabel>
+                        <ValidationMessage For="@(() => updateCategory.ParentID1)" class="validate" />
+                        <InputSelect @bind-Value="updateCategory.ParentID1" @bind-Value:after="@(async ()=>await GetCategoryParent2())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="0">بدون والد (دسته اصلی)</option>
+                            @foreach (var item in ResultCategorys1)
+                            {
+                                <option value="@item.ID">@item.Title</option>
+                            }
+                        </InputSelect>
+
+                    </div> 
+                     @if (updateCategory.ParentID1 > 0)
+                    {
+                        <div>
+
+                            <CustomLabel ForId="category-parent" For="@(() => updateCategory.ParentID2)"></CustomLabel>
+                            <ValidationMessage For="@(() => updateCategory.ParentID2)" class="validate" />
+                            <InputSelect @bind-Value="updateCategory.ParentID2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option value="0">بدون والد (دسته اصلی)</option>
+                                @foreach (var item in ResultCategorys2)
+                                {
+                                   <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div></div>
+                    }
+                </div>
+
+
+                <!-- Settings -->
+                <div class="space-y-4">
+                    <div >
+
+                        <CustomLabel ForId="category-description" For="@(() => updateCategory.Description)"></CustomLabel>
+                        <InputTextArea @bind-Value="updateCategory.Description" id="category-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                   
+                    </div>
+
+                    <div class="mb-4">
+                        <CustomLabel ForId="Visible-stock" For="@(() => updateCategory.Visible)"></CustomLabel>
+
+                        <InputRadioGroup @bind-Value="updateCategory.Visible" Name="status">
+                           <InsertUpdateVisible/>
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => updateCategory.Visible)" class="validate" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+       
+                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                    ذخیره دسته‌بندی
+                </button>
+            </div>
+        </div>
+    </EditForm>
+</main>
+@code {
+    [Parameter]
+    public UpdateCategory? updateCategory { get; set; } = new();
+    public List<ResultCategory>? ResultCategorys1 { get; set; } = new List<ResultCategory>();
+    public List<ResultCategory>? ResultCategorys2 { get; set; } = new List<ResultCategory>();
+    public List<ResultUploadFile> ResultUploadImages { get; set; } = new List<ResultUploadFile>();
+    [SupplyParameterFromQuery]
+    public int ID { get; set; }
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        var resdata = await RootApiResultCategorys.RunMethodApi($"Categorys/ParentID", null, method: Method.Get);
+        ResultCategorys1 = resdata.Entities.ToList();
+    }
+
+    private async Task GetCategoryParent2()
+    {
+        var resdata = await RootApiResultCategorys.RunMethodApi($"Categorys/ParentID?ParentID={updateCategory.ParentID1}", null, method: Method.Get);
+        ResultCategorys2 = resdata.Entities.ToList();
+        updateCategory.ParentID2 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID>0? updateCategory.ParentResultCategory.ID : 0;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/Category");
+    }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        await GetData();
+
+    }
+
+    private async Task Update()
+    {
+        if (updateCategory.ParentID1 > 0 && updateCategory.ParentID2 > 0)
+            updateCategory.ParentID = updateCategory.ParentID2;
+        else
+            updateCategory.ParentID = updateCategory.ParentID1;
+
+        var resdataEdit = await RootApiUpdateCategory.RunMethodApi("Categorys", updateCategory, method: Method.Patch);
+
+        if (resdataEdit.Status == ResultMessageApi.Success)
+        {
+            await JS.CallAlertToast(resdataEdit.Message);
+        }
+        else
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdataEdit.Message,
+                Icon = resdataEdit.Status,
+                ShowConfirmButton = true,
+            });
+        }
+
+    }
+    public async Task GetData()
+    {
+        var resdataEdit = await RootApiUpdateCategory.RunMethodApi($"Categorys/{ID}", null, method: Method.Get);
+        updateCategory = resdataEdit.Entity;
+        updateCategory.ParentID1 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID > 0 ? updateCategory.ParentResultCategory.ParentID : updateCategory.ParentResultCategory.ID;
+        await GetCategoryParent2();
+
+    }
+}
+

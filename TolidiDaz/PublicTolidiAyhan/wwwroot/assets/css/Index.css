@@ -1,0 +1,18 @@
+﻿.validate{
+    color:red;
+    display:inline;
+}
+.carousel-item {
+    width: 200px;
+}
+
+@media (max-width: 640px) {
+    .carousel-item {
+        width: 100%;
+    }
+
+    .one-image {
+        width: 100%;
+        height: 260px;
+    }
+}

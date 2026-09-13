@@ -1,0 +1,824 @@
+﻿@page "/DetailsCart"
+@using Dto.Models.DtoCart
+@using Dto.Models.DtoCartItem
+@using Dto.Models.DtoCity
+@using Dto.Models.DtoCustomer
+@using Dto.Models.DtoCustomerAddress
+@using Dto.Models.DtoProvince
+@using System.Threading.Tasks
+@using System.ComponentModel.DataAnnotations
+@using PublicTolidiAyhan.Code
+@using Dto.Models.DtoSendProductMethod
+
+@using static PublicTolidiAyhan.Constant.StaticUrlType
+@attribute [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
+<!-- ================= start content section ================= -->
+<section class="py-5">
+    <div class="container">
+
+        <!-- stepper -->
+        <ol class="flex items-center w-full bg-white rounded-lg drop-shadow-lg border border-gray-300 mb-4 p-3 space-x-2 text-sm font-medium text-center text-gray-500 dark:text-gray-400 sm:text-base dark:bg-gray-800  sm:p-4 sm:space-x-4 rtl:space-x-reverse">
+            <li class="flex items-center">
+                <span class="flex items-center justify-center w-5 h-5 me-2 text-xs border rounded-full shrink-0 ">
+                    1
+                </span>
+                جزئیات <span class="hidden sm:inline-flex sm:ms-2">سبد خرید</span>
+                <svg class="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                     fill="none" viewBox="0 0 12 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="m7 9 4-4-4-4M1 9l4-4-4-4" />
+                </svg>
+            </li>
+            <li class="flex font-bold text-primary items-center">
+                <span class="flex items-center justify-center w-5 h-5 me-2 text-xs border rounded-full shrink-0 dark:border-gray-400">
+                    2
+                </span>
+                جزئیات <span class="hidden sm:inline-flex sm:ms-2">سفارش</span>
+                <svg class="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                     fill="none" viewBox="0 0 12 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="m7 9 4-4-4-4M1 9l4-4-4-4" />
+                </svg>
+            </li>
+            <li class="flex items-center">
+                <span class="flex me-2 items-center justify-center w-5 h-5 ms-2 text-xs border rounded-full shrink-0 dark:border-gray-400">
+                    3
+                </span>
+                جزئیات <span class="hidden sm:inline-flex sm:ms-2">پرداخت</span>
+            </li>
+        </ol>
+
+        <!-- alert -->
+        @*   <div class="flex drop-shadow-sm border border-gray-200 space-x-3 items-center p-6 mb-4 text-sm text-yellow-800 rounded-lg bg-orange-50 dark:bg-gray-800 dark:text-white" role="alert">
+            <svg class="shrink-0 block size-8 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>
+            <span class="sr-only">Info</span>
+            <div class="flex items-center space-x-3">
+                <span class="block">اگه کد تخفیف داری همین الان واردش کن</span>
+                <a href="#" data-modal-target="discountModal" class="modal-trigger bg-green-600 text-white py-1 px-5 ms-3 cursor-pointer rounded-lg flex items-center">
+                    وارد کردن
+                </a>
+            </div>
+           
+        </div> *@
+        <div class="flex drop-shadow-sm border border-gray-200 space-x-3 items-center p-6 mb-4 text-sm text-yellow-800 rounded-lg bg-orange-50 dark:bg-gray-800 dark:text-white" role="alert">
+            <svg class="shrink-0 block size-8 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>
+            <span class="sr-only">Info</span>
+            <div class="flex items-center space-x-3">
+                <span>
+                    مشتری گرامی لطفا مشخصات و آدرس دقیق محل ارسال محصول را با دقت پر نمایید.
+                    محصول به آدرس انتخاب شما ارسال خواهد شد. اگر چند آدرس ثبت کردید آدرس مود نظر را انتخاب کنید
+                </span>
+            </div>
+        </div>
+
+        <!-- content -->
+        <div class="grid gap-4 grid-cols-4 relative">
+            <!-- form -->
+            <div class="xl:col-span-3 col-span-4 w-full">
+                <!-- shipping -->
+                <div class="space-y-4">
+                    <!-- Header and order information -->
+
+                    <div class="dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h1 class="font-bold text-lg relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                                تکمیل اطلاعات ارسال
+                            </h1>
+                            <button @onclick="() => showModal = true" type="button" class="btn btn-primary text-lg text-primary-600 dark:text-white hover:text-green-700-800 dark:hover:text-white flex items-center px-5">
+                                ثبت آدرس جدید
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 ml-2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M12 10v4m2-2H10m7-8H7a2 2 0 00-2 2v12a2 2 0 002 2h6m4-10v10m0 0l3-3m-3 3l-3-3" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <EditForm Model="updateCustomerInfo" OnValidSubmit="SetUpdateCustomerInfo" FormName="AddFormCustomer">
+                            <DataAnnotationsValidator />
+                            <div class="py-1">
+                                <CustomLabel ForId="updateCustomerInfo-Name" For="@(() => updateCustomerInfo.Name)" IsRequired="true"></CustomLabel>
+                                <ValidationMessage For="@(() => updateCustomerInfo.Name)" class="validate" />
+                                <InputText @bind-Value="updateCustomerInfo.Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+                            <div class="py-1">
+                                <CustomLabel ForId="updateCustomerInfo-LastName" For="@(() => updateCustomerInfo.LastName)" IsRequired="true"></CustomLabel>
+                                <ValidationMessage For="@(() => updateCustomerInfo.LastName)" class="validate" />
+                                <InputText @bind-Value="updateCustomerInfo.LastName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+                            <div class="py-1">
+                                <CustomLabel ForId="updateCustomerInfo-Mcode" For="@(() => updateCustomerInfo.Mcode)"></CustomLabel>
+                                <ValidationMessage For="@(() => updateCustomerInfo.Mcode)" class="validate" />
+                                <InputText @bind-Value="updateCustomerInfo.Mcode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+
+
+                        </EditForm>
+                        <div class="py-1">
+                            <h2 class=" text-gray-700 mb-2 dark:text-white">شماره موبایل:</h2>
+                            <p class="text-gray-600 text-sm dark:text-white">
+                                @updateCustomer.ResultCustomerUserInfo.Mobile
+                            </p>
+                        </div>
+                        @if (updateCustomer.UpdateCustomerAddresss != null)
+                        {
+
+                            @foreach (var item in updateCustomer.UpdateCustomerAddresss)
+                            {
+                                string background = string.Empty;
+                                string padding = "p-5";
+                                if (item.Default)
+                                {
+                                    background = "bg-light";
+
+                                }
+                                else
+                                {
+                                    background = string.Empty;
+                                }
+                                <div class="border-b border-gray-200 pb-4 mb-4 @padding @background">
+
+
+
+                                    @if (item.Default)
+                                    {
+                                        updateCustomerAddresss = item;
+
+                                        <EditForm Model="updateCustomerAddresss" OnValidSubmit="SetUpdateCustomerAddress2" FormName="AddForm">
+                                            <DataAnnotationsValidator />
+                                            <div class="flex justify-between items-center mb-2">
+                                                <h2 class="text-gray-700 dark:text-white">آدرس تحویل سفارش</h2>
+
+                                                <!-- دکمه‌ها کنار هم در انتهای سمت چپ -->
+                                                <div class="flex items-center gap-4 justify-end">
+                                                    <span class="text-green-500 text-sm dark:text-white">انتخاب</span>
+
+                                                    <input @onchange="@(() => SetUpdateCustomerAddress(item))"
+                                                           type="radio"
+                                                           name="delivery"
+                                                           checked="@item.Default"
+                                                           class="h-5 w-5 text-primary-600 delivery-method dark:text-white"
+                                                           data-type="normal">
+
+                                                    <button type="button" @onclick="@(async () => await Delete(item.IdentityCode.ToString()))"
+                                                            class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                             viewBox="0 0 24 24" stroke-width="1.5"
+                                                             stroke="currentColor" class="size-6">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
+                                                                                                                                             c.342.052.682.107 1.022.166m-1.022-.165L18.16
+                                                                                                                                             19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25
+                                                                                                                                             2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108
+                                                                                                                                             48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114
+                                                                                                                                             1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5
+                                                                                                                                             0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
+                                                                                                                                             51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09
+                                                                                                                                             2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <button type="submit"
+                                                            class="btn btn-primary text-primary-600 dark:text-white hover:text-green-700-800 dark:hover:text-white text-sm flex items-center px-5">
+                                                        ثبت تغییرات آدرس
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                             viewBox="0 0 24 24" stroke-width="1.5"
+                                                             stroke="currentColor" class="size-6">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1
+                                                                                                                                             2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897
+                                                                                                                                             1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0
+                                                                                                                                             0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1
+                                                                                                                                             15.75 21H5.25A2.25 2.25 0 0 1 3
+                                                                                                                                             18.75V8.25A2.25 2.25 0 0 1 5.25
+                                                                                                                                             6H10" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <CustomLabel ForId="Province-parent" For="@(() => updateCustomerAddresss.ProvinceID)" IsRequired="true"></CustomLabel>
+                                                <ValidationMessage For="@(() => updateCustomerAddresss.ProvinceID)" class="validate" />
+                                                <InputSelect @bind-Value="updateCustomerAddresss.ProvinceID" @bind-Value:after="@(async ()=>await GetCity())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                    @foreach (var item1 in ResultProvinces)
+                                                    {
+                                                        <option value="@item1.ID">@item1.Title</option>
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                            <div>
+                                                <CustomLabel ForId="City-parent" For="@(() => updateCustomerAddresss.CityID)" IsRequired="true"></CustomLabel>
+                                                <ValidationMessage For="@(() => updateCustomerAddresss.CityID)" updateCustomerAddresss="validate" />
+                                                <InputSelect @bind-Value="updateCustomerAddresss.CityID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                    @foreach (var item2 in ResultCitys)
+                                                    {
+                                                        <option value="@item2.ID">@item2.Title</option>
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                            <div>
+                                                <CustomLabel ForId="CustomerAddress-Address" For="@(() => item.Address)" IsRequired="true"></CustomLabel>
+                                                <ValidationMessage For="@(() => item.Address)" class="validate" />
+                                                <InputText @bind-Value="item.Address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                            </div>
+                                            <div>
+                                                <CustomLabel ForId="CustomerAddress-Plaque" For="@(() => item.Plaque)"></CustomLabel>
+                                                <ValidationMessage For="@(() => item.Plaque)" class="validate" />
+                                                <InputText @bind-Value="item.Plaque" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                            </div>
+                                            <div>
+                                                <CustomLabel ForId="CustomerAddress-BuildingUnit" For="@(() => item.BuildingUnit)"></CustomLabel>
+                                                <ValidationMessage For="@(() => item.BuildingUnit)" class="validate" />
+                                                <InputText @bind-Value="item.BuildingUnit" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                            </div>
+                                            <div>
+                                                <CustomLabel ForId="CustomerAddress-PostalCode" For="@(() => item.PostalCode)" IsRequired="true"></CustomLabel>
+                                                <ValidationMessage For="@(() => item.PostalCode)" class="validate" />
+                                                <InputText @bind-Value="item.PostalCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                            </div>
+                                            <div>
+                                                <CustomLabel ForId="CustomerAddress-Description" For="@(() => item.Description)"></CustomLabel>
+                                                <ValidationMessage For="@(() => item.Description)" class="validate" />
+                                                <InputTextArea @bind-Value="item.Description" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                            </div>
+                                        </EditForm>
+                                    }
+                                    else
+                                    {
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h2 class="text-gray-700 dark:text-white">آدرس تحویل سفارش</h2>
+
+                                            <!-- دکمه انتخاب و حذف کنار هم -->
+                                            <div class="flex items-center space-x-3 ml-auto">
+                                                <span class="text-green-500 text-sm ml-2 dark:text-white">انتخاب</span>
+                                                <input @onchange="@(() => SetUpdateCustomerAddress(item))"
+                                                       type="radio"
+                                                       name="delivery"
+                                                       checked="@item.Default"
+                                                       class="h-5 w-5 text-primary-600 delivery-method dark:text-white"
+                                                       data-type="normal">
+
+                                                <button @onclick="@(async () => await Delete(item.IdentityCode.ToString()))"
+                                                        class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                         viewBox="0 0 24 24" stroke-width="1.5"
+                                                         stroke="currentColor" class="size-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                              d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
+                                                                                                                                         c.342.052.682.107 1.022.166m-1.022-.165L18.16
+                                                                                                                                         19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25
+                                                                                                                                         2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108
+                                                                                                                                         48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114
+                                                                                                                                         1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5
+                                                                                                                                         0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
+                                                                                                                                         51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09
+                                                                                                                                         2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <p class="text-gray-600 dark:text-white flex flex-col space-y-3 mt-3 text-sm">
+                                            <span>استان : @item.ResultProvince.Title</span>
+                                            <span>شهر : @item.ResultCity.Title</span>
+                                            <span>آدرس : @item.Address</span>
+                                            <span>پلاک : @item.Plaque</span>
+                                            <span>واحد : @item.BuildingUnit</span>
+                                            <span>کد پستی : @item.PostalCode</span>
+                                            <span>توضیحات : @item.Description</span>
+                                        </p>
+                                    }
+
+
+                                </div>
+
+                            }
+                        }
+
+
+                    </div>
+
+
+
+                    <!-- Select the shipping method -->
+                    <div class="dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
+                        <h2 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">روش ارسال را انتخاب کنید</h2>
+
+                        <div class="space-y-4">
+                            @foreach (var item in ResultSendProductMethods)
+                            {
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-500 transition-all">
+
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <h3 class="font-medium text-gray-700 dark:text-white">@item.Title</h3>
+                                            <p class="text-sm text-gray-500 mt-1 dark:text-white">@item.Description</p>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-green-500 text-sm ml-2 dark:text-white">انتخاب</span>
+                                            <input @onchange="@(() => SetUpdateCartForSendProductMethod(item))"
+                                                   type="radio"
+                                                   name="delivery"
+                                                   checked="@item.Default"
+                                                   class="h-5 w-5 text-primary-600 delivery-method dark:text-white"
+                                                   data-type="normal">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="mt-3 pt-3 border-t border-gray-100">
+                                        <p class="text-sm text-gray-600 dark:text-white">هزینه ارسال: <span class="delivery-cost">پس کرایه</span> </p>
+                                    </div>
+                                </div>
+                            }
+                            @*  <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-500 transition-all">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h3 class="font-medium text-gray-700 dark:text-white">دریافت حضوری</h3>
+                                        <p class="text-sm text-gray-500 mt-1 dark:text-white">مراجعه به مراکز منتخب</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="text-green-500 text-sm ml-2 dark:text-white">موجود</span>
+                                        <input type="radio" name="delivery" class="h-5 w-5 text-primary-600 delivery-method" data-type="pickup">
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-100 pickup-location" >
+                                    <select class="w-full focus:border-primary outline-0 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-primary-500">
+                                        <option>مرکز خرید ملت - شعبه مرکزی</option>
+                                        <option>مرکز خرید ایران مال - طبقه دوم</option>
+                                        <option>مرکز خرید کوروش - واحد ۱۲۳</option>
+                                    </select>
+                                </div>
+                            </div> *@
+                        </div>
+                    </div>
+
+                    <!-- Select the product to send -->
+                    <div class="dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
+                        <h2 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">محصولات سبد خرید شما</h2>
+
+                        <div class="space-y-4">
+                            @foreach (var item in cartCalculatorPriceService.Items)
+                            {
+                                <div class="flex items-center border-b border-gray-100 pb-4">
+                                    @if (item.ResultProduct.ResultUploadFiles.Count > 0)
+                                    {
+                                        string filepath1 = ApiLink.FullPath + item.ResultProduct.ResultUploadFiles[0].PathFileName;
+                                        <img src="@filepath1" alt="@item.ResultProduct.Title" class="w-16 h-16 object-cover rounded-md">
+                                    }
+                                    else
+                                    {
+                                        <img src="images/No-Product-Image.png" alt="@item.ResultProduct.Title" class="w-16 h-16 object-cover rounded-md">
+                                    }
+                                    <div class="mr-3 flex-1">
+                                        <h3 class="font-medium text-gray-700 dark:text-white">@item.ResultProduct.Title</h3>
+                                        <p class="text-sm text-gray-500 dark:text-white">تعداد: @item.Quantity</p>
+
+                                    </div>
+                                    <span class="text-green-500 text-sm ">@item.ResultProduct.ProductExistStatus</span>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+
+                    <!-- Choose a time to send -->
+                    @*     <div class="dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
+                        <h2 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">زمان تحویل را انتخاب کنید</h2>
+
+                        <div class="mb-6">
+                            <div class="flex overflow-x-auto pb-2 space-x-2" id="day-selector">
+                                <!-- Days are filled with JavaScript -->
+                            </div>
+                        </div>
+
+                        <h3 class="font-medium text-gray-700 mb-3 dark:text-white">بازه زمانی تحویل</h3>
+                        <div class="grid grid-cols-2 gap-3" id="time-slots">
+                            <!-- Time intervals are filled with JavaScript -->
+                        </div>
+                    </div>
+ *@
+                    <!-- Cost summary and continue button -->
+                    @*  <div class="dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-gray-600 dark:text-white">هزینه ارسال:</span>
+                            <span class="font-medium delivery-cost-summary dark:text-white">۳۵,۰۰۰ تومان</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-gray-600 dark:text-white">زمان تحویل:</span>
+                            <span class="font-medium delivery-time-summary dark:text-white">فردا - جمعه ۹ صبح تا ۱۲ ظهر</span>
+                        </div>
+                    </div> *@
+                </div>
+            </div>
+            <!-- calculate -->
+            <CartCalculatePrice EventSubmitCustomerInfo="SubmitCustomerInfo" EnumUrlType="EnumUrlType.Function" GoTitle="ادامه فرآیند پرداخت" BackUrl="/Cart" />
+
+        </div>
+    </div>
+</section>
+
+@if (showModal)
+{
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-lg">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-700 dark:text-white">افزودن آدرس جدید</h2>
+
+                <button @onclick="() => showModal = false" class="text-gray-500 hover:text-red-500">
+                    ✕
+                </button>
+            </div>
+
+            <EditForm Model="addCustomerAddresss" OnValidSubmit="AddCustomerAddress" FormName="AddCustomerAddressForm">
+                <DataAnnotationsValidator />
+
+                <div>
+                    <CustomLabel ForId="addCustomerAddresssProvince-parent" For="@(() => addCustomerAddresss.ProvinceID)"></CustomLabel>
+                    <ValidationMessage For="@(() => addCustomerAddresss.ProvinceID)" class="validate" />
+                    <InputSelect @bind-Value="updateCustomerAddresss.ProvinceID" @bind-Value:after="@(async ()=>await GetCity())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        @foreach (var item1 in ResultProvinces2)
+                        {
+                            <option value="@item1.ID">@item1.Title</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div>
+                    <CustomLabel ForId="City-parent" For="@(() => addCustomerAddresss.CityID)"></CustomLabel>
+                    <ValidationMessage For="@(() => addCustomerAddresss.CityID)" updateCustomerAddresss="validate" />
+                    <InputSelect @bind-Value="addCustomerAddresss.CityID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        @foreach (var item2 in ResultCitys2)
+                        {
+                            <option value="@item2.ID">@item2.Title</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div>
+                    <CustomLabel ForId="addCustomerAddresss-Address" For="@(() => addCustomerAddresss.Address)"></CustomLabel>
+                    <ValidationMessage For="@(() => addCustomerAddresss.Address)" class="validate" />
+                    <InputText id="addCustomerAddresss-Address" @bind-Value="addCustomerAddresss.Address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                    <CustomLabel ForId="addCustomerAddresss-Plaque" For="@(() => addCustomerAddresss.Plaque)"></CustomLabel>
+                    <ValidationMessage For="@(() => addCustomerAddresss.Plaque)" class="validate" />
+                    <InputText id="addCustomerAddresss-Plaque" @bind-Value="addCustomerAddresss.Plaque" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                    <CustomLabel ForId="addCustomerAddresss-BuildingUnit" For="@(() => addCustomerAddresss.BuildingUnit)"></CustomLabel>
+                    <ValidationMessage For="@(() => addCustomerAddresss.BuildingUnit)" class="validate" />
+                    <InputText id="addCustomerAddresss-BuildingUnit" @bind-Value="addCustomerAddresss.BuildingUnit" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                    <CustomLabel ForId="addCustomerAddresss-PostalCode" For="@(() => addCustomerAddresss.PostalCode)"></CustomLabel>
+                    <ValidationMessage For="@(() => addCustomerAddresss.PostalCode)" class="validate" />
+                    <InputText id="CustomerAddress-PostalCode" @bind-Value="addCustomerAddresss.PostalCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                    <CustomLabel ForId="CustomerAddress-Description" For="@(() => addCustomerAddresss.Description)"></CustomLabel>
+                    <ValidationMessage For="@(() => addCustomerAddresss.Description)" class="validate" />
+                    <InputText id="CustomerAddress-Description" @bind-Value="addCustomerAddresss.Description" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <!-- Footer buttons -->
+                <div class="flex justify-between mt-4 space-x-3">
+                    <button type="submit"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:opacity-90">
+                        ذخیره
+                    </button>
+                    <button type="button"
+                            @onclick="() => showModal = false"
+                            class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
+                        انصراف
+                    </button>
+                </div>
+            </EditForm>
+
+        </div>
+
+    </div>
+}
+
+@code {
+    @inject IRootApi<ResponseApiEntity<UpdateCustomer>> RootApiUpdateCustomer
+    @inject IRootApi<ResponseApiEntity<ResultCart>> RootApiResultCart
+    @inject IRootApi<ResponseApiEntity<UpdateCart>> RootApiUpdateCart
+    @inject IRootApi<ResponseApiEntity<UpdateCustomerInfo>> RootApiUpdateCustomerInfo
+    @inject IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces
+    @inject IRootApi<ResponseApiEntities<ResultCity>> RootApiResultCitys
+    @inject IRootApi<ResponseApiEntities<ResultCartItem>> RootApiResultCartItem
+    @inject IRootApi<ResponseApiEntity<ResultCustomerAddress>> RootApiDelete
+    @inject IToastMessage JS
+    @inject SweetAlertService Swal
+    @inject NavigationManager NavManager
+    @inject CartCalculatorPriceService cartCalculatorPriceService
+    @inject IRootApi<ResponseApiEntities<ResultSendProductMethod>> RootApiSendProductMethod
+
+    private bool showModal = false;
+    private UpdateCustomer? updateCustomer { get; set; } = new() { Visible = true, Gender = EnumConstant.Gender.NotDefine };
+    private ResultCart? resultCart { get; set; } = new() { Visible = true };
+    private UpdateCustomerInfo? updateCustomerInfo { get; set; } = new() { Visible = true };
+    private UpdateCustomerAddress? updateCustomerAddresss { get; set; } = new();
+    private AddCustomerAddress? addCustomerAddresss { get; set; } = new();
+    private List<ResultProvince>? ResultProvinces { get; set; } = new();
+    private List<ResultCity>? ResultCitys { get; set; } = new();
+
+    private List<ResultProvince>? ResultProvinces2 { get; set; } = new();
+    private List<ResultCity>? ResultCitys2 { get; set; } = new();
+    private List<ResultSendProductMethod>? ResultSendProductMethods { get; set; } = new List<ResultSendProductMethod>();
+    private bool SelectSendProductMethod = false;
+    protected async override Task OnInitializedAsync()
+    {
+        await GetProvinces();
+        await GetData();
+        await GetSendProductMethod();
+        await GetCart();
+    }
+    private async Task GetProvinces()
+    {
+        var data = await RootApiResultProvinces.RunMethodApi($"Provinces/Public/All", null, method: Method.Get);
+        if (data.Status == ResultMessageApi.Success)
+        {
+            ResultProvinces = data.Entities.ToList();
+            ResultProvinces2 = data.Entities.ToList();
+        }
+
+        if (ResultProvinces.Count > 0)
+            updateCustomerAddresss.ProvinceID = ResultProvinces[0].ID;
+        if (ResultProvinces2.Count > 0)
+            addCustomerAddresss.ProvinceID = ResultProvinces2[0].ID;
+
+    }
+    private async Task GetCity()
+    {
+        updateCustomerAddresss.CustomerID = updateCustomer.ID;
+        var data = await RootApiResultCitys.RunMethodApi($"Citys/All?ProvinceID={updateCustomerAddresss.ProvinceID}", null, method: Method.Get);
+
+        if (data.Status == ResultMessageApi.Success)
+        {
+            ResultCitys = data.Entities.ToList();
+            ResultCitys2 = data.Entities.ToList();
+        }
+
+        if (ResultCitys.Count > 0)
+            updateCustomerAddresss.CityID = ResultCitys[0].ID;
+        if (ResultCitys2.Count > 0)
+            addCustomerAddresss.CityID = ResultCitys2[0].ID;
+    }
+    private async Task GetData()
+    {
+        var data = await RootApiUpdateCustomer.RunMethodApi($"Customers/GetInfo/Public", null, method: Method.Get);
+        updateCustomer = data.Entity;
+        updateCustomerInfo.Name = updateCustomer.Name;
+        updateCustomerInfo.LastName = updateCustomer.LastName;
+        updateCustomerInfo.Mcode = updateCustomer.Mcode;
+        foreach (var item in updateCustomer.UpdateCustomerAddresss)
+        {
+            if (item.Default)
+            {
+                updateCustomerAddresss.ProvinceID = item.ProvinceID;
+
+            }
+
+        }
+        await GetCity();
+    }
+    private async Task SetUpdateCustomerAddress(UpdateCustomerAddress updateCustomer2)
+    {
+        var data = await RootApiUpdateCustomer.RunMethodApi($"CustomerAddresss/Update/Public", updateCustomer2, method: Method.Patch);
+        if (data.Status == ResultMessageApi.Error)
+        {
+            var result = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = data.Message,
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+
+            });
+            // StateHasChanged();
+            return;
+
+        }
+        foreach (var item in updateCustomer.UpdateCustomerAddresss)
+        {
+            if (updateCustomer2.ID == item.ID)
+                item.Default = true;
+            else
+                item.Default = false;
+        }
+        // StateHasChanged();
+    }
+    private async Task SetUpdateCustomerAddress2()
+    {
+        var data = await RootApiUpdateCustomer.RunMethodApi($"CustomerAddresss/Update/Public", updateCustomerAddresss, method: Method.Patch);
+        var result = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "پیام",
+            Text = data.Message,
+            Icon = data.Status,
+            ShowConfirmButton = true,
+
+        });
+
+    }
+    private async Task SetUpdateCustomerAddress3()
+    {
+        var data = await RootApiUpdateCustomer.RunMethodApi($"CustomerAddresss/Update/Public", updateCustomerAddresss, method: Method.Patch);
+
+    }
+    private async Task AddCustomerAddress()
+    {
+        var data = await RootApiUpdateCustomer.RunMethodApi($"CustomerAddresss/Add/Public", addCustomerAddresss, method: Method.Post);
+        if (data.Status == ResultMessageApi.Success)
+        {
+            addCustomerAddresss = new AddCustomerAddress
+            {
+                CustomerID = addCustomerAddresss.CustomerID,
+                CityID = addCustomerAddresss.CityID,
+                ProvinceID = addCustomerAddresss.ProvinceID,
+                Default = true,
+                Visible = true,
+            };
+        }
+        var result = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "پیام",
+            Text = data.Message,
+            Icon = data.Status,
+            ShowConfirmButton = true,
+
+        });
+        await GetData();
+    }
+    private async Task SetUpdateCustomerInfo()
+    {
+        var resdataEdit = await RootApiUpdateCustomerInfo.RunMethodApi($"Customers/UpdateCustomerInfo/Public", updateCustomerInfo, method: Method.Patch);
+    }
+    private async Task SubmitCustomerInfo()
+    {
+        if (updateCustomer.UpdateCustomerAddresss.Count == 0)
+        {
+            await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "هیچ آدرسی ثبت نشده است. یک آدرس اضافه کنید",
+                Icon = "error",
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        if (!ChackSelected())
+        {
+            await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "لطفاً یکی از آدرس ها را انتخاب کنید",
+                Icon = "error",
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+
+        // if (!ValidateModel(updateCustomerInfo))
+        // {
+        //     await Swal.FireAsync(new SweetAlertOptions
+        //     {
+        //         Title = "پیام",
+        //         Text = "لطفاً اطلاعات شخصی خود را کامل وارد کنید",
+        //         Icon = "error",
+        //         ShowConfirmButton = true,
+        //     });
+        //     return;
+        // }
+
+        // if (!ValidateModel(updateCustomerAddresss))
+        // {
+        //     await Swal.FireAsync(new SweetAlertOptions
+        //     {
+        //         Title = "پیام",
+        //         Text = "لطفاً اطلاعات مربوط آدرس خود را کامل وارد کنید",
+        //         Icon = "error",
+        //         ShowConfirmButton = true,
+        //     });
+        //     return;
+        // }
+        if (! await ChackSelectedCartForSendProductMethod())
+        {
+            await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "لطفاً یکی از روشهای ارسال محصول را انتخاب کنید",
+                Icon = "error",
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        await SetUpdateCustomerInfo();
+        await SetUpdateCustomerAddress3();
+        NavManager.NavigateTo("/Payment");
+
+
+
+    }
+    // private bool ValidateModel(object model)
+    // {
+    //     var validationContext = new ValidationContext(model);
+    //     var results = new List<ValidationResult>();
+    //     return Validator.TryValidateObject(model, validationContext, results, true);
+    // }
+    private async Task Delete(string identitiCode)
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "برای حذف مطمئن هستید؟",
+            Text = "درصورت تایید شما، رکورد انتخاب شده حذف خواهد شد",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+
+            var data = await RootApiDelete.RunMethodApi($"CustomerAddresss/Delete/Public/{identitiCode}", null, method: Method.Delete);
+            if (data.Status == ResultMessageApi.Success)
+            {
+                await JS.CallAlertToast(data.Message);
+                await GetData();
+
+            }
+            else
+            {
+                _ = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = data.Message,
+                    Icon = data.Status,
+                    ShowConfirmButton = true,
+                });
+            }
+        }
+    }
+    private bool ChackSelected()
+    {
+        bool flag = false;
+        foreach (var item in updateCustomer.UpdateCustomerAddresss)
+        {
+            if (item.Default == true)
+                flag = true;
+        }
+        return flag;
+    }
+    private async Task GetCart()
+    {
+        var data = await RootApiResultCart.RunMethodApi($"Carts/Public", null, method: Method.Get);
+        if (data != null)
+            resultCart = data.Entity;
+        int i = -1;
+        foreach (var item in ResultSendProductMethods)
+        {
+            i++;
+            if (item.ID == resultCart.SendProductMethodID)
+                ResultSendProductMethods[i].Default = true;
+        }
+    }
+    private async Task GetSendProductMethod()
+    {
+        var data = await RootApiSendProductMethod.RunMethodApi($"SendProductMethods/Public/All", null, method: Method.Get);
+        if (data != null)
+            ResultSendProductMethods = data.Entities.ToList();
+    }
+    private async Task SetUpdateCartForSendProductMethod(ResultSendProductMethod resultSendProductMethod)
+    {
+        var data = await RootApiUpdateCart.RunMethodApi($"Carts/Public/Update/SetSendProductMethodID/{resultSendProductMethod.ID}", null, method: Method.Patch);
+        // if (data != null)
+        // {
+        //     var result = await Swal.FireAsync(new SweetAlertOptions
+        //     {
+        //         Title = "پیام",
+        //         Text = data.Message,
+        //         Icon = data.Status,
+        //         ShowConfirmButton = true,
+
+        //     });
+        // }
+
+
+    }
+    private async Task<bool> ChackSelectedCartForSendProductMethod()
+    {
+        var data = await RootApiResultCart.RunMethodApi($"Carts/Public", null, method: Method.Get);
+        if (data == null)
+            return false;
+
+        resultCart = data.Entity;
+        if (resultCart.SendProductMethodID != null)
+                return true;
+        return false;
+    }
+}

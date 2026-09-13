@@ -1,0 +1,76 @@
+﻿@using static PublicTolidiAyhan.Constant.StaticUrlType
+
+
+<!-- calculate -->
+<div class="xl:col-span-1 col-span-4 w-full">
+    <div class="dark:bg-gray-800 sticky top-0 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
+        <ul class="space-y-5">
+            <li class="flex justify-between item-center">
+                <h6 class="font-bold">قیمت کالاها</h6>
+                <p><span class="text-blue-700 font-bold">@cartCalculatorPriceService.SumPrice.ToString("N0")</span>  تومان</p>
+            </li>
+            <li class="flex justify-between item-center">
+                <h6 class="font-bold">تخفیف کالاها</h6>
+                <p><span class="text-red-700 font-bold">@cartCalculatorPriceService.SumDiscount.ToString("N0")</span> تومان</p>
+            </li>
+            <li class="flex justify-between item-center">
+                <h6 class="font-bold">مجموع</h6>
+                <p><span class="text-green-700 font-bold">@cartCalculatorPriceService.SumFinal.ToString("N0")</span>  تومان</p>
+            </li>
+            @if (EnumUrlType == EnumUrlType.Url)
+            {
+                <li>
+                    <a href="@GoUrl" class="p-2 bg-green-600 w-full block text-center rounded-lg text-white">@GoTitle</a>
+                </li>
+            }
+            else if (EnumUrlType == EnumUrlType.Function)
+            {
+                <li>
+                    <a @onclick="@(async () => await SubmitCustomerInfoMehod())" class="p-2 bg-green-600 w-full block text-center rounded-lg text-white">@GoTitle</a>
+                </li>
+             
+            }
+           else
+            {
+                <li>
+                    <a href="@GoUrl" class="p-2 bg-green-600 w-full block text-center rounded-lg text-white">@GoTitle</a>
+                </li>
+            }
+            @if (BackUrl!=null)
+            {
+                <li>
+                    <a href="@BackUrl" class="p-2 bg-blue-500 w-full block text-center rounded-lg text-white">برگشت</a>
+                </li>
+            }
+           
+        </ul>
+    </div>
+</div>
+
+@code {
+    @inject CartCalculatorPriceService cartCalculatorPriceService
+    [Parameter]
+    public EventCallback EventSubmitCustomerInfo { get; set; }
+    [Parameter]
+    public string? GoUrl { get; set; }
+    [Parameter]
+    public string? GoTitle { get; set; }
+    [Parameter]
+    public string? BackUrl { get; set; } = null;
+    [Parameter]
+    public EnumUrlType EnumUrlType { get; set; } = EnumUrlType.Url;
+    protected override async Task OnInitializedAsync()
+    {
+        await cartCalculatorPriceService.GetSumFinal();
+        cartCalculatorPriceService.OnChange += StateHasChanged;
+
+    }
+    public void Dispose()
+    {
+        cartCalculatorPriceService.OnChange -= StateHasChanged;
+    }
+    private async Task SubmitCustomerInfoMehod()
+    {
+        await EventSubmitCustomerInfo.InvokeAsync();
+    }
+}

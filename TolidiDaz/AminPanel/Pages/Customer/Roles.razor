@@ -1,0 +1,218 @@
+﻿@page "/CustomerRoles"
+@using Dto.Models.DtoAccount
+@inject ILocalStorageService localStorageService
+@inject SweetAlertService Swal
+@inject IToastMessage JS
+@inject IRootApi<ResponseApiEntities<ResultRole>> RootApiResultRoles
+@inject IRootApi<ResponseApiEntity<ResultUserRole>> RootApiResultUserRole
+@attribute [Authorize()]
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">نقش کاربر</h2>
+            <p class="text-gray-600 dark:text-gray-400">لیست تمام نقش های کاربر در سیستم</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <a href="/Customer" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </a>
+        </div>
+    </div>
+    <div class="row border border-primary mx-2">
+        <EditForm Model="addRole" OnValidSubmit="Add" FormName="AddForm">
+            <DataAnnotationsValidator />
+            <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                        افزودن نقش جدید
+                    </h3>
+                </div>
+
+                <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Category Info -->
+                    <div class="space-y-4">
+
+                        <div>
+
+                            <CustomLabel ForId="category-parent" For="@(() => addRole.RoleName)"></CustomLabel>
+                            <ValidationMessage For="@(() => addRole.RoleName)" class="validate" />
+                            <InputSelect @bind-Value=" addRole.RoleName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in ResultRoles)
+                                {
+                                    <option value="@item.RoleName">@item.RoleTitle</option>
+                                }
+                            </InputSelect>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                        ذخیره
+                    </button>
+
+                </div>
+            </div>
+
+        </EditForm>
+
+       
+    </div>
+    <!-- Users list -->
+    <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="px-6 pb-2 border-b border-gray-200 flex-wrap dark:border-gray-700 flex items-center justify-between">
+            <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                لیست نقش ها
+            </h3>
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="relative">
+                    <input type="text" placeholder="جستجو کاربر..." class="pr-10 pl-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => ResultRole.RoleTitle)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                    <!-- User 1 -->
+                    @{
+                        decimal i = (pagingModel.Page - 1) * pagingModel.Take;
+
+                    }
+                    @foreach (var item in ResultCustomerRoles)
+                    {
+                        i++;
+                        decimal k = i;
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">@item.RoleTitle</span>
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button @onclick="@(async () => await Delete(item.RoleName))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <Pagination pagingModel="pagingModel" OnClickcallBack="@CallBackPaging" />
+    </div>
+</main>
+
+
+@code {
+    public List<ResultRole> ResultRoles = new List<ResultRole>();
+    public List<ResultRole> ResultCustomerRoles = new List<ResultRole>();
+    public AddRole addRole = new AddRole();
+    public ResultRole ResultRole = new ResultRole();
+    private PagingModel pagingModel { get; set; } = new();
+    [Parameter]
+    public EventCallback Save { get; set; }
+    [SupplyParameterFromQuery]
+    public int? CustomerID { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var Roles = await RootApiResultRoles.RunMethodApi($"Accounts/Roles/All", null, method: Method.Get);
+        ResultRoles = Roles.Entities.ToList();
+        addRole.RoleName = ResultRoles.Count > 0 ? ResultRoles[0].RoleName : null;
+        pagingModel.Page = 1;
+        pagingModel.Take = Base.GetCountShowRecord();
+        // await GetData();
+    }
+    private async Task CallBackPaging(decimal page)
+    {
+        pagingModel.Page = page;
+        await GetData();
+    }
+    private async Task GetData()
+    {
+        var resdata = await RootApiResultRoles.RunMethodApi($"Accounts/Customer/{CustomerID}/Roles", null, method: Method.Get);
+        decimal Count = resdata.CountAllRecordTable;
+        ResultCustomerRoles = resdata.Entities.ToList();
+        pagingModel.CountPage = Math.Ceiling(Count / pagingModel.Take);
+        pagingModel.CountPagePer10 = Math.Ceiling(pagingModel.CountPage / 10);
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetData();
+    }
+    private async Task Delete(string RoleName)
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "برای حذف مطمئن هستید؟",
+            Text = "درصورت تایید شما، رکورد انتخاب شده حذف خواهد شد",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+            var resdata = await RootApiResultUserRole.RunMethodApi($"Accounts/UserRole/{CustomerID}/{RoleName}", null, method: Method.Delete);
+            if (resdata.Status == ResultMessageApi.Success)
+            {
+                await JS.CallAlertToast(resdata.Message);
+                await Save.InvokeAsync();
+                await GetData();
+            }
+            else
+            {
+                _ = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = resdata.Message,
+                    Icon = resdata.Status,
+                    ShowConfirmButton = true,
+                });
+            }
+        }
+    }
+    private async Task Add()
+    {
+        var resdata = await RootApiResultUserRole.RunMethodApi($"Accounts/AddUserInRole/{CustomerID}/{addRole.RoleName}", null, method: Method.Post);
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+
+            await JS.CallAlertToast(resdata.Message);
+            await Save.InvokeAsync();
+            await GetData();
+        }
+        else
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdata.Message,
+                Icon = resdata.Status,
+                ShowConfirmButton = true,
+            });
+        }
+    }
+}

@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@namespace AminPanel.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>تولیدی پوشاک آیهان</title>
+    <meta name="description" content="پنل مدیریت سیستم فروشگاه اینترنتی تولیدی پوشاک آیهان">
+    <meta name="keywords" content="پنل مدیریت, فروشگاه اینترنتی">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="author" content="تولیدی پوشاک آیهان">
+    <meta name="copyright" content="تمامی حقوق متعلق به تولیدی پوشاک آیهان است.">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon_io/favicon-16x16.png">
+    <link rel="canonical" href="https://example.com/admin-panel">
+    <link rel="stylesheet" href="assets/js/plugin/swiper/swiper-bundle.min.css">
+    <link rel="stylesheet" href="assets/css/app.css">
+    <link rel="preload" href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2" as="font" type="font/woff2" crossorigin>
+    <link href="Content/Css/main.css" rel="stylesheet" />
+    <link href="_content/KeudellCoding.Blazor.AdvancedBlazorSelect2/lib/select2/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.css">
+    <link href="_content/Blazor.PersianDatePicker/datepicker.css" rel="stylesheet" />
+
+    <base href="~/" />
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+
+</head>
+<body class="bg-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
+
+    @RenderBody()
+
+    <script src="_framework/blazor.server.js"></script>
+
+    <script src="assets/js/plugin/chart-js/chart.js"></script>
+    <script src="assets/js/dependencies/app.js"></script>
+    <script src="~/Content/js/jquery.min.js"></script>
+    <script src="_content/CurrieTechnologies.Razor.SweetAlert2/sweetAlert2.min.js"></script> 
+     <script src="_content/KeudellCoding.Blazor.AdvancedBlazorSelect2/Select2JsInterop.js" type="text/javascript" language="javascript"></script>
+    <script src="_content/KeudellCoding.Blazor.AdvancedBlazorSelect2/lib/select2/js/select2.full.min.js" type="text/javascript" lang="javascript"></script>
+    <script src="_content/Blazor.PersianDatePicker/datepicker.min.js" type="text/javascript"></script>
+
+
+</body>
+</html>

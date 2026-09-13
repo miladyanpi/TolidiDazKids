@@ -1,0 +1,67 @@
+﻿@using Dto.Models.DtoAdvertisementSingle
+@using Dto.Models.DtoUploadFile
+@using Newtonsoft.Json
+@inject NavigationManager NavManager
+<div class="relative bg-white p-4 rounded-lg w-full max-w-full overflow-hidden">
+    <button type="button"
+            class="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white px-3 py-2 shadow-md disabled:opacity-40"
+            @onclick="PrevSlide"
+            disabled="@(CurrentSlide == 0)">
+        ‹
+    </button>
+
+    <button type="button"
+            class="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white px-3 py-2 shadow-md disabled:opacity-40"
+            @onclick="NextSlide"
+            disabled="@(CurrentSlide >= MaxSlide)">
+        ›
+    </button>
+
+    <div class="mx-auto w-full max-w-full overflow-hidden">
+        <div class="flex flex-row-reverse transition-transform duration-500 ease-in-out"
+             style="width:@(ResultAdvertisementSingles.Count * ItemWidth)px; transform: translateX(@(CurrentSlide * ItemWidth)px);">
+            @foreach (var item in ResultAdvertisementSingles)
+            {
+                var ResultUploadFile = item.JsonPicture != null
+                    ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(item.JsonPicture)
+                    : new List<ResultUploadFile>();
+
+                var filepath = ResultUploadFile.Count > 0
+                    ? ApiLink.FullPath + ResultUploadFile[0].PathFileName
+                    : ApiLink.FullPath + "images/No-Product-Image.png";
+
+                <div style="width:@(ItemWidth)px;" class="shrink-0 p-2 box-border">
+                    <div class="rounded-lg bg-white shadow-sm p-2 w-full">
+                        <img class="h-[260px] sm:h-[400px] w-full object-cover rounded-md"
+                             src="@filepath"
+                             loading="lazy"
+                             alt="@item.Title"
+                             itemprop="image" />
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public List<ResultAdvertisementSingle>? ResultAdvertisementSingles { get; set; } = new List<ResultAdvertisementSingle>();
+    private int CurrentSlide = 0;
+
+    private int ItemWidth = 220;
+    private int VisibleItems = 1;
+
+    private int MaxSlide => Math.Max(0, ResultAdvertisementSingles.Count - VisibleItems);
+
+    private void NextSlide()
+    {
+        if (CurrentSlide < MaxSlide)
+            CurrentSlide++;
+    }
+
+    private void PrevSlide()
+    {
+        if (CurrentSlide > 0)
+            CurrentSlide--;
+    }
+}

@@ -1,0 +1,14 @@
+﻿@inject NavigationManager NavManager
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            NavManager.NavigateTo("/Login");
+        }
+        catch 
+        {
+            
+        }
+    }
+}

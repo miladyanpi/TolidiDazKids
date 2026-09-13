@@ -1,0 +1,407 @@
+﻿@page "/"
+@using Dto.Models.Report
+
+@inject IRootApi<ResponseApiEntity<ResultReportDashboard>> RootApiGetResultReportDashboard
+@attribute [Authorize()]
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">سلام مدیر سیستم <span class="text-2xl">👋</span></h2>
+            <p class="text-gray-600 dark:text-gray-400">وضعیت کلی سیستم امروز</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                کاربر جدید
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary of cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">فروش امروز</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">@OrderSumFinalPriceToday.ToString("N0") <span class="text-sm">تومان</span></p>
+                </div>
+                <div class="p-3 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <span class="text-xs text-gray-500 dark:text-gray-400">@OrderSumFinalPricePercentTitle @OrderSumFinalPricePercent% نسبت به دیروز</span>
+                <span class="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+                    <i class="fas fa-arrow-up ml-1"></i> @OrderSumFinalPricePercent% 
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">تعداد کاربران</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">@CustomerCount <span class="text-sm">کاربر</span></p>
+                </div>
+                <div class="p-3 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <span class="text-xs text-gray-500 dark:text-gray-400">0 کاربر فعال امروز</span>
+                <a href="/Customer" class="text-xs text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300">مشاهده همه</a>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">تعداد محصولات</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">@ProductCounAll <span class="text-sm">محصول</span></p>
+                </div>
+                <div class="p-3 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <span class="text-xs text-gray-500 dark:text-gray-400">@ProductCounAllToday محصول جدید امروز اضافه شد</span>
+                <a href="/Product" class="text-xs text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300">مشاهده همه</a>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">تعداد کل سفارشات</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">@OrderCount <span class="text-sm">سفارش</span></p>
+                </div>
+                <div class="p-3 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                    <div class="bg-yellow-500 dark:bg-yellow-400 h-1.5 rounded-full" style="width: @percentOrdorderCountDelivereder%"></div>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400">@OrdorderCountDeliverederTitle</span>
+                    <span class="text-xs text-yellow-600 dark:text-yellow-400">@percentOrdorderCountDelivereder% تحویل شده</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and orders -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+        <!-- Activity chart -->
+        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">نمودار فروش ماهانه</h3>
+            </div>
+            <div data-content="1" class="bg-white dark:bg-gray-800 p-6 rounded-lg">
+                <div class="relative h-80">
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div class="mt-4 text-sm text-gray-600 dark:text-gray-300">
+                    <p>آخرین به‌روزرسانی: <span id="currentDate"></span></p>
+                </div>
+            </div>
+            <div data-content="2" class="bg-gray-50 border border-gray-200 hidden tab-content dark:bg-gray-800 p-6 rounded-lg">
+                <div class="relative h-80">
+                    <h3>داده‌ای برای نمایش وجود ندارد</h3>
+                </div>
+            </div>
+            <div data-content="3" class="bg-gray-50 border border-gray-200 hidden tab-content dark:bg-gray-800 p-6 rounded-lg">
+                <div class="relative h-80">
+                    <h3>داده‌ای برای نمایش وجود ندارد</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest transactions -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">آخرین فعالیت‌ها</h3>
+            </div>
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div class="p-4 flex items-center hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <div class="p-3 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 ml-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">ورود موفق</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">1402/05/20 - 12:45</p>
+                    </div>
+                    <div class="text-sm font-medium text-green-600 dark:text-green-400">مدیر سیستم</div>
+                </div>
+                <div class="p-4 flex items-center hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <div class="p-3 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 ml-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">ویرایش محصول</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">1402/05/18 - 09:23</p>
+                    </div>
+                    <div class="text-sm font-medium text-primary-600 dark:text-primary-400">محصول #245</div>
+                </div>
+                <div class="p-4 flex items-center hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <div class="p-3 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 ml-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">حذف کاربر</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">1402/05/18 - 09:23</p>
+                    </div>
+                    <div class="text-sm font-medium text-red-600 dark:text-red-400">کاربر #4587</div>
+                </div>
+
+                <div class="p-4 flex items-center hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <div class="p-3 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 ml-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">سفارش جدید</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">1402/05/15 - 16:12</p>
+                    </div>
+                    <div class="text-sm font-medium text-green-600 dark:text-green-400">سفارش #7895</div>
+                </div>
+                <div class="p-4 flex items-center hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <div class="p-3 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 ml-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">به‌روزرسانی تنظیمات</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">1402/05/10 - 14:30</p>
+                    </div>
+                    <div class="text-sm font-medium text-primary-600 dark:text-primary-400">تنظیمات سیستم</div>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
+                <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300">مشاهده همه فعالیت‌ها</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent orders -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">سفارشات اخیر</h3>
+            <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 flex items-center">
+                مشاهده همه
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">شماره سفارش</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">تاریخ</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">مشتری</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">مبلغ</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">وضعیت</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">#ORD-12345</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1402/05/15</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">علی محمدی</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1,250,000 تومان</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5  rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+                                تحویل شده
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            <a href="#" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 flex items-center">
+                                جزئیات
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">#ORD-12344</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1402/05/10</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">مریم احمدی</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">850,000 تومان</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5  rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-400">
+                                در حال ارسال
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            <a href="#" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 flex items-center">
+                                جزئیات
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">#ORD-12343</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1402/05/05</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">رضا حسینی</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">2,150,000 تومان</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5  rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
+                                در انتظار پرداخت
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            <a href="#" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 flex items-center">
+                                جزئیات
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent users -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">کاربران اخیر</h3>
+            <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 flex items-center">
+                مشاهده همه
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
+            </a>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <!-- User 1 -->
+            <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <div class="flex items-start">
+                    <img class="h-10 w-10 rounded-full" src="assets/images/user/user.jpg" alt="پروفایل کاربر">
+                    <div class="mr-3">
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">علی محمدی</p>
+                            <div class="flex items-center mr-3">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">alimohammadi@example.com</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <span>عضویت: 2 روز پیش</span>
+                            <span class="mx-2">•</span>
+                            <span class="text-green-600 dark:text-green-400">فعال</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User 2 -->
+            <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <div class="flex items-start">
+                    <img class="h-10 w-10 rounded-full" src="assets/images/user/user.jpg" alt="پروفایل کاربر">
+                    <div class="mr-3">
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">مریم احمدی</p>
+                            <div class="flex items-center mr-3">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">maryamahmadi@example.com</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <span>عضویت: 5 روز پیش</span>
+                            <span class="mx-2">•</span>
+                            <span class="text-yellow-600 dark:text-yellow-400">در انتظار تایید</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
+            <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300">مشاهده همه کاربران</a>
+        </div>
+    </div>
+</main>
+@code {
+    int ProductCounAll = 0;
+    int ProductCounAllToday = 0;
+    int CustomerCount = 0;
+    int OrderCount = 0;
+    int OrdorderCountDelivereder = 0;
+    int percentOrdorderCountDelivereder = 0;
+    string? OrdorderCountDeliverederTitle = string.Empty;
+    Int64 OrderSumFinalPriceToday = 0;
+    Int64 OrderSumFinalPriceYesterday = 0;
+    Int64 OrderSumFinalPricePercent = 0;
+    string OrderSumFinalPricePercentTitle = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        var resdata = await RootApiGetResultReportDashboard.RunMethodApi($"Report/Count", null, method: Method.Get);
+        ProductCounAll = resdata.Entity.ProductCounAll;
+        ProductCounAllToday = resdata.Entity.ProductCounAllToday;
+        CustomerCount = resdata.Entity.CustomerCount;
+        OrderCount = resdata.Entity.OrderCount;
+        OrderSumFinalPriceToday = resdata.Entity.OrderSumFinalPriceToday;
+        OrderSumFinalPriceYesterday = resdata.Entity.OrderSumFinalPriceYesterday;
+        OrderSumFinalPricePercent = OrderSumFinalPriceYesterday==0?0:((OrderSumFinalPriceToday - OrderSumFinalPriceYesterday) / OrderSumFinalPriceYesterday) * 100;
+        if (OrderSumFinalPricePercent > 0)
+        {
+            OrderSumFinalPricePercentTitle = "افزایش";
+        }
+        else if (OrderSumFinalPricePercent < 0)
+        {
+            OrderSumFinalPricePercentTitle = "کاهش";
+        }
+        else
+        {
+            OrderSumFinalPricePercentTitle = "بدون تغییر";
+        }
+
+        OrdorderCountDelivereder = resdata.Entity.OrdorderCountDelivereder;
+        percentOrdorderCountDelivereder = OrderCount==0?0:(OrdorderCountDelivereder / OrderCount) * 100;
+        if (percentOrdorderCountDelivereder <= 25)
+        {
+            string? OrdorderCountDeliverederTitle = "سطح ضعیف";
+        }
+        else if (percentOrdorderCountDelivereder > 25 && percentOrdorderCountDelivereder <= 50)
+        {
+            string? OrdorderCountDeliverederTitle = "سطح متوسط";
+        }
+        else if (percentOrdorderCountDelivereder > 50 && percentOrdorderCountDelivereder <= 75)
+        {
+            string? OrdorderCountDeliverederTitle = "سطح خوب";
+        }
+        else if (percentOrdorderCountDelivereder > 75 && percentOrdorderCountDelivereder <= 100)
+        {
+            string? OrdorderCountDeliverederTitle = "سطح عالی";
+        }
+
+    }
+}

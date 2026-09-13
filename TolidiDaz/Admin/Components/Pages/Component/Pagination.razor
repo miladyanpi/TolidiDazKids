@@ -1,0 +1,141 @@
+﻿@using Dto.Models
+
+<div class="bg-white dark:bg-gray-800 px-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+    <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="mb-4 md:mb-0">
+           @*  <p class="text-sm text-gray-700 dark:text-gray-300">
+                نمایش <span class="font-medium">1</span> تا <span class="font-medium">15</span> از <span class="font-medium">12</span> دسته‌بندی
+            </p> *@
+        </div>
+        <div class="flex flex-wrap space-x-2">
+            <button @onclick="@(async () => await First())" class="px-3 py-1 border rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-300 dark:border-gray-600">
+                اولی
+            </button>
+            <button   @onclick="@(async () => await Prev(pagingModel.Page))" class="px-3 py-1 border rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-300 dark:border-gray-600">
+                قبلی
+            </button>
+            @if (pagingModel.PagePer10Counter >= 2)
+            {
+                <button @onclick="@(async () => await SetPagePer10Sub())" class="px-3 py-1 border rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-300 dark:border-gray-600">
+                    ...
+                </button>
+            }
+            @for (decimal i = pagingModel.PagePer10; i <= pagingModel.CountPage && i <= pagingModel.PagePer10 * 10; i++)
+            {
+                if (pagingModel.Page == i)
+                {
+                    pagingModel.Active = "text-white bg-primary-600";
+                }
+                else
+                {
+                    pagingModel.Active = "border-gray-300";
+                }
+                decimal j = i;
+                <button @onclick="@(async () => await SetPageAndCallBack(j))" class="@pagingModel.Active px-3 py-1 border rounded-lg text-sm font-medium  dark:bg-primary-500 hover:bg-primary-500 dark:hover:bg-primary-600  dark:border-primary-500">
+                    @i
+                </button>
+            }
+
+            @if (pagingModel.PagePer10Counter >= 1 && pagingModel.PagePer10Counter < pagingModel.CountPagePer10)
+            {
+                <button @onclick="@(async () => await SetPagePer10Add())" class="@pagingModel.Active px-3 py-1 border rounded-lg text-sm font-medium  dark:bg-primary-500 hover:bg-primary-500 dark:hover:bg-primary-600  dark:border-primary-500">
+                    ...
+                </button>
+            }
+
+            <button @onclick="@(async () => await Next(pagingModel.Page))" class="px-3 py-1 border rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-300 dark:border-gray-600">
+                بعدی
+            </button>
+            <button @onclick="@(async () => await Last())" class="px-3 py-1 border rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-300 dark:border-gray-600">
+                آخری
+            </button>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public decimal Page { get; set; }
+    [Parameter]
+    public PagingModel pagingModel { get; set; } = new();
+    [Parameter]
+    public EventCallback<decimal> OnClickcallBack { get; set; }
+
+    private async Task SetPageAndCallBack(decimal i)
+    {
+        Page = pagingModel.Page = i;
+        await OnClickcallBack.InvokeAsync(Page);
+    }
+    private async Task SetPagePer10Add()
+    {
+        pagingModel.PagePer10Counter++;
+        pagingModel.PagePer10 = pagingModel.PagePer10 + 10;
+
+        //await GetData(pagingModel.PagePer10);
+        Page = pagingModel.Page = pagingModel.PagePer10;
+
+
+    }
+    private async Task SetPagePer10Sub()
+    {
+        pagingModel.PagePer10Counter--;
+        pagingModel.PagePer10 = pagingModel.PagePer10 - 10;
+        //await GetData(pagingModel.PagePer10);
+        Page = pagingModel.Page = pagingModel.PagePer10;
+
+    }
+    private async Task Last()
+    {
+        pagingModel.PagePer10Counter = pagingModel.CountPagePer10;
+        pagingModel.PagePer10 = (pagingModel.CountPagePer10 - 1) * 10 + 1;
+        // await GetData(pagingModel.CountPage);
+        Page = pagingModel.Page = pagingModel.CountPage;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task First()
+    {
+        pagingModel.PagePer10Counter = 1;
+        pagingModel.PagePer10 = 1;
+        Page = pagingModel.Page = 1;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task Prev(decimal page = 1)
+    {
+        Page = pagingModel.Page = (page - 1) <= 0 ? 1 : (page - 1);
+        if (pagingModel.Page <= 10)
+        {
+            pagingModel.PagePer10Counter = 1;
+            pagingModel.PagePer10 = 1;
+        }
+        else
+        {
+            pagingModel.PagePer10Counter = Math.Ceiling(pagingModel.Page / 10);
+            pagingModel.PagePer10 = (pagingModel.PagePer10Counter - 1) * 10 + 1;
+        }
+
+        //Page=  pagingModel.Page = pagingModel.Page;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task Next(decimal page = 1)
+    {
+        Page = pagingModel.Page = (page + 1) > pagingModel.CountPage ? pagingModel.CountPage : (page + 1);
+        if (pagingModel.Page <= 10)
+        {
+            pagingModel.PagePer10Counter = 1;
+            pagingModel.PagePer10 = 1;
+        }
+        else
+        {
+            pagingModel.PagePer10Counter = Math.Ceiling(pagingModel.Page / 10);
+            pagingModel.PagePer10 = (pagingModel.PagePer10Counter - 1) * 10 + 1;
+        }
+
+        //   Page=  pagingModel.Page = pagingModel.Page;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+}

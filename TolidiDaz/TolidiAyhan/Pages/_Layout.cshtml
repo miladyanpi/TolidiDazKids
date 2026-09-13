@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@namespace TolidiAyhan.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!doctype html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>تولیدی آیهان</title>
+    <meta name="description" content="تولیدی پوشاک آیهان">
+    <meta name="keywords" content="تولیدی آیهان">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="تولیدی پوشاک آیهان">
+    <meta name="copyright" content="تمامی حقوق متعلق به تولیدی پوشاک آیهان است.">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon_io/favicon-16x16.png">
+    <link rel="canonical" href="https://example.com/your-page-url">
+    <link rel="stylesheet" href="assets/js/plugin/story-player/styles.css">
+    <link rel="stylesheet" href="assets/js/plugin/swiper/swiper-bundle.min.css">
+    <link rel="stylesheet" href="assets/css/app.css">
+    <link rel="stylesheet" href="src/input.css">
+    <link rel="stylesheet" href="~/assets/css/Index.css">
+
+    <link rel="preload" href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2" as="font" type="font/woff2" crossorigin>
+
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+ 
+
+<body class="bg-light dark:bg-zinc-900 text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
+    @RenderBody()
+    <script src="_framework/blazor.server.js"></script>
+    <script>
+            window.loadScript = function (url) {
+            return new Promise((resolve, reject) => {
+                if (document.querySelector(`script[src="${url}"]`)) {
+                    resolve(); // قبلا لود شده
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = url;
+                script.defer = true;
+                script.onload = () => resolve();
+                script.onerror = () => reject(`خطا در لود ${url}`);
+                document.body.appendChild(script);
+            });
+        };
+    </script>
+    <script>
+        document.querySelectorAll('.price-filter').forEach(container => {
+            new DualRangeSlider(container, {
+                min: 0,
+                max: 2000000,
+                initialMin: 0,
+                initialMax: 0
+            });
+        });
+    </script>
+    <script src="_content/CurrieTechnologies.Razor.SweetAlert2/sweetAlert2.min.js"></script>
+
+</body>
+</html>

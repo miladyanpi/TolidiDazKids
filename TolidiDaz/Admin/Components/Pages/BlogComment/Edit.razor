@@ -1,0 +1,83 @@
+﻿@page "/ShowBlogComment/{guid}"
+@using Admin.Services.BlogComment
+@inject NavigationManager NavManager
+@inject BlogCommentService _BlogCommentService
+<AccessAdminRoles />
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">نمایش نظر کاربر(@_BlogCommentService.resultBlogComment.AuthorName)/بلاگ</h2>
+            <p class="text-gray-600 dark:text-gray-400">نظر کاربر</p>
+        </div>
+        <BackButton UrlPage="BlogComment" />
+    </div>
+
+
+    <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                فرم بلاگ
+            </h3>
+        </div>
+
+        <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- BlogComment Info -->
+            <div class="space-y-4">
+
+                <div>
+                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.AuthorName)"></CustomLabel>
+                    <InputText readonly @bind-Value="_BlogCommentService.resultBlogComment.AuthorName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.Rating)"></CustomLabel>
+                    <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.Rating" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.IsVerifiedBuyer)"></CustomLabel>
+                    <span>@((MarkupString)_BlogCommentService.resultBlogComment.IsVerifiedBuyer)</span>
+                </div>
+                
+
+            </div>
+            <!-- Settings -->
+            <div class="space-y-4">
+                <div>
+                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.LikeCount)"></CustomLabel>
+                    <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.LikeCount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+
+                <div>
+                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.DislikeCount)"></CustomLabel>
+                    <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.DislikeCount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.Body)"></CustomLabel>
+                    <InputTextArea rows="10" @bind-Value="_BlogCommentService.resultBlogComment.Body" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-0" />
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</main>
+@code {
+
+    [Parameter]
+    public string? guid { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        bool isValid = Guid.TryParse(guid, out Guid gid);
+        if (isValid)
+        {
+            _BlogCommentService.guid = guid;
+            await _BlogCommentService.GetUpdateDataAsync();
+        }
+
+    }
+
+
+}
+

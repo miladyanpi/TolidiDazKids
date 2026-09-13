@@ -1,0 +1,131 @@
+﻿@page "/InsertTeam"
+@using Dto.Models.DtoTeam
+
+@inject SweetAlertService Swal
+@inject NavigationManager NavManager
+@inject IToastMessage JS
+@inject IRootApi<ResponseApiEntity<AddTeam>> RootApiAddTeam
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">افزودن فرد جدید</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات فرد جدید را وارد نمایید</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Add category form -->
+    <EditForm Model="addTeam" OnValidSubmit="Add" FormName="AddForm">
+        <DataAnnotationsValidator />
+        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                    فرم اطلاعات تیم فروشگاه
+                </h3>
+            </div>
+
+            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Category Info -->
+                <div class="space-y-4">
+                    <div>
+                        <CustomLabel ForId="Team-name" For="@(() => addTeam.Name)"></CustomLabel>
+                        <ValidationMessage For="@(() => addTeam.Name)" class="validate" />
+                        <InputText id="Team-name" @bind-Value="addTeam.Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="Team-name" For="@(() => addTeam.Title)"></CustomLabel>
+                        <ValidationMessage For="@(() => addTeam.Title)" class="validate" />
+                        <InputText id="Team-name" @bind-Value="addTeam.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+            
+                    <div>
+                   
+                        <CustomLabel ForId="Team-name" For="@(() => addTeam.Description)"></CustomLabel>
+                        <ValidationMessage For="@(() => addTeam.Description)" class="validate" />
+                        <InputTextArea rows="10" id="Team-name" @bind-Value="addTeam.Description" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                </div>
+                <!-- Settings -->
+                <div class="space-y-4">
+                        <div class="mb-4">
+                           <div class="mb-4 flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition-all duration-200">
+                            <div class="flex flex-col gap-0.5">
+                                <CustomLabel For="@(() => addTeam.ShowInAbout)" class="text-sm font-semibold text-gray-700 cursor-pointer" />
+                                <span class="text-xs text-gray-400">نمایش یا عدم نمایش این تیم در صفحه درباره ما</span>
+                            </div>
+    
+                            <div class="relative flex items-center">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <InputCheckbox @bind-Value="addTeam.ShowInAbout" class="sr-only peer" />
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <ValidationMessage For="@(() => addTeam.ShowInAbout)" class="validate text-xs text-red-500 mt-1" />
+                        </div>
+                    <div class="mb-4">
+                        <CustomLabel For="@(() => addTeam.Visible)"></CustomLabel>
+                        <InputRadioGroup @bind-Value="addTeam.Visible" Name="status">
+                            <InsertUpdateVisible />
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => addTeam.Visible)" class="validate" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                    ذخیره
+                </button>
+
+            </div>
+        </div>
+
+    </EditForm>
+</main>
+@code {
+    private AddTeam? addTeam { get; set; } = new() { ShowInAbout=true,Visible = true};
+
+    private async Task Add()
+    {
+
+        var resdata = await RootApiAddTeam.RunMethodApi("Teams", addTeam, method: Method.Post);
+
+        if (resdata.Status == ResultMessageApi.Success)
+        {
+
+            await JS.CallAlertToast(resdata.Message);
+            addTeam = new AddTeam
+            {
+                Visible=true
+            };
+        }
+        else
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdata.Message,
+                Icon = resdata.Status,
+                ShowConfirmButton = true,
+            });
+        }
+
+
+    }
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/Team");
+    }
+}
+

@@ -1,0 +1,208 @@
+﻿@page "/InsertPricingRule"
+@using Admin.Services.PricingRule
+@using Dto.Models.DtoAccount
+@using Dto.Models.DtoPricingRule
+@using static Dto.Enum.EnumConstant
+
+@inject SweetAlertService Swal
+@inject NavigationManager NavManager
+@inject IToastMessage JS
+@inject PricingRuleService _pricingRuleService
+
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">افزودن قیمت عمده جدید</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات قیمت عمده جدید را وارد نمایید</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Add category form -->
+    <EditForm Model="_pricingRuleService.addPricingRule" OnValidSubmit="Add" FormName="AddForm">
+        <DataAnnotationsValidator />
+        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                    فرم اطلاعات قیمت عمده
+                </h3>
+            </div>
+
+            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <CustomLabel ForId="_pricingRuleService-addPricingRule-RuleType" For="@(() => _pricingRuleService.addPricingRule.RuleType)"></CustomLabel>
+                        <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.RuleType)" class="validate" />
+                        <InputSelect @bind-Value="_pricingRuleService.addPricingRule.RuleType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item in _pricingRuleService.RoleTypes)
+                            {
+                                <option value="@item.ID">@item.Title</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    @if (_pricingRuleService.addPricingRule.RuleType != (int)RuleType.Quantity && _pricingRuleService.addPricingRule.RuleType != (int)RuleType.Date)
+                    {
+                        <div>
+                            <CustomLabel ForId="_pricingRuleService.addPricingRule-RoleID" For="@(() => _pricingRuleService.addPricingRule.RoleID)"></CustomLabel>
+                            <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.RoleID)" class="validate" />
+                            <InputSelect @bind-Value=" _pricingRuleService.addPricingRule.RoleID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _pricingRuleService.ResultRoles)
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+
+                        </div>
+                    }
+
+                    @if (_pricingRuleService.addPricingRule.RuleType != (int)RuleType.Date && _pricingRuleService.addPricingRule.RuleType != (int)RuleType.Group)
+                    {
+                        <div>
+                            <CustomLabel ForId="PricingRule-MinQuantity" For="@(() => _pricingRuleService.addPricingRule.MinQuantity)"></CustomLabel>
+                            <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.MinQuantity)" class="validate" />
+                            <InputNumber id="PricingRule-MinQuantity" @bind-Value="_pricingRuleService.addPricingRule.MinQuantity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                    }
+                   
+                    <div>
+                        <CustomLabel ForId="PricingRule-Price" For="@(() => _pricingRuleService.addPricingRule.Price)"></CustomLabel>
+                        <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.Price)" class="validate" />
+                        <InputNumber id="PricingRule-LastName" @bind-Value="_pricingRuleService.addPricingRule.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    @if (_pricingRuleService.addPricingRule.RuleType == (int)RuleType.Date)
+                    {
+                        <div>
+                            <CustomLabel ForId="PricingRule-Price" For="@(() => _pricingRuleService.addPricingRule.Title)"></CustomLabel>
+                            <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.Title)" class="validate" />
+                            <InputText id="PricingRule-LastName" @bind-Value="_pricingRuleService.addPricingRule.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div class="form-group ">
+                            <CustomLabel For="@(() => _pricingRuleService.addPricingRule.FromDate)"></CustomLabel>
+                            <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.FromDate)" class="validate" />
+                            <InputPersianDatePicker @bind-Value="_pricingRuleService.addPricingRule.FromDate"
+                                                    MinDateSetOnToday="false"
+                                                    Placeholder="از تاریخ"
+                                                    CssClass="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div class="form-group ">
+                            <CustomLabel For="@(() => _pricingRuleService.addPricingRule.ToDate)"></CustomLabel>
+                            <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.ToDate)" class="validate" />
+                            <InputPersianDatePicker @bind-Value="_pricingRuleService.addPricingRule.ToDate"
+                                                    MinDateSetOnToday="false"
+                                                    Placeholder="از تاریخ"
+                                                    CssClass="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                    }
+                </div>
+
+
+                <!-- Settings -->
+                <div class="space-y-4">
+                    <div class="mb-4">
+                        <CustomLabel For="@(() => _pricingRuleService.addPricingRule.Visible)"></CustomLabel>
+
+                        <InputRadioGroup @bind-Value="_pricingRuleService.addPricingRule.Visible" Name="status">
+                            <InsertUpdateVisible />
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.Visible)" class="validate" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                    ذخیره
+                </button>
+
+            </div>
+            <div style="margin-bottom:90px;">
+
+            </div>
+        </div>
+
+    </EditForm>
+</main>
+@code {
+    [SupplyParameterFromQuery]
+    public int? ProductID { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _pricingRuleService.addPricingRule.ProductID = ProductID;
+        _pricingRuleService.GetDate();
+    }
+
+    private async Task Add()
+    {
+        if (_pricingRuleService.addPricingRule.Price<=0)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "مبلغی بالای صفر وارد کنید",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+        if (Utility.DateFunctions.ConvertDateStringToInt(_pricingRuleService.addPricingRule.FromDate) > Utility.DateFunctions.ConvertDateStringToInt(_pricingRuleService.addPricingRule.ToDate))
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "تاریخ دوم نمی تواند از تاریخ اول بزرگتر باشد",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+            return;
+        }
+
+        var resdata = await _pricingRuleService.Add();
+        if (resdata != null && resdata.Status == ResultMessageApi.Success)
+        {
+            await JS.CallAlertToast(resdata.Message);
+            _pricingRuleService.addPricingRule = new AddPricingRule
+            {
+                ProductID = ProductID,
+                Visible = true,
+                Price = 0,
+                MinQuantity = 1,
+                FromDate=null,
+                ToDate=null,
+                RuleType = resdata.Entity.RuleType,
+                RoleID = resdata.Entity.RoleID,
+            };
+           
+
+        }
+        else if (resdata != null)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdata.Message,
+                Icon = resdata.Status,
+                ShowConfirmButton = true,
+            });
+        }
+
+
+    }
+    private void GoBack()
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"ProductID", ProductID.ToString()},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/PricingRule", parameter!), forceLoad: true);
+    }
+}
+

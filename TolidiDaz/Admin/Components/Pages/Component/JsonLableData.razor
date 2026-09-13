@@ -1,0 +1,14 @@
+﻿@using Dto.Models.DtoLable
+@foreach (var item2 in ResultJsonLables )
+{
+    <span>#</span>
+
+    <span>@item2.Text</span>
+
+    <span>&nbsp;&nbsp</span>
+}
+
+@code {
+    [Parameter]
+    public List<ResultJsonLable>? ResultJsonLables { get; set; } = new();
+}

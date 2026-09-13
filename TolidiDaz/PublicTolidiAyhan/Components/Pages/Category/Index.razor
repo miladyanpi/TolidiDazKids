@@ -1,0 +1,178 @@
+﻿@using Dto.Models.DtoCategory
+@using Dto.Models.ResponseApi
+@using Microsoft.JSInterop
+@using PublicTolidiAyhan.Services
+@using RestSharp
+@inject IRootApi<ResponseApiEntities<ResultCategory>> RootApiGet
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+@inject CategoryService _CategoryService;
+
+<div id="megaMenu" class="xl:grid hidden relative grid-cols-12 place-items-center">
+    <div class="col-span-10 place-self-start">
+        <nav class="flex gap-x-9 mt-10 items-center">
+            <!-- menu -->
+            <ul class="flex dark:text-white items-center space-x-8 tracking-tight">
+                <li id="mega-menu-fire" class="py-2">
+                    <a href="#" class="flex font-bold hover:text-green-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="size-6 me-2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                        فروشگاه
+                    </a>
+                    <div style="background-color:#d8eddc" id="mega-menu-fire-target"
+                         class="bg-white dark:bg-zinc-900 container z-50 hidden top-[90%] drop-shadow-sm absolute mt-1 ml-10 shadow-md rounded-b-md">
+                        <div class="grid grid-cols-12">
+                            <div class="col-span-2 h-[400px] overflow-y-scroll border-l border-gray-400">
+                                <ul class="my-2 space-y-1">
+
+                                    @foreach (var item in _CategoryService.ResultCategorys)
+                                    {
+                                        <li data-mega-id="@item.ID.ToString()"
+                                            class="px-4 w-full hover:bg-opacity-70 border-opacity-0 hover:border-opacity-100 rounded-lg dark:hover:text-zinc-950 mega-menu-li
+                                                    @(SelectedId == item.ID ? "bg-gray-100" : "")"
+                                            @onmouseenter="() => ShowCategory(item.ID)">
+
+                                            <a href="#" class="flex items-center justify-between py-3">
+                                                <div class="flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                         viewBox="0 0 20 20"
+                                                         fill="currentColor">
+                                                        <path fill-rule="evenodd"
+                                                              d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z"
+                                                              clip-rule="evenodd" />
+                                                    </svg>
+                                                    <div class="mr-1">
+                                                        <p class="text-xs">@item.Title</p>
+                                                    </div>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="h-5 w-5 text-gray-500" fill="none"
+                                                     viewBox="0 0 24 24"
+                                                     stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          stroke-width="2"
+                                                          d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                    }
+
+                                </ul>
+                            </div>
+                            <div style="background-color:#d8eddc" class="col-span-10 bg-white dark:bg-zinc-900">
+                                @{
+                                    int i = 0;
+                                    string hidden = string.Empty;
+                                }
+
+                                @foreach (var item in _CategoryService.ResultCategorys)
+                                {
+
+                                    var resultCategorys = item.ResultCategorys;
+                                    var pathfile = item.ResultUploadFiles != null && item.ResultUploadFiles.Count > 0 ? ApiLink.FullPath + item.ResultUploadFiles[0].PathFileName : "images/No-Product-Image.png";
+                                    var recordCount = Math.Ceiling((float)resultCategorys.Count() / 3);
+                                    i++;
+                                    int k = i;
+                                    if (k == 1)
+                                    {
+                                        hidden = string.Empty;
+                                    }
+                                    else
+                                    {
+                                        hidden = "hidden";
+
+                                    }
+                                    <div data-mega-target="@item.ID.ToString()" class="grid  h-[400px] overflow-y-scroll grid-cols-8 gap-10 m-3
+                                                    @(SelectedId == item.ID ? "" : "hidden")">
+                                        @for (int page = 1; page <= recordCount; page++)
+                                        {
+                                            int Take = 4;
+                                            int Skip = (Take * page) - Take;
+                                            var Results = resultCategorys.Skip(Skip).Take(Take).ToList();
+
+                                            <div class="col-span-2">
+                                                @foreach (var item2 in Results)
+                                                {
+                                                    <div class="mb-4">
+                                                        <p class="text-sm font-bold">@item2.Title</p>
+
+                                                        <div class="mt-3 space-y-4">
+                                                            @foreach (var item3 in item2.ResultCategorys)
+                                                            {
+                                                                <a  @onclick="@(() => GoToShop(item3.IdentityCode.ToString()))" 
+                                                                   class="text-xs text-gray-600 block hover:text-green-700 dark:text-gray-300">
+                                                                    @item3.Title
+
+                                                                </a>
+                                                            }
+
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        <!-- menu thumbnail banner -->
+                                        <div class="col-span-2">
+                                            <div class="ml-4">
+                                                <a href="#">
+                                                    <img src="@pathfile" loading="lazy"
+                                                         alt=""
+                                                         class="w-full rounded-lg">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </li>
+               <StaticMenu/>
+            </ul>
+        </nav>
+    </div>
+    <div class="col-span-2 place-self-end place-items-center py-2">
+        <div class="text-left dark:text-white before:animate-pulse before:w-22 before:h-1 before:bg-primary before:absolute before:left-1/2 relative before:-translate-x-1/2 before:-bottom-5 before:rounded-l">
+            <a href="#">فروش ویژه</a>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+
+    private int? SelectedId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await _CategoryService.GetListDate();
+        _CategoryService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        _CategoryService.OnChange -= StateHasChanged;
+    }
+    private void ShowCategory(int id)
+    {
+        SelectedId = id;
+    }
+   
+    private void GoToShop(string? guid)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"Code", guid},
+        };
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/Shop", parameter!));
+    }
+}
+

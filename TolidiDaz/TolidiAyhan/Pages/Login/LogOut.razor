@@ -1,0 +1,29 @@
+﻿@page "/logout"
+@using TolidiAyhan.Constant
+ @inject NavigationManager NavManager
+  @inject AuthenticationStateProvider AuthStateProvider
+
+
+
+@code {
+    @inject IJSRuntime JS
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        var q =await AuthStateProvider.GetAuthenticationStateAsync();
+
+        if (q.User.Identity.IsAuthenticated)
+        {
+            var customAuthStateProvider = (AccountAuthentication)AuthStateProvider;
+          	await customAuthStateProvider.UpdateAuthenticationState(string.Empty);
+
+            NavManager.NavigateTo("/login", forceLoad: true);
+        }
+       
+
+
+       
+
+    }
+}

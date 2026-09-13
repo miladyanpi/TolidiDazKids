@@ -1,0 +1,19 @@
+﻿.validate {
+    color: red;
+    display:inline;
+}
+.insertupdate {
+    border: groove 1px blue;
+    margin-bottom: 5px;
+    padding-top:10px;
+}
+.breadcrumb{
+    justify-content:start !important;
+}
+.form-group{
+    margin-top:15px !important;
+}
+.btn-custom{
+    margin-right:5px !important;
+}
+

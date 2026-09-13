@@ -1,0 +1,186 @@
+﻿@page "/InsertPersonel"
+@using Admin.Services.Position
+@using Dto.Models.DtoPersonel
+@inject SweetAlertService Swal
+@inject NavigationManager NavManager
+@inject IRootApi<ResponseApiEntity<AddPersonel>> RootApiAddPersonel
+@inject IRootApi<ResponseApiEntities<ResultPersonel>> RootApiResultPersonels
+@inject PositionService _PositionService
+@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">افزودن پرسنل جدید</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات پرسنل جدید را وارد نمایید</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Add category form -->
+    <EditForm Model="addPersonel" OnValidSubmit="Add" FormName="AddForm">
+          <DataAnnotationsValidator />  
+        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                    فرم اطلاعات پرسنل
+                </h3>
+            </div>
+            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Category Info -->
+                <div class="space-y-4">
+                    <div>
+                        <CustomLabel ForId="addPersonel.PositionID" For="@(() => addPersonel.PositionID)"></CustomLabel>
+                        <ValidationMessage For="@(() => addPersonel.PositionID)" class="validate" />
+                        <InputSelect @bind-Value="addPersonel.PositionID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item in _PositionService.ResultPositions)
+                            {
+                                <option value="@item.ID">@item.Title</option>
+                            }
+                        </InputSelect>
+
+                    </div>
+
+                    <div>
+                        <CustomLabel ForId="Personel-name" For="@(() => addPersonel.Name)"></CustomLabel>
+                        <ValidationMessage For="@(() => addPersonel.Name)" class="validate" />
+                        <InputText id="Personel-name" @bind-Value="addPersonel.Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="Personel-LastName" For="@(() => addPersonel.LastName)"></CustomLabel>
+                        <ValidationMessage For="@(() => addPersonel.LastName)" class="validate" />
+                        <InputText id="Personel-LastName" @bind-Value="addPersonel.LastName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div class="form-group ">
+                        <CustomLabel For="@(() => addPersonel.BirthDate)"></CustomLabel>
+                        <ValidationMessage For="@(() => addPersonel.BirthDate)" class="validate" />
+                        <InputPersianDatePicker @bind-Value="addPersonel.BirthDate"
+                                                MinDateSetOnToday="false"
+                                                Placeholder="تاریخ تولد"
+                                                CssClass="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="Personel-Mobile" For="@(() => addPersonel.Mobile)"></CustomLabel>
+                        <ValidationMessage For="@(() => addPersonel.Mobile)" class="validate" />
+                        <InputText id="Personel-Mobile" @bind-Value="addPersonel.Mobile" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div class="mb-4">
+                        <CustomLabel ForId="Personel-stock" For="@(() => addPersonel.Gender)"></CustomLabel>
+
+                        <InputRadioGroup @bind-Value="addPersonel.Gender" Name="stock-status">
+                            <div class="flex flex-row items-center space-x-6">
+
+                                <div class="flex items-center">
+                                    <InputRadio Value="@Dto.Enum.EnumConstant.Gender.Man"
+                                                id="in-stock"
+                                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                    <label for="in-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">مرد</label>
+                                </div>
+
+                                <div class="flex items-center">
+                                    <InputRadio Value="@Dto.Enum.EnumConstant.Gender.Woman"
+                                                id="out-of-stock"
+                                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                    <label for="out-of-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">زن</label>
+                                </div>
+
+                            </div>
+                        </InputRadioGroup>
+
+                        <ValidationMessage For="@(() => addPersonel.Gender)" class="validate" />
+                    </div>
+                </div>
+
+
+                <!-- Settings -->
+                <div class="space-y-4">
+                    <div>
+                        <CustomLabel ForId="Personel-Address" For="@(() => addPersonel.Address)"></CustomLabel>
+                        <InputText id="Personel-Address" @bind-Value="addPersonel.Address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel ForId="Personel-description" For="@(() => addPersonel.Description)"></CustomLabel>
+                        <InputTextArea @bind-Value="addPersonel.Description" id="Personel-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div class="mb-4">
+                        <CustomLabel For="@(() => addPersonel.Visible)"></CustomLabel>
+                        <InputRadioGroup @bind-Value="addPersonel.Visible" Name="status">
+                            <InsertUpdateVisible />
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => addPersonel.Visible)" class="validate" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                    ذخیره
+                </button>
+
+            </div>
+        </div>
+
+    </EditForm>
+</main>
+@code {
+    private AddPersonel? addPersonel { get; set; } = new() { Visible = true,Gender=EnumConstant.Gender.Man };
+    protected override async Task OnInitializedAsync()
+    {
+        await _PositionService.GetListDate();
+        if (_PositionService.ResultPositions.Count>0)
+        {
+            addPersonel.PositionID = _PositionService.ResultPositions[0].ID;
+        }
+    }
+    private async Task Add()
+    {
+
+        var resdata = await RootApiAddPersonel.RunMethodApi("Personels", addPersonel, method: Method.Post);
+        if (resdata!=null&&resdata.Status == ResultMessageApi.Success)
+        {
+            //await JS.CallAlertToast(resdata.Message);
+            addPersonel = new() { Visible = true, Gender = EnumConstant.Gender.Man };
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdata.Message,
+                Icon = resdata.Status,
+                ShowConfirmButton = true,
+            });
+        }
+        else if (resdata != null && resdata.Status == ResultMessageApi.Error)
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = resdata.Message,
+                Icon = resdata.Status,
+                ShowConfirmButton = true,
+            });
+        }
+        else
+        {
+            var result2 = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "پیام",
+                Text = "خطایی رخ داده است",
+                Icon = ResultMessageApi.Error,
+                ShowConfirmButton = true,
+            });
+        }
+
+    }
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/Personel");
+    }
+}
+

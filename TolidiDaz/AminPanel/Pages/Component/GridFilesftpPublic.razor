@@ -1,0 +1,132 @@
+﻿@inject IJSRuntime JSRuntime
+@inject SweetAlertService Swal
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFiles
+@inject IRootApi<ResponseApiEntity<ResultDownloadFile>> RootApiResultDownloadFile
+
+@if (ResultUploadFiles.Count > 0)
+{
+    <label>@Title</label>
+    <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+      
+
+        <!-- Users list -->
+        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+            <!-- Users table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-right">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultUploadFile.Title)"></CustomLabel></th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultUploadFile.PathFileName)"></CustomLabel></th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                        <!-- User 1 -->
+                        @{
+                            decimal i = (pagingModel.Page - 1) * pagingModel.Take;
+
+                        }
+                        @foreach (var item in ResultUploadFiles)
+                        {
+                            string path = @ApiLink.FullPath + @item.PathFileName;
+                            i++;
+                            decimal k = i;
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@item.Title</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            @if (string.IsNullOrEmpty(path))
+                                            {
+                                                <img class="h-10 w-10 rounded-full object-cover" src="images/ManWoman.png" alt="بدون عکس" />
+                                            }
+                                            else
+                                            {
+                                                <img class="h-10 w-10 rounded-full object-cover" src="@path" alt="تصویر" />
+                                            }
+                                        </div>
+
+                                    </div>
+                                </td>
+
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button @onclick="@(async () => await Delete(item.PathFileName))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+}
+@code {
+    private PagingModel pagingModel { get; set; } = new();
+
+    [Parameter]
+    public List<ResultUploadFile> ResultUploadFiles { get; set; } = new List<ResultUploadFile>();
+    public ResultUploadFile resultUploadFile { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<ResultUploadFile>> OnClickcallBack { get; set; }
+
+    [Parameter]
+    public string? UniqCode { get; set; }
+    [Parameter]
+    public string? Title { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        pagingModel.Page = 1;
+    }
+    private async Task Delete(string fileName)
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "برای حذف مطمئن هستید؟",
+            Text = "درصورت تایید فایل مورد نظر حذف خواهد شد",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+
+            var del = ResultUploadFiles.Where(s => s.PathFileName == fileName).FirstOrDefault();
+            ResultUploadFiles.Remove(del);
+            var q = await RootApiResultUploadFiles.RunMethodApi($"Ftp/DeleteFile/OtherAllFiles?FileName={del.PathFileName}", null, method: Method.Delete);
+            await OnClickcallBack.InvokeAsync(ResultUploadFiles);
+        }
+    }
+    private async Task DownloadFile(string FileName)
+    {
+        var resdata = await RootApiResultDownloadFile.RunMethodApi(
+            $"Ftp/DownloadFiles/Admin/OtherAllFiles?FileName={FileName}", null, method: Method.Get);
+
+        if (resdata?.Entity?.Content == null)
+        {
+            await Swal.FireAsync("خطا", "فایل یافت نشد", "error");
+            return;
+        }
+
+        var fileBytes = resdata.Entity.Content;
+        var fileExt = resdata.Entity.FileExtention ?? ".bin";
+        var fileName = $"downloadedFile{fileExt}";
+
+        // تبدیل بایت به base64
+        var base64 = Convert.ToBase64String(fileBytes);
+
+        // صدا زدن متد جاوااسکریپت برای دانلود
+        await JSRuntime.InvokeVoidAsync("downloadFileFromByteArray", fileName, base64);
+    }
+}

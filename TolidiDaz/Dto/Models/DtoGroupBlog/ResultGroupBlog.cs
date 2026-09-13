@@ -1,0 +1,17 @@
+﻿using Dto.Models.Base;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using static Dto.Enum.EnumConstant;
+
+namespace  Dto.Models.DtoGroupBlog
+{
+    public class ResultGroupBlog : BaseModel
+    {
+        public int ID { get; set; }
+
+        [DisplayName("عنوان")]
+        public string? Title { get; set; }
+        public int? CountBlog { get; set; }
+       
+    }
+}

@@ -1,0 +1,804 @@
+﻿@page "/"
+@using Dto.Models.DtoProduct
+@inject IJSRuntime JS
+@inject RootApi<ResponseApiEntities<ResultProduct>> RootApiGet
+
+@using Dto.Models.DtoStory
+@using Dto.Models.DtoUploadFile
+@using Newtonsoft.Json
+@using NReco.VideoInfo;
+
+@inject RootApi<ResponseApiEntities<ResultStory>> RootApiGet
+
+<!-- ================= start story section ================= -->
+<TolidiAyhan.Pages.Story.Index />
+<!-- ================= end story section ================= -->
+<!-- ================= start slider section ================= -->
+<TolidiAyhan.Pages.Slider.Index />
+<!-- ================= end slider section ================= -->
+<!-- ================= start feature section ================= -->
+<section class="py-5">
+    <!-- for seo-->
+    <h2 class="sr-only">ویژگی های فروشگاه</h2>
+    <div class="container">
+        <div class="grid grid-cols-4 gap-4 place-items-center">
+            <div class="xl:!col-span-1 col-span-4 w-full">
+                <div class="flex justify-start flex-col items-start">
+                    <div class="flex items-center w-full justify-start">
+                        <div class="w-12 flex items-center justify-center h-10 dark:bg-secondary-300 dark:text-white dark:border-transparent bg-gray-200  text-gray-600 border border-gray-200 rounded-lg rounded-l-none">
+                            چرا
+                        </div>
+                        <div class="w-23 text-white flex items-center bg-primary-grad rounded-r-none justify-center rounded-lg h-10">
+                            تولیدی آیهان؟
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-start dark:text-white leading-9 mt-5" style="text-align:justify">
+                        در تولیدی پوشاک آیهان از بهترین پارچه‌ها و متریال استفاده می‌کنیم تا لباس‌ها دوام، راحتی و زیبایی بیشتری داشته باشند
+                    </p>
+
+                </div>
+            </div>
+            <div class="xl:!col-span-3 col-span-4 w-full">
+                <div class="grid gap-x-4 lg:mt-0 mt-4 gap-y-4 grid-cols-6">
+                    <article itemscope itemtype="https://schema.org/Service" class="lg:col-span-1 col-span-3">
+                        <meta itemprop="name" content="ارسال سریع سفارشات">
+                        <meta itemprop="description" content="تحویل سفارشات در سریع‌ترین زمان ممکن">
+                        <div class="p-3 hover:drop-shadow-lg hover:-translate-y-2 dark:bg-gray-800 cursor-pointer transition duration-300 border border-gray-200 flex bg-white shadow-md rounded-lg flex-col items-center justify-center">
+                            <div class="size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="size-6"
+                                     aria-label="ارسال سریع سفارشات">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </div>
+                            <div class="space-y-1 text-center mt-4">
+                                <h3 class="text-sm text-gray-600 font-bold dark:text-white">ارسال سریع سفارشات</h3>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">فردای ثبت سفارش</span>
+                            </div>
+                        </div>
+                    </article>
+                    <article itemscope itemtype="https://schema.org/Service" class="lg:col-span-1 col-span-3">
+                        <meta itemprop="name" content="پرداخت در محل">
+                        <meta itemprop="description" content="پرداخت وجه پس از تحویل کالا">
+                        <div class="p-3 hover:drop-shadow-lg hover:-translate-y-2 dark:bg-gray-800 cursor-pointer transition duration-300 border border-gray-200 flex bg-white shadow-md rounded-lg flex-col items-center justify-center">
+                            <div class="size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="size-6" aria-label="پرداخت در محل">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                </svg>
+                            </div>
+                            <div class="space-y-1 text-center mt-4">
+                                <h3 class="text-sm text-gray-600 font-bold dark:text-white">پرداخت در محل</h3>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">پس از تحویل کالا</span>
+                            </div>
+                        </div>
+                    </article>
+                    <article itemscope itemtype="https://schema.org/Service" class="lg:col-span-1 col-span-3">
+                        <meta itemprop="name" content="تضمین کیفیت و اصالت">
+                        <meta itemprop="description" content="ضمانت مرجوعی کالا در صورت نارضایتی">
+                        <div class="p-3 hover:drop-shadow-lg hover:-translate-y-2 dark:bg-gray-800 cursor-pointer transition duration-300 border border-gray-200 flex bg-white shadow-md rounded-lg flex-col items-center justify-center">
+                            <div class="size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="size-6"
+                                     aria-label="تضمین کیفیت و اصالت">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                                </svg>
+                            </div>
+                            <div class="space-y-1 text-center mt-4">
+                                <h3 class="text-sm text-gray-600 font-bold dark:text-white">تضمین کیفیت و اصالت</h3>
+                                <span class="text-xs text-gray-500 dark:text-gray-400"> ضمانت مرجوعی</span>
+                            </div>
+                        </div>
+                    </article>
+                    <article itemscope itemtype="https://schema.org/Service" class="lg:col-span-1 col-span-3">
+                        <meta itemprop="name" content="پشتیبانی ۲۴ ساعته">
+                        <meta itemprop="description" content="پشتیبانی آنلاین و تلفنی در هر ساعت از شبانه‌روز">
+                        <div class="p-3 border border-gray-200 flex dark:bg-gray-800 bg-white shadow-md rounded-lg flex-col items-center justify-center hover:shadow-lg hover:-translate-y-2 transition duration-300 cursor-pointer">
+                            <div class="size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white">
+                                <svg aria-label="پشتیبانی ۲۴ ساعته" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                                </svg>
+                            </div>
+                            <div class="space-y-1 text-center mt-4">
+                                <h3 class="text-sm text-gray-600 font-bold dark:text-white">پشتیبانی ۲۴ ساعته</h3>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">پاسخگویی در هر زمان</span>
+                            </div>
+                        </div>
+                    </article>
+                    <article itemscope itemtype="https://schema.org/Service" class="lg:col-span-1 col-span-3">
+                        <meta itemprop="name" content="خرید آسان و سریع">
+                        <meta itemprop="description" content="فرآیند خرید راحت و بی‌دردسر با چند کلیک">
+                        <div class="p-3 border border-gray-200 flex dark:bg-gray-800 bg-white shadow-md rounded-lg flex-col items-center justify-center hover:shadow-lg hover:-translate-y-2 transition duration-300 cursor-pointer">
+                            <div class="size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="size-6"
+                                     aria-label="خرید آسان و سریع">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M3.75 9h16.5m-8.25-6h-6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3h-6" />
+                                </svg>
+                            </div>
+                            <div class="space-y-1 text-center mt-4">
+                                <h3 class="text-sm text-gray-600 font-bold dark:text-white">خرید آسان و سریع</h3>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">چند کلیک تا خرید</span>
+                            </div>
+                        </div>
+                    </article>
+                    <article itemscope itemtype="https://schema.org/DeliveryChargeSpecification"
+                             class="lg:col-span-1 col-span-3">
+                        <meta itemprop="name" content="ارسال به سراسر کشور">
+                        <meta itemprop="description" content="ارسال محصولات به تمام نقاط کشور با استفاده از پست پیشتاز">
+                        <meta itemprop="shippingMethod" content="پست پیشتاز">
+                        <meta itemprop="shippingDestination" content="تمام نقاط کشور">
+                        <div class="p-3 border border-gray-200 flex dark:bg-gray-800 bg-white shadow-md rounded-lg flex-col items-center justify-center hover:shadow-lg hover:-translate-y-2 transition duration-300 cursor-pointer">
+                            <div class="size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="size-6"
+                                     aria-label="ارسال به سراسر کشور">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                                </svg>
+                            </div>
+                            <div class="space-y-1 text-center mt-4">
+                                <h3 class="text-sm text-gray-600 font-bold dark:text-white">ارسال به سراسر کشور</h3>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">با پست پیشتاز</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ================= end feature section ================= -->
+<!-- ================= start amazing section ================= -->
+<TolidiAyhan.Pages.Product.ProductDiscount />
+<!-- ================= end amazing section ================= -->
+<!-- ================= start category section ================= -->
+<TolidiAyhan.Pages.Category.MostVisitedCategory />
+<!-- ================= end category section ================= -->
+<!-- ================= start amazing section two ================= -->
+<section class="py-5" itemscope itemtype="https://schema.org/Product">
+    <div class="container">
+        <div class="bg-secondary dark:bg-zinc-800 block bg-[url(../images/slider/patterns.png)] bg-contain drop-shadow-xl p-5 rounded-3xl">
+            <div class="grid gap-5 grid-cols-5 place-items-center">
+                <div class="lg:!col-span-2 col-span-5 w-full">
+                    <div class="flex flex-wrap items-center space-x-5 sm:space-y-0 space-y-4">
+                        <img src="assets/images/slider/incredible.webp"
+                             alt="تخفیف ویژه 60% روی لپ تاپ های ایسوس و لنوو"
+                             loading="lazy"
+                             class="inline-block size-20"
+                             itemprop="image">
+                        <h1 class="font-black text-nowrap text-3xl text-white" itemprop="name">
+                            تخفیف ویژه
+                        </h1>
+                        <span class="inline-block tracking-wide text-nowrap px-3 py-1.5 bg-primary rounded-3xl"
+                              itemprop="offers"
+                              itemscope
+                              itemtype="https://schema.org/Offer">
+                            <span itemprop="priceSpecification" itemscope
+                                  itemtype="https://schema.org/UnitPriceSpecification">
+                                تا 60% تخفیف تا پایان هفته
+                                <meta itemprop="priceCurrency" content="IRR">
+                                <meta itemprop="price" content="60000000">
+                                <meta itemprop="validThrough" content="2024-08-31">
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="lg:!col-span-3 col-span-5 w-full">
+                    <div class="flex flex-wrap md:space-y-0 space-y-4 space-x-3 items-center lg:justify-end">
+                        <div itemscope itemtype="https://schema.org/Product"
+                             class="size-20 flex items-center justify-center rounded-full bg-white p-2">
+                            <meta itemprop="productID" content="laptop-1">
+                            <img style="border-radius:20px" src="images/a.jpg" loading="lazy"
+                                 alt="لباس - تخفیف 60%" class="inline-block"
+                                 itemprop="image">
+                        </div>
+                        <div itemscope itemtype="https://schema.org/Product"
+                             class="size-20 flex items-center justify-center rounded-full bg-white p-2">
+                            <meta itemprop="productID" content="laptop-1">
+                            <img style="border-radius:20px" src="images/b.jpg" loading="lazy"
+                                 alt="لباس2 - تخفیف 60%" class="inline-block"
+                                 itemprop="image">
+                        </div>
+                        <div itemscope itemtype="https://schema.org/Product"
+                             class="size-20 flex items-center justify-center rounded-full bg-white p-2">
+                            <meta itemprop="productID" content="laptop-1">
+                            <img style="border-radius:20px" src="images/c.jpg" loading="lazy"
+                                 alt="لباس3 - تخفیف 60%" class="inline-block"
+                                 itemprop="image">
+                        </div>
+                        <div itemscope itemtype="https://schema.org/Product"
+                             class="size-20 flex items-center justify-center rounded-full bg-white p-2">
+                            <meta itemprop="productID" content="laptop-1">
+                            <img style="border-radius:20px" src="images/a.jpg" loading="lazy"
+                                 alt="لباس4 - تخفیف 60%" class="inline-block"
+                                 itemprop="image">
+                        </div>
+                        <div itemscope itemtype="https://schema.org/Product"
+                             class="size-20 flex items-center justify-center rounded-full bg-white p-2">
+                            <meta itemprop="productID" content="laptop-1">
+                            <img style="border-radius:20px" src="images/b.jpg"
+                                 alt="لباس5 - تخفیف 60%" class="inline-block"
+                                 loading="lazy" itemprop="image">
+                        </div>
+                        <a href="/products?category=laptops"
+                           class="btn py-4 bg-white rounded-3xl px-5 flex items-center justify-between dark:text-gray-900"
+                           aria-label="مشاهده تمام 40 محصول لباس با تخفیف ویژه"
+                           role="button">
+                            بیش از 40 کالا
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                 stroke="currentColor" class="size-4 ms-2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ================= end amazing section two ================= -->
+<!-- ================= start banner section ================= -->
+<TolidiAyhan.Pages.Advertisement.Index />
+<!-- ================= end banner section ================= -->
+<!-- ================= start product section ================= -->
+<TolidiAyhan.Pages.Product.NewProduct />
+<!-- ================= end product section ================= -->
+<!-- ================= start product group section ================= -->
+@* <section class="py-5 mt-6" itemscope itemtype="https://schema.org/ItemList">
+    <div class="container">
+        <div class="mb-5">
+            <header class="grid place-items-center grid-cols-6 gap-y-10">
+                <div class="ps-15 section-heading sm:col-span-4 w-full col-span-6 relative space-y-3">
+                    <h2 class="font-black text-2xl">
+                        <span itemprop="name" class="dark:text-white">آخرین</span>
+                        <span class="text-primary font-bold">بازید ها</span>
+                    </h2>
+                    <p class="text-neutral-600 dark:text-white" itemprop="description">بر اساس آخرین فعالیت های شما</p>
+                </div>
+                <div class="w-full sm:col-span-2 col-span-6">
+                    <div class="sm:text-end text-start">
+                        <a href="/shop/categories"
+                           class="btn bg-transparent border-secondary border-2 hover:bg-secondary hover:text-white dark:text-white dark:border-white"
+                           title="مشاهده تمامی دسته‌بندی‌ها" itemprop="url">
+                            مشاهده همه
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+    </div>
+    <div class="container">
+        <section>
+            <div class="grid grid-cols-12 gap-4 place-items-center">
+                <section class="sm:col-span-6 xl:col-span-3 col-span-12 w-full" itemprop="itemListElement" itemscope itemtype="https://schema.org/ProductCategory">
+                    <div class="grid gap-4 grid-cols-2 place-items-center">
+                        <div class="col-span-1 border-gray-200 border h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-gray-200 py-4 p-3 dark:bg-zinc-800">
+                            <h3 class="font-bold text-lg line-clamp-1 dark:text-white" itemprop="name">لپ تاپ</h3>
+                            <p class="text-neutral-600 text-xs line-clamp-1 dark:text-neutral-400">بر اساس بازید های شما</p>
+                            <img src="assets/images/product/laptop-4.png" class="size-20 block mx-auto" alt="لپ تاپ" itemprop="image">
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-2" itemprop="url">
+                                <img src="assets/images/product/laptop-2.png" class="size-25 block mx-auto" alt="گوشی موبایل
+                              اپل مدل iPhone 13 Pro Max دو سیم کارت" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-3" itemprop="url">
+                                <img src="assets/images/product/laptop-3.png" class="size-25 block mx-auto" alt="گوشی موبایل
+                              اپل مدل iPhone 13 Pro Max دو سیم کارت" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-5" itemprop="url">
+                                <img src="assets/images/product/laptop-5.png" class="size-25 block mx-auto" alt="لپ تاپ مدل 5" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    لپ تاپ مدل 5
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-2 w-full">
+                            <a href="/category/laptops" class="flex items-center bg-white shadow-md p-3 rounded-lg justify-between w-full dark:bg-zinc-700" itemprop="url">
+                                <span class="dark:text-white">مشاهده همه</span>
+                                <span class="bg-primary rounded-lg p-1 rounded-tl-3xl rounded-bl-3xl">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-white">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                    </svg>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                <section class="sm:col-span-6 xl:col-span-3 col-span-12 w-full" itemprop="itemListElement" itemscope itemtype="https://schema.org/ProductCategory">
+                    <div class="grid gap-4 grid-cols-2 place-items-center">
+                        <div class="col-span-1 border-gray-200 border h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-gray-200 py-4 p-3 dark:bg-zinc-800">
+                            <h3 class="font-bold text-lg line-clamp-1 dark:text-white" itemprop="name">موبایل</h3>
+                            <p class="text-neutral-600 text-xs line-clamp-1 dark:text-neutral-400">بر اساس بازید های شما</p>
+                            <img src="assets/images/product/mobile-1.png" class="size-20 block mx-auto" alt="موبایل" itemprop="image">
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-2" itemprop="url">
+                                <img src="assets/images/product/mobile-2.png" class="size-25 block mx-auto" alt="گوشی موبایل
+                              اپل مدل iPhone 13 Pro Max دو سیم کارت" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-3" itemprop="url">
+                                <img src="assets/images/product/mobile-3.png" class="size-25 block mx-auto" alt="گوشی موبایل
+                              اپل مدل iPhone 13 Pro Max دو سیم کارت" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-5" itemprop="url">
+                                <img src="assets/images/product/mobile-4.png" class="size-25 block mx-auto" alt="لپ تاپ مدل 5" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-2 w-full">
+                            <a href="/category/laptops" class="flex items-center bg-white shadow-md p-3 rounded-lg justify-between w-full dark:bg-zinc-700" itemprop="url">
+                                <span class="dark:text-white">مشاهده همه</span>
+                                <span class="bg-primary rounded-lg p-1 rounded-tl-3xl rounded-bl-3xl">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-white">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                    </svg>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                <section class="sm:col-span-6 xl:col-span-3 col-span-12 w-full" itemprop="itemListElement" itemscope itemtype="https://schema.org/ProductCategory">
+                    <div class="grid gap-4 grid-cols-2 place-items-center">
+                        <div class="col-span-1 border-gray-200 border h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-gray-200 py-4 p-3 dark:bg-zinc-800">
+                            <h3 class="font-bold text-lg line-clamp-1 dark:text-white" itemprop="name">ساعت هوشمند</h3>
+                            <p class="text-neutral-600 text-xs line-clamp-1 dark:text-neutral-400">بر اساس بازید های شما</p>
+                            <img src="assets/images/product/wach-1.png" class="size-20 block mx-auto" alt="لپ تاپ" itemprop="image">
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-2" itemprop="url">
+                                <img src="assets/images/product/wach-2.png" class="size-25 block mx-auto" alt="گوشی موبایل
+                              اپل مدل iPhone 13 Pro Max دو سیم کارت" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-3" itemprop="url">
+                                <img src="assets/images/product/wach-3.png" class="size-25 block mx-auto" alt="گوشی موبایل
+                              اپل مدل iPhone 13 Pro Max دو سیم کارت" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-5" itemprop="url">
+                                <img src="assets/images/product/wach-4.png" class="size-25 block mx-auto" alt="لپ تاپ مدل 5" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-2 w-full">
+                            <a href="/category/laptops" class="flex items-center bg-white shadow-md p-3 rounded-lg justify-between w-full dark:bg-zinc-700" itemprop="url">
+                                <span class="dark:text-white">مشاهده همه</span>
+                                <span class="bg-primary rounded-lg p-1 rounded-tl-3xl rounded-bl-3xl">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-white">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                    </svg>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                <section class="sm:col-span-6 xl:col-span-3 col-span-12 w-full" itemprop="itemListElement" itemscope itemtype="https://schema.org/ProductCategory">
+                    <div class="grid gap-4 grid-cols-2 place-items-center">
+                        <div class="col-span-1 border-gray-200 border h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-gray-200 py-4 p-3 dark:bg-zinc-800">
+                            <h3 class="font-bold text-lg line-clamp-1 dark:text-white" itemprop="name">تلویزیون</h3>
+                            <p class="text-neutral-600 text-xs line-clamp-1 dark:text-neutral-400">بر اساس بازید های شما</p>
+                            <img src="assets/images/product/television-4.png" class="size-20 block mx-auto" alt="لپ تاپ" itemprop="image">
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-2" itemprop="url">
+                                <img src="assets/images/product/television-1.png" class="size-25 block mx-auto" alt="گوشی موبایل
+                              اپل مدل iPhone 13 Pro Max دو سیم کارت" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-3" itemprop="url">
+                                <img src="assets/images/product/television-2.png" class="size-25 block mx-auto" alt="گوشی موبایل
+                              اپل مدل iPhone 13 Pro Max دو سیم کارت" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    گوشی موبایل
+                                    اپل مدل iPhone 13 Pro Max دو سیم کارت
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-1 border-gray-200 border group relative flex items-center justify-center h-42 space-y-2 text-center shadow-md w-full rounded-lg bg-white py-4 p-3 dark:bg-gray-800">
+                            <a href="/product/laptop-5" itemprop="url">
+                                <img src="assets/images/product/television-3.png" class="size-25 block mx-auto" alt="لپ تاپ مدل 5" itemprop="image">
+                                <span class="absolute text-nowrap z-10 left-1/2 mr-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg">
+                                    <span class="absolute left-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></span>
+                                    لپ تاپ مدل 5
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-span-2 w-full">
+                            <a href="/category/laptops" class="flex items-center bg-white shadow-md p-3 rounded-lg justify-between w-full dark:bg-zinc-700" itemprop="url">
+                                <span class="dark:text-white">مشاهده همه</span>
+                                <span class="bg-primary rounded-lg p-1 rounded-tl-3xl rounded-bl-3xl">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-white">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                    </svg>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </div>
+</section> *@
+<!-- ================= end product group section ================= -->
+<!-- ================= start product list section ================= -->
+<TolidiAyhan.Pages.Product.LatestMostViewedProductsOfWeek />
+<!-- ================= end product list section ================= -->
+<!-- ================= start product section ================= -->
+<TolidiAyhan.Pages.Product.NewProduct2 />
+<!-- ================= end product section ================= -->
+<!-- ================= start brand section ================= -->
+@* <section class="py-5" itemscope itemtype="https://schema.org/ItemList">
+    <div class="container">
+        <div class="mb-5">
+            <header class="grid place-items-center grid-cols-6 gap-y-10">
+                <div class="ps-15 section-heading sm:col-span-4 w-full col-span-6 relative space-y-3">
+                    <h2 class="font-black text-2xl">
+                        <span itemprop="name" class="dark:text-white">محبوب ترین</span>
+                        <span class="text-primary font-bold">برندها</span>
+                    </h2>
+                    <p class="text-neutral-600 dark:text-white" itemprop="description">پرفروش ترین برند ها را در پایین مشاهده میکنید</p>
+                </div>
+                <div class="w-full sm:col-span-2 col-span-6">
+                    <div class="sm:text-end text-start">
+                        <a href="/shop/categories"
+                           class="btn bg-transparent border-secondary border-2 hover:bg-secondary hover:text-white dark:text-white dark:border-white"
+                           title="مشاهده تمامی محصولات پر بازدید" itemprop="url">
+                            مشاهده همه
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="swiper !px-2.3 product-carousel">
+            <div class="swiper-wrapper items-center" style="padding-bottom: 0 !important;">
+                <div class="swiper-slide space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/Brand">
+                    <a href="/brand/adata" class="w-full block" itemprop="url">
+                        <article class="p-5 space-y-3 rounded-xl hover:-translate-y-2 transition border border-gray-200 bg-white drop-shadow-md dark:bg-gray-800">
+                            <figure class="text-center block py-4" itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                                <img src="assets/images/brand/brand1-1.png" class="h-22 block mx-auto" alt="لوگوی برند ای دیتا" itemprop="contentUrl">
+                                <meta itemprop="caption" content="لوگوی رسمی برند ای دیتا">
+                            </figure>
+                            <section class="space-y-5">
+                                <div>
+                                    <h4 class="relative before:right-0 before:z-[-1] before:rounded-lg before:bg-gray-300 before:absolute before:top-1/2 before:h-px before:w-full before:-translate-y-1/2">
+                                        <span class="bg-white text-neutral-500 pl-3 dark:bg-gray-800 dark:text-white" itemprop="name">ADATA</span>
+                                    </h4>
+                                </div>
+                                <div class="flex flex-wrap justify-between items-center">
+                                    <h2 class="text-2xl font-bold dark:text-white" itemprop="alternateName">ای دیتا</h2>
+                                    <span class="text-lg text-neutral-500 dark:text-neutral-300" itemprop="numberOfItems">43 کالا</span>
+                                </div>
+                            </section>
+                        </article>
+                    </a>
+                </div>
+                <div class="swiper-slide space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/Brand">
+                    <a href="/brand/adata" class="w-full block" itemprop="url">
+                        <article class="p-5 space-y-3 rounded-xl hover:-translate-y-2 transition border border-gray-200 bg-white drop-shadow-md dark:bg-gray-800">
+                            <figure class="text-center block py-4" itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                                <img src="assets/images/brand/brand1-2.png" class="h-22 block mx-auto" alt="لوگوی برند ای دیتا" itemprop="contentUrl">
+                                <meta itemprop="caption" content="لوگوی رسمی برند ای دیتا">
+                            </figure>
+                            <section class="space-y-5">
+                                <div>
+                                    <h4 class="relative before:right-0 before:z-[-1] before:rounded-lg before:bg-gray-300 before:absolute before:top-1/2 before:h-px before:w-full before:-translate-y-1/2">
+                                        <span class="bg-white text-neutral-500 pl-3 dark:bg-gray-800 dark:text-white" itemprop="name">ADATA</span>
+                                    </h4>
+                                </div>
+                                <div class="flex flex-wrap justify-between items-center">
+                                    <h2 class="text-2xl font-bold dark:text-white" itemprop="alternateName">ای دیتا</h2>
+                                    <span class="text-lg text-neutral-500 dark:text-neutral-300" itemprop="numberOfItems">43 کالا</span>
+                                </div>
+                            </section>
+                        </article>
+                    </a>
+                </div>
+                <div class="swiper-slide space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/Brand">
+                    <a href="/brand/adata" class="w-full block" itemprop="url">
+                        <article class="p-5 space-y-3 rounded-xl hover:-translate-y-2 transition border border-gray-200 bg-white drop-shadow-md dark:bg-gray-800">
+                            <figure class="text-center block py-4" itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                                <img src="assets/images/brand/brand1-3.png" class="h-22 block mx-auto" alt="لوگوی برند ای دیتا" itemprop="contentUrl">
+                                <meta itemprop="caption" content="لوگوی رسمی برند ای دیتا">
+                            </figure>
+                            <section class="space-y-5">
+                                <div>
+                                    <h4 class="relative before:right-0 before:z-[-1] before:rounded-lg before:bg-gray-300 before:absolute before:top-1/2 before:h-px before:w-full before:-translate-y-1/2">
+                                        <span class="bg-white text-neutral-500 pl-3 dark:bg-gray-800 dark:text-white" itemprop="name">ADATA</span>
+                                    </h4>
+                                </div>
+                                <div class="flex flex-wrap justify-between items-center">
+                                    <h2 class="text-2xl font-bold dark:text-white" itemprop="alternateName">ای دیتا</h2>
+                                    <span class="text-lg text-neutral-500 dark:text-neutral-300" itemprop="numberOfItems">43 کالا</span>
+                                </div>
+                            </section>
+                        </article>
+                    </a>
+                </div>
+                <div class="swiper-slide space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/Brand">
+                    <a href="/brand/adata" class="w-full block" itemprop="url">
+                        <article class="p-5 space-y-3 rounded-xl hover:-translate-y-2 transition border border-gray-200 bg-white drop-shadow-md dark:bg-gray-800">
+                            <figure class="text-center block py-4" itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                                <img src="assets/images/brand/brand1-4.png" class="h-22 block mx-auto" alt="لوگوی برند ای دیتا" itemprop="contentUrl">
+                                <meta itemprop="caption" content="لوگوی رسمی برند ای دیتا">
+                            </figure>
+                            <section class="space-y-5">
+                                <div>
+                                    <h4 class="relative before:right-0 before:z-[-1] before:rounded-lg before:bg-gray-300 before:absolute before:top-1/2 before:h-px before:w-full before:-translate-y-1/2">
+                                        <span class="bg-white text-neutral-500 pl-3 dark:bg-gray-800 dark:text-white" itemprop="name">ADATA</span>
+                                    </h4>
+                                </div>
+                                <div class="flex flex-wrap justify-between items-center">
+                                    <h2 class="text-2xl font-bold dark:text-white" itemprop="alternateName">ای دیتا</h2>
+                                    <span class="text-lg text-neutral-500 dark:text-neutral-300" itemprop="numberOfItems">43 کالا</span>
+                                </div>
+                            </section>
+                        </article>
+                    </a>
+                </div>
+                <div class="swiper-slide space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/Brand">
+                    <a href="/brand/adata" class="w-full block" itemprop="url">
+                        <article class="p-5 space-y-3 rounded-xl hover:-translate-y-2 transition border border-gray-200 bg-white drop-shadow-md dark:bg-gray-800">
+                            <figure class="text-center block py-4" itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                                <img src="assets/images/brand/brand1-5.png" class="h-22 block mx-auto" alt="لوگوی برند ای دیتا" itemprop="contentUrl">
+                                <meta itemprop="caption" content="لوگوی رسمی برند ای دیتا">
+                            </figure>
+                            <section class="space-y-5">
+                                <div>
+                                    <h4 class="relative before:right-0 before:z-[-1] before:rounded-lg before:bg-gray-300 before:absolute before:top-1/2 before:h-px before:w-full before:-translate-y-1/2">
+                                        <span class="bg-white text-neutral-500 pl-3 dark:bg-gray-800 dark:text-white" itemprop="name">ADATA</span>
+                                    </h4>
+                                </div>
+                                <div class="flex flex-wrap justify-between items-center">
+                                    <h2 class="text-2xl font-bold dark:text-white" itemprop="alternateName">ای دیتا</h2>
+                                    <span class="text-lg text-neutral-500 dark:text-neutral-300" itemprop="numberOfItems">43 کالا</span>
+                                </div>
+                            </section>
+                        </article>
+                    </a>
+                </div>
+                <div class="swiper-slide space-y-3 px-1.5 py-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/Brand">
+                    <a href="/brand/adata" class="w-full block" itemprop="url">
+                        <article class="p-5 space-y-3 rounded-xl hover:-translate-y-2 transition border border-gray-200 bg-white drop-shadow-md dark:bg-gray-800">
+                            <figure class="text-center block py-4" itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                                <img src="assets/images/brand/brand1-6.png" class="h-22 block mx-auto" alt="لوگوی برند ای دیتا" itemprop="contentUrl">
+                                <meta itemprop="caption" content="لوگوی رسمی برند ای دیتا">
+                            </figure>
+                            <section class="space-y-5">
+                                <div>
+                                    <h4 class="relative before:right-0 before:z-[-1] before:rounded-lg before:bg-gray-300 before:absolute before:top-1/2 before:h-px before:w-full before:-translate-y-1/2">
+                                        <span class="bg-white text-neutral-500 pl-3 dark:bg-gray-800 dark:text-white" itemprop="name">ADATA</span>
+                                    </h4>
+                                </div>
+                                <div class="flex flex-wrap justify-between items-center">
+                                    <h2 class="text-2xl font-bold dark:text-white" itemprop="alternateName">ای دیتا</h2>
+                                    <span class="text-lg text-neutral-500 dark:text-neutral-300" itemprop="numberOfItems">43 کالا</span>
+                                </div>
+                            </section>
+                        </article>
+                    </a>
+                </div>
+            </div>
+            <div class="swiper-button-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                 aria-label="اسلاید بعدی"></div>
+            <div class="swiper-button-prev bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                 aria-label="اسلاید قبلی"></div>
+        </div>
+    </div>
+</section> *@
+<!-- ================= end brand section ================= -->
+<!-- ================= start banner section ================= -->
+<TolidiAyhan.Pages.AdvertisementSingle.Index />
+<!-- ================= end banner section ================= -->
+<!-- ================= start blog section ================= -->
+<TolidiAyhan.Pages.Blog.Index />
+<!-- ================= end blog section ================= -->
+@code {
+    @inject NavigationManager NavManager
+
+
+    private List<ResultStory>? ResultStorys { get; set; } = new List<ResultStory>();
+    private List<ResultUploadFile> ResultUploadImages { get; set; } = new List<ResultUploadFile>();
+    private List<ResultUploadFile> ResultUploadVideo { get; set; } = new List<ResultUploadFile>();
+    private List<StoryItem> stories = new List<StoryItem>();
+    private bool isScriptsLoaded = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+
+            // تاخیر کوچک برای اطمینان از لود کامل صفحه
+            await Task.Delay(50);
+
+            await LoadScriptsAsync();
+
+            // بعد از اینکه اسکریپت لود شد، آنگاه استوری‌ها را صدا بزن
+            await InvokeAsync(async () =>
+            {
+                await LoadStoriesAsync();
+            });
+        }
+    }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+
+    //     if (firstRender && !isScriptsLoaded)
+    //     {
+    //         await GetData();
+    //         // لود اسکریپت‌ها فقط در اولین رندر
+    //         await LoadScriptsAsync();
+    //         await LoadStoriesAsync();
+    //         isScriptsLoaded = true; // پرچم را تنظیم کنید تا از لود مجدد جلوگیری شود
+
+    //     }
+    //     // لود داده‌های استوری‌ها و ارسال به جاوااسکریپت
+
+    // }
+    // private async Task LoadScriptsAsync()
+    // {
+
+    //     await JS.InvokeVoidAsync("loadScript", "/assets/js/plugin/story-player/story-player.js");
+    //     isScriptsLoaded = true;
+    // }
+    private async Task LoadScriptsAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("loadScript", "/assets/js/plugin/story-player/story-player.js");
+        }
+        catch (JSDisconnectedException)
+        {
+            return; // کاربر صفحه را ترک کرده
+        }
+    }
+
+    private async Task GetData(string? SearchText = "")
+    {
+        var (data, authorized) = await RootApiGet.RunMethodApi($"Storys/Public/All", null, method: Method.Get);
+        ResultStorys = data.Entities.ToList();
+
+    }
+    // private async Task LoadStoriesAsync()
+    // {
+    //     stories = await GetStoriesAsync();
+    //     await JS.InvokeVoidAsync("initStories", stories);
+    //     // StateHasChanged();
+    // }
+    private async Task LoadStoriesAsync()
+    {
+        stories = await GetStoriesAsync();
+        try
+        {
+            await JS.InvokeVoidAsync("initStories", stories);
+        }
+        catch (JSDisconnectedException)
+        {
+            NavManager.NavigateTo("/login", forceLoad: true);
+        }
+    }
+
+    public async Task<List<StoryItem>> GetStoriesAsync()
+    {
+        int i = 0;
+        List<StoryItem> StoryItems = new List<StoryItem>();
+        foreach (var item in ResultStorys)
+        {
+            i++;
+            ResultUploadImages = item.JsonPicture != null ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(item.JsonPicture) : new List<ResultUploadFile>();
+            ResultUploadVideo = item.JsonVideo != null ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(item.JsonVideo) : new List<ResultUploadFile>();
+            if (ResultUploadImages.Count > 0)
+                StoryItems.Add(new StoryItem
+                {
+                    Type = "image",
+                    User = $"استوری {i}",
+                    Avatar = ApiLink.FullPath + ResultUploadImages[0].PathFileName,
+                    Url = ApiLink.FullPath + ResultUploadImages[0].PathFileName,
+                    Duration = 5000,
+                    Link = item.Url
+                });
+
+            if (ResultUploadVideo.Count > 0)
+            {
+                var ffProbe = new FFProbe();
+                i++;
+                StoryItems.Add(new StoryItem
+                {
+                    Type = "video",
+                    User = $"استوری {i}",
+                    Avatar = ResultUploadImages.Count > 0 ? ApiLink.FullPath + ResultUploadImages[0].PathFileName : string.Empty,
+                    Url = ApiLink.FullPath + ResultUploadVideo[0].PathFileName,
+                    Duration = 10000,
+                    Link = item.Url
+                });
+            }
+
+           
+        }
+        return StoryItems;
+
+    }
+    private int? GetmsVideo()
+    {
+
+        var ffProbe = new FFProbe();
+        var videoInfo = ffProbe.GetMediaInfo(ApiLink.FullPath + ResultUploadVideo[0].PathFileName);
+        var ts = videoInfo.Duration;
+        return (int)ts.TotalMilliseconds;
+    }
+}
+
+
+<script>
+        window.initStories = function (stories) {
+        // stories الان یک آرایه JSON از سمت C# است
+        new StoryPlayer("stories-container", stories);
+
+    };
+</script>
+

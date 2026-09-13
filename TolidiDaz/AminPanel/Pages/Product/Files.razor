@@ -1,0 +1,86 @@
+﻿@page "/ProductFiles"
+@using Dto.Models.DtoProduct
+@using static Dto.Enum.EnumConstant
+@inject SweetAlertService Swal
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService localStorageService
+@inject NavigationManager NavManager
+@inject IRootApi<ResponseApiEntity<UpdateProduct>> RootApiUpdateProduct
+@inject IRootApi<ResponseApiEntity<UpdateJsonFile>> RootApiUpdateJsonFile
+
+@attribute [Authorize()]
+
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+    <UploadImages OnChangeUpload="AddToListImages" />
+    <AminPanel.Pages.Component.GridImage ResultUploadFiles="ResultUploadImages" OnClickcallBack="DeleteImage" />
+</main>
+
+@code{
+    public List<ResultUploadFile> ResultUploadImages { get; set; } = new List<ResultUploadFile>();
+
+    private UpdateProduct? updateProduct { get; set; } = new();
+    private ResponseApiEntity<UpdateProduct> resdataEdit { get; set; }
+    [SupplyParameterFromQuery]
+    public string? ID { get; set; } 
+
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/Product");
+    }
+    private async Task AddToListImages(List<ResultUploadFile> resultUploadFiles)
+    {
+        ResultUploadImages.AddRange(resultUploadFiles);
+        if (ResultUploadImages != null)
+        {
+            UpdateJsonFile updateJsonFile = new UpdateJsonFile
+            {
+                ID = updateProduct.ID,
+                JsonPicture = JsonConvert.SerializeObject(ResultUploadImages),
+                EnumJsonImageFileVideo = EnumJsonImageFileVideo.Image
+
+            };
+            var Result = await RootApiUpdateJsonFile.RunMethodApi("Products/UpdateJsonFile", updateJsonFile, method: Method.Patch);
+        }
+
+    }
+ 
+    protected async override Task OnInitializedAsync()
+    {
+        resdataEdit = await RootApiUpdateProduct.RunMethodApi($"Products/{ID}", null, method: Method.Get);
+        updateProduct = resdataEdit.Entity;
+        if (resdataEdit.Entity.JsonPicture != null)
+            ResultUploadImages = JsonConvert.DeserializeObject<List<ResultUploadFile>>(resdataEdit.Entity.JsonPicture);
+        else
+            ResultUploadImages = new List<ResultUploadFile>();
+
+       
+    }
+   
+
+    private async Task DeleteImage(List<ResultUploadFile> resultUploadImages)
+    {
+        UpdateJsonFile updateJsonFile = new UpdateJsonFile
+        {
+            ID = updateProduct.ID,
+            JsonPicture = JsonConvert.SerializeObject(resultUploadImages),
+            EnumJsonImageFileVideo = EnumJsonImageFileVideo.Image
+
+        };
+        var Result = await RootApiUpdateJsonFile.RunMethodApi("Products/UpdateJsonFile", updateJsonFile, method: Method.Patch);
+    }
+}
+  

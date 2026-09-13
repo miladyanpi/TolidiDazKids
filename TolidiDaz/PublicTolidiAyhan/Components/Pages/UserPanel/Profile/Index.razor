@@ -1,0 +1,191 @@
+﻿@page "/UserProfile"
+@using Dto.Models.DtoCustomer
+@inject IRootApi<ResponseApiEntity<UpdateCustomerInfo>> RootApiUpdateCustomer
+@using PublicTolidiAyhan.Services.Customer
+@inject CustomerPublicService _CustomerService
+
+@attribute [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
+<div class="flex flex-col flex-1 overflow-hidden">
+    <!-- page content -->
+    <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-background-dark">
+        <!-- Page header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-dark dark:text-light">پروفایل کاربری</h2>
+                <p class="text-gray-600 dark:text-gray-400">اطلاعات شخصی و تنظیمات حساب کاربری</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3 space-x-reverse">
+                <button class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-white dark:bg-gray-700 text-dark dark:text-light hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                    </svg>
+                    تنظیمات
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- User information -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Personal Information Card -->
+                <div class="border rounded-xl overflow-hidden bg-white dark:bg-card-dark shadow-soft dark:shadow-soft-dark">
+                    <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-bold flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-primary dark:text-primary-dark" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                            اطلاعات شخصی
+                        </h3>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <!-- Profile picture -->
+                            <div class="flex flex-col items-center">
+                                <div class="relative">
+                                    <img class="h-24 w-24 rounded-full border-4 border-white dark:border-gray-800 shadow-lg" src="assets/images/user/user.jpg" alt="پروفایل کاربر">
+                                    <button class="absolute bottom-0 right-0 bg-primary dark:bg-primary-dark text-white p-2 rounded-full shadow-sm hover:bg-primary/90 dark:hover:bg-primary/80 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <button class="mt-3 text-sm text-primary dark:text-primary-dark hover:underline">تغییر تصویر</button>
+                            </div>
+
+                            <!-- Information form -->
+                            <div class="flex-1 space-y-4">
+                                <EditForm Model="_CustomerService.updateCustomerInfo" OnValidSubmit="_CustomerService.Update" FormName="UpdateForm">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <DataAnnotationsValidator />
+                                        <div>
+                                            <CustomLabel ForId="Customer-name" For="@(() => _CustomerService.updateCustomerInfo.Name)"></CustomLabel>
+                                            <ValidationMessage For="@(() => _CustomerService.updateCustomerInfo.Name)" class="validate" />
+                                            <InputText placeholder="نام را وارد کنید" @bind-Value="_CustomerService.updateCustomerInfo.Name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                        </div>
+
+                                        <div>
+                                            <CustomLabel ForId="Customer-LastName" For="@(() => _CustomerService.updateCustomerInfo.LastName)"></CustomLabel>
+                                            <ValidationMessage For="@(() => _CustomerService.updateCustomerInfo.LastName)" class="validate" />
+                                            <InputText placeholder="نام و نام خانوادگی را وارد کنید" @bind-Value="_CustomerService.updateCustomerInfo.LastName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <CustomLabel ForId="Customer-Email" For="@(() => _CustomerService.updateCustomerInfo.Email)"></CustomLabel>
+                                        <ValidationMessage For="@(() => _CustomerService.updateCustomerInfo.Email)" class="validate" />
+                                        <InputText placeholder=" ایمیل را وارد کنید" @bind-Value="_CustomerService.updateCustomerInfo.Email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <CustomLabel ForId="Customer-Mcode" For="@(() => _CustomerService.updateCustomerInfo.Mcode)"></CustomLabel>
+                                            <ValidationMessage For="@(() => _CustomerService.updateCustomerInfo.Mcode)" class="validate" />
+                                            <InputText placeholder=" کدملی را وارد کنید" @bind-Value="_CustomerService.updateCustomerInfo.Mcode" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                        </div>
+                                        <div>
+                                            <CustomLabel ForId="Customer-BirthDate" For="@(() => _CustomerService.updateCustomerInfo.BirthDate)"></CustomLabel>
+                                            <ValidationMessage For="@(() => _CustomerService.updateCustomerInfo.BirthDate)" class="validate" />
+                                            <InputText placeholder="1390/01/01" @bind-Value="_CustomerService.updateCustomerInfo.BirthDate" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                        </div>
+                                    </div>
+                                    <div >
+                                        <CustomLabel ForId="Customer-stock" For="@(() => _CustomerService.updateCustomerInfo.Gender)"></CustomLabel>
+                                        <InputRadioGroup @bind-Value="_CustomerService.updateCustomerInfo.Gender" Name="stock-status">
+                                            <div class="flex flex-row items-center space-x-6">
+                                                <div class="flex items-center">
+                                                    <InputRadio o Value="@Dto.Enum.EnumConstant.Gender.Man"
+                                                                id="in-stock"
+                                                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                                    <label for="in-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">مرد</label>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <InputRadio Value="@Dto.Enum.EnumConstant.Gender.Woman"
+                                                                id="out-of-stock"
+                                                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                                    <label for="out-of-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">زن</label>
+                                                </div>
+
+                                            </div>
+                                        </InputRadioGroup>
+
+                                        <ValidationMessage For="@(() => _CustomerService.updateCustomerInfo.Gender)" class="validate" />
+                                    </div>
+                                    <div class="pt-4">
+                                        <button type="submit" class="px-6 py-2 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary/80 text-white rounded-lg text-sm font-medium transition-colors">
+                                            ذخیره تغییرات
+                                        </button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Additional information -->
+            <div class="space-y-6">
+                <!-- Account Status Card -->
+                <div class="border rounded-xl overflow-hidden bg-white dark:bg-card-dark shadow-soft dark:shadow-soft-dark">
+                    <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-bold flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-primary dark:text-primary-dark" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            وضعیت حساب
+                        </h3>
+                    </div>
+                    <div class="p-5">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">سطح کاربری:</span>
+                                <span class="font-medium flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                    عادی
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">تاریخ عضویت:</span>
+                                <span class="font-medium">@_CustomerService.updateCustomerInfo.RegisterDate</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">وضعیت تایید:</span>
+                                <span class="font-medium text-success dark:text-success-dark flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    تایید شده
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">امتیاز کاربر:</span>
+                                <span class="font-medium">- امتیاز</span>
+                            </div>
+                            <div class="pt-4">
+                                <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-primary-grad" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">0% تا سطح الماس (1000 امتیاز)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+            _CustomerService.OnChange += StateHasChanged;
+            await _CustomerService.GetDateInfo();
+    }
+    public void Dispose()
+    {
+        _CustomerService.OnChange -= StateHasChanged;
+    }
+   
+}

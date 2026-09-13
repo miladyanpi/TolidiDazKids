@@ -1,0 +1,151 @@
+﻿@using Dto.Models
+<nav class="flex justify-center my-5 bg-white dark:bg-zinc-900 border border-gray-300 drop-shadow-sm py-4 rounded-lg items-center gap-x-1" aria-label="Pagination">
+    <button @onclick="@(async () => await First())" type="button" class="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10" aria-label="Previous" disabled="">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="shrink-0 size-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+        <span>اولی</span>
+    </button>
+    <button @onclick="@(async () => await Prev(pagingModel.Page))" type="button" class="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10" aria-label="Previous" disabled="">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="shrink-0 size-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+        <span>قبلی</span>
+    </button>
+    @if (pagingModel.PagePer10Counter >= 2)
+    {
+        <button @onclick="@(async () => await SetPagePer10Sub())" type="button" class="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10" aria-label="Previous" disabled="">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="shrink-0 size-3.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+            <span>...</span>
+        </button>
+    }
+    <div class="flex items-center gap-x-1">
+         @for (decimal i = pagingModel.PagePer10; i <= pagingModel.CountPage && i <= pagingModel.PagePer10 * 10; i++)
+            {
+                if (pagingModel.Page == i)
+                {
+                    pagingModel.Active = "text-white bg-primary-600";
+                }
+                else
+                {
+                    pagingModel.Active = "border-gray-300";
+                }
+                decimal j = i;
+            <button @onclick="@(async () => await SetPageAndCallBack(j))" type="button" class="min-h-9.5 min-w-9.5 flex justify-center items-center bg-gray-200 text-gray-800 py-2 px-3 text-sm rounded-lg focus:outline-hidden focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500" aria-current="page">
+                @i
+            </button>
+            }
+
+    </div>
+    @if (pagingModel.PagePer10Counter >= 1 && pagingModel.PagePer10Counter < pagingModel.CountPagePer10)
+    {
+        <button @onclick="@(async () => await SetPagePer10Add())" type="button" class="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10" aria-label="Next">
+            <span>....</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="shrink-0 size-3.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+
+        </button>
+    }
+    <button @onclick="@(async () => await Next(pagingModel.Page))" type="button" class="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10" aria-label="Next">
+        <span>بعدی</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="shrink-0 size-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        </svg>
+
+    </button>
+    <button @onclick="@(async () => await Last())" type="button" class="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10" aria-label="Next">
+        <span>آخری</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="shrink-0 size-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        </svg>
+
+    </button>
+</nav>
+@code {
+    [Parameter]
+    public decimal Page { get; set; }
+    [Parameter]
+    public PagingModel pagingModel { get; set; } = new();
+    [Parameter]
+    public EventCallback<decimal> OnClickcallBack { get; set; }
+
+    private async Task SetPageAndCallBack(decimal i)
+    {
+        Page = pagingModel.Page = i;
+        await OnClickcallBack.InvokeAsync(Page);
+    }
+    private async Task SetPagePer10Add()
+    {
+        pagingModel.PagePer10Counter++;
+        pagingModel.PagePer10 = pagingModel.PagePer10 + 10;
+
+        //await GetData(pagingModel.PagePer10);
+        Page = pagingModel.Page = pagingModel.PagePer10;
+
+
+    }
+    private async Task SetPagePer10Sub()
+    {
+        pagingModel.PagePer10Counter--;
+        pagingModel.PagePer10 = pagingModel.PagePer10 - 10;
+        //await GetData(pagingModel.PagePer10);
+        Page = pagingModel.Page = pagingModel.PagePer10;
+
+    }
+    private async Task Last()
+    {
+        pagingModel.PagePer10Counter = pagingModel.CountPagePer10;
+        pagingModel.PagePer10 = (pagingModel.CountPagePer10 - 1) * 10 + 1;
+        // await GetData(pagingModel.CountPage);
+        Page = pagingModel.Page = pagingModel.CountPage;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task First()
+    {
+        pagingModel.PagePer10Counter = 1;
+        pagingModel.PagePer10 = 1;
+        Page = pagingModel.Page = 1;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task Prev(decimal page = 1)
+    {
+        Page = pagingModel.Page = (page - 1) <= 0 ? 1 : (page - 1);
+        if (pagingModel.Page <= 10)
+        {
+            pagingModel.PagePer10Counter = 1;
+            pagingModel.PagePer10 = 1;
+        }
+        else
+        {
+            pagingModel.PagePer10Counter = Math.Ceiling(pagingModel.Page / 10);
+            pagingModel.PagePer10 = (pagingModel.PagePer10Counter - 1) * 10 + 1;
+        }
+
+        //Page=  pagingModel.Page = pagingModel.Page;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+    private async Task Next(decimal page = 1)
+    {
+        Page = pagingModel.Page = (page + 1) > pagingModel.CountPage ? pagingModel.CountPage : (page + 1);
+        if (pagingModel.Page <= 10)
+        {
+            pagingModel.PagePer10Counter = 1;
+            pagingModel.PagePer10 = 1;
+        }
+        else
+        {
+            pagingModel.PagePer10Counter = Math.Ceiling(pagingModel.Page / 10);
+            pagingModel.PagePer10 = (pagingModel.PagePer10Counter - 1) * 10 + 1;
+        }
+
+        //   Page=  pagingModel.Page = pagingModel.Page;
+        await OnClickcallBack.InvokeAsync(Page);
+
+    }
+}

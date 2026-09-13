@@ -1,0 +1,127 @@
+﻿@inject IJSRuntime JSRuntime
+@inject SweetAlertService Swal
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFiles
+@inject IRootApi<ResponseApiEntity<ResultDownloadFile>> RootApiResultDownloadFile
+
+@if (ResultUploadFiles.Count > 0)
+{
+    <label>@Title</label>
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <!-- حذف padding اضافه برای چسبیدن جدول به لبه‌ها -->
+            <div class="table-responsive border-bottom userlist-table">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light">
+                        <!-- ایجاد یک هدر متمایز با رنگ روشن -->
+                        <tr>
+                            <th class="text-center ps-3" style="width: 80px;">
+                                <span>ردیف</span>
+                            </th>
+                         
+                            <th class="text-start">
+                                <span>
+                                    <CustomLabel For="@(() => resultUploadFile.PathFileName)"></CustomLabel>
+                                </span>
+                            </th>
+                            <th class="text-center" style="width: 150px;">
+                                <span>عملیات</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            if (ResultUploadFiles != null)
+                            {
+                                decimal i = (pagingModel.Page - 1) * pagingModel.Take;
+                                foreach (var item in ResultUploadFiles)
+                                {
+                                    string path = @ApiLink.FullPath + @item.PathFileName;
+                                    i++;
+                                    decimal k = i;
+                                    <tr>
+                                        <td class="text-center fw-bold text-muted">@k</td>
+                                        <td class="text-start">
+                                            <img src="@path" alt="تصویر" class="img-thumbnail"
+                                                 style="width: 50px; height:50px; object-fit: cover;"/>
+                                        </td>
+                                      @*  <td class="text-start">
+                                            <button class="btn btn-sm btn-outline-primary px-3" @onclick="@(async () => await DownloadFile(item.PathFileName))">
+                                                <i class="fa fa-download me-1"></i> دانلود
+                                            </button>
+                                        </td>*@
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-light border-0" @onclick="@(async () => await Delete(item.PathFileName))">
+                                                <i class="fa fa-trash text-danger" style="font-size:17px" title="حذف"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+}
+@code {
+    private PagingModel pagingModel { get; set; } = new();
+
+    [Parameter]
+    public List<ResultUploadFile> ResultUploadFiles { get; set; } = new List<ResultUploadFile>();
+    public ResultUploadFile resultUploadFile { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<ResultUploadFile>> OnClickcallBack { get; set; }
+
+    [Parameter]
+    public string? IdentityCode { get; set; }
+    [Parameter]
+    public string? Title { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        pagingModel.Page = 1;
+    }
+    private async Task Delete(string fileName)
+    {
+        var result1 = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "برای حذف مطمئن هستید؟",
+            Text = "درصورت تایید فایل مورد نظر حذف خواهد شد",
+            ShowCancelButton = true,
+            ConfirmButtonText = "بله",
+            CancelButtonText = "خیر"
+        });
+        if (!string.IsNullOrEmpty(result1.Value))
+        {
+
+            var del = ResultUploadFiles.Where(s => s.PathFileName == fileName).FirstOrDefault();
+            ResultUploadFiles.Remove(del);
+            var q = await RootApiResultUploadFiles.RunMethodApi($"Ftp/DeleteFile/OtherAllFiles?FileName={del.PathFileName}", null, method: Method.Delete);
+            await OnClickcallBack.InvokeAsync(ResultUploadFiles);
+        }
+    }
+    private async Task DownloadFile(string FileName)
+    {
+        var resdata = await RootApiResultDownloadFile.RunMethodApi(
+            $"Ftp/DownloadFiles/Admin/OtherAllFiles?FileName={FileName}", null, method: Method.Get);
+
+        if (resdata?.Entity?.Content == null)
+        {
+            await Swal.FireAsync("خطا", "فایل یافت نشد", "error");
+            return;
+        }
+
+        var fileBytes = resdata.Entity.Content;
+        var fileExt = resdata.Entity.FileExtention ?? ".bin";
+        var fileName = $"downloadedFile{fileExt}";
+
+        // تبدیل بایت به base64
+        var base64 = Convert.ToBase64String(fileBytes);
+
+        // صدا زدن متد جاوااسکریپت برای دانلود
+        await JSRuntime.InvokeVoidAsync("downloadFileFromByteArray", fileName, base64);
+    }
+}

@@ -1,0 +1,316 @@
+﻿@using DNTCaptcha.Blazor
+@using Dto.Models.DtoProduct
+@using PublicTolidiAyhan.Services.ProductComment
+@inject ProductCommentPublicService _ProductCommentPublicService
+@inject PublicSettingService _PublicSettingService
+@using System.Globalization
+<div id="Comments" class="p-5 bg-white dark:bg-gray-800 dark:text-white rounded-xl hidden tab-content border border-gray-300 drop-shadow tab-content" data-content="4">
+    <div class="space-y-4">
+        <h2 class="text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:right-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white">
+            نظرت در مورد این محصول چیه؟
+        </h2>
+        <p class="text-neutral-700 text-sm dark:text-white">
+            برای ثبت نظر، از طریق دکمه افزودن دیدگاه جدید نمایید. اگر این محصول را قبلا خریده باشید، نظر شما به عنوان خریدار ثبت خواهد شد.
+        </p>
+    </div>
+    <div class="grid grid-cols-4 relative gap-6 mt-8">
+        <!-- rating -->
+        @{
+            var averageRating = Math.Clamp((double)ResultProduct.RatingAverage, 0, 5);
+        }
+        <div class="lg:col-span-1 col-span-4">
+            <div class="sticky top-0">
+                <div class="space-y-8 border border-gray-200 p-2 rounded text-center">
+                    <h4 class="text-3xl">متوسط امتیاز ها</h4>
+                    <h5 class="text-3xl">@ResultProduct.RatingAverage</h5>
+                    <div class="flex items-center justify-center gap-1 p-2 bg-gray-100 dark:bg-transparent rounded"
+                         dir="ltr"
+                         aria-label="@($"متوسط امتیاز {averageRating:0.##} از 5")">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            var starFillPercentage = GetStarFillPercentage(averageRating, i);
+                            <div class="relative w-5 h-5">
+                                <!-- ستاره خاکستری پس‌زمینه -->
+                                <svg class="absolute inset-0 w-5 h-5 text-gray-300 dark:text-gray-500"
+                                     aria-hidden="true"
+                                     xmlns="http://www.w3.org/2000/svg"
+                                     fill="currentColor"
+                                     viewBox="0 0 22 20">
+                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                </svg>
+
+                                <!-- بخش رنگی ستاره -->
+                                <div class="absolute inset-0 overflow-hidden"
+                                     style="width: @($"{starFillPercentage}%")">
+
+                                    <svg class="w-5 h-5 text-orange-400"
+                                         aria-hidden="true"
+                                         xmlns="http://www.w3.org/2000/svg"
+                                         fill="currentColor"
+                                         viewBox="0 0 22 20">
+                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+                <div class="w-full max-w-sm p-4 mt-4 border border-gray-200 rounded">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="w-12 text-right">5 ستاره</span>
+                        <div class="flex-1 bg-gray-200 rounded-lg overflow-hidden h-2">
+                            <div class="bg-blue-500 h-full" style="width: @($"{_ProductCommentPublicService.RatingCounts.RateCountPercent5.ToString("0.##", CultureInfo.InvariantCulture)}")%;"></div>
+                        </div>
+                        <span class="w-8 text-left">@_ProductCommentPublicService.RatingCounts.RateCount5</span>
+                    </div>
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="w-12 text-right">4 ستاره</span>
+                        <div class="flex-1 bg-gray-200 rounded-lg overflow-hidden h-2">
+                            <div class="bg-blue-500 h-full" style="width: @($"{_ProductCommentPublicService.RatingCounts.RateCountPercent4.ToString("0.##", CultureInfo.InvariantCulture)}")%;"></div>
+                        </div>
+                        <span class="w-8 text-left">@_ProductCommentPublicService.RatingCounts.RateCount4</span>
+                    </div>
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="w-12 text-right">3 ستاره</span>
+                        <div class="flex-1 bg-gray-200 rounded-lg overflow-hidden h-2">
+                            <div class="bg-blue-500 h-full" style="width: @($"{_ProductCommentPublicService.RatingCounts.RateCountPercent3.ToString("0.##", CultureInfo.InvariantCulture)}")%;"></div>
+                        </div>
+                        <span class="w-8 text-left">@_ProductCommentPublicService.RatingCounts.RateCount3</span>
+                    </div>
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="w-12 text-right">2 ستاره</span>
+                        <div class="flex-1 bg-gray-200 rounded-lg overflow-hidden h-2">
+                            <div class="bg-blue-500 h-full" style="width: @($"{_ProductCommentPublicService.RatingCounts.RateCountPercent2.ToString("0.##", CultureInfo.InvariantCulture)}")%;"></div>
+                        </div>
+                        <span class="w-8 text-left">@_ProductCommentPublicService.RatingCounts.RateCount2</span>
+                    </div>
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="w-12 text-right">1 ستاره</span>
+                        <div class="flex-1 bg-gray-200 rounded-lg overflow-hidden h-2">
+                            <div class="bg-blue-500 h-full" style="width: @($"{_ProductCommentPublicService.RatingCounts.RateCountPercent1.ToString("0.##", CultureInfo.InvariantCulture)}")%;"></div>
+                        </div>
+                        <span class="w-8 text-left">@_ProductCommentPublicService.RatingCounts.RateCount1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+  
+        <!-- form and comment -->
+        <div class="lg:col-span-3 col-span-4">
+            <!-- form -->
+            <div class="w-full pb-4 border-b border-b-gray-300">
+
+                <EditForm Model="_ProductCommentPublicService.addProductComment" OnValidSubmit="_ProductCommentPublicService.AddAsync" FormName="AddForm" class="space-y-6">
+                    <DataAnnotationsValidator />
+                    <!-- Name and Email -->
+                    <div>
+                        <CustomLabel For="@(() => _ProductCommentPublicService.addProductComment.AuthorName)"></CustomLabel>
+                        <ValidationMessage For="@(() => _ProductCommentPublicService.addProductComment.AuthorName)" class="validate" />
+                        <InputText placeholder="نام و نام خانوادگی" @bind-Value="_ProductCommentPublicService.addProductComment.AuthorName" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition" />
+                    </div>
+
+                    <div class="mb-4">
+                        <CustomLabel For="@(() => _ProductCommentPublicService.addProductComment.Rating)"></CustomLabel>
+                        <ValidationMessage For="@(() => _ProductCommentPublicService.addProductComment.Rating)" class="validate" />
+
+                        <!-- گروه رادیویی متصل به فیلد امتیاز -->
+                        <InputRadioGroup @bind-Value="_ProductCommentPublicService.addProductComment.Rating">
+                            <div class="flex space-x-2 flex-row-reverse justify-end">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    var currentStar = i;
+                                    <!-- ذخیره کردن مقدار در یک متغیر محلی جهت جلوگیری از باگ‌های Binding در لوپ -->
+                                    <InputRadio Value="currentStar" id="@($"star{currentStar}")" class="hidden" />
+                                    <label for="@($"star{currentStar}")" class="cursor-pointer">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             fill="@(GetStarFill(currentStar))"
+                                             viewBox="0 0 24 24"
+                                             stroke-width="2"
+                                             stroke="currentColor"
+                                             class="size-6 transition-colors duration-200 @(GetStarColorClass(currentStar))">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 17.27l6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73-1.64 7.03z" />
+                                        </svg>
+                                    </label>
+                                }
+                            </div>
+                        </InputRadioGroup>
+                    </div>
+
+                    <div>
+                        <CustomLabel ForId="City-parent" For="@(() => _ProductCommentPublicService.addProductComment.Body)"></CustomLabel>
+                        <ValidationMessage For="@(() => _ProductCommentPublicService.addProductComment.Body)" class="validate" />
+                        <InputTextArea rows="5" placeholder="متن نظر!" @bind-Value="_ProductCommentPublicService.addProductComment.Body" class="w-full px-4 py-3 border placeholder-gray-500 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition" />
+                    </div>
+
+                    <div class="row form-group">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <ValidationMessage For="@(() => _ProductCommentPublicService.addProductComment.EnteredCaptchaText1)" class="validate" />
+                                <CustomLabel For="@(() => _ProductCommentPublicService.addProductComment.EnteredCaptchaText1)"></CustomLabel>
+                                <InputText @bind-Value="_ProductCommentPublicService.addProductComment.EnteredCaptchaText1" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition" />
+                            </div>
+                            <DntInputCaptcha @bind-Value="_ProductCommentPublicService.addProductComment.CaptchaText1"
+                                             Language="@NumberToWordLanguage.English"
+                                             DisplayMode="@DisplayMode.ShowDigits"
+                                             AllowThousandsSeparators="false"
+                                             Max="99999"
+                                             Min="11111"
+                                             AbsoluteExpiration="@TimeSpan.FromMinutes(2)"
+                                             ShowRefreshButton="true"
+                                             FontSize="21"
+                                             FontName="Times New Roman"
+                                             FontColor="#603F83FF"
+                                             BackgroundColor="#FCF6F5FF"
+                                             RandomLinesCount="2"
+                                             RandomCirclesCount="6"
+                                             BorderWidth="0.3"
+                                             BorderColor="grey"
+                                             NoisePointsCount="25"
+                                             Padding="11"
+                                             ShadowBlur="7"
+                                             ShadowColor="navy"
+                                             ShadowOffsetX="-3"
+                                             ShadowOffsetY="-3"
+                                             TimerInterval="@TimeSpan.FromMilliseconds(2500)"
+                                             CaptchaCanvasClass="d-flex align-self-center"
+                                             CaptchaDivClass="align-self-center ms-1"
+                                             RefreshButtonClass="p-4 bg-gray-100 rounded-full hover:bg-gray-200"
+                                             RefreshButtonTitle="Refresh" />
+
+                        </div>
+
+                    </div>
+                    <!-- Submit button -->
+                    <button type="submit" class="bg-green-600 text-white py-3 px-20 rounded-lg">
+                        ثبت نظر
+                    </button>
+                </EditForm>
+
+            </div>
+            <!-- comment -->
+            <div class="space-y-5">
+                <div class="grid py-5 gap-4 grid-cols-4">
+                    <div class="md:col-span-3 col-span-4">
+                        <div class="flex space-x-3 items-center">
+                            <div class="space-x-3 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
+                                </svg>
+                                <span class="text-sm">مرتب سازی:</span>
+                            </div>
+                            <nav>
+                                <ul class="flex items-center space-x-3 text-sm">
+                                    <li><a href="#" class="text-primary">جدیدترین</a></li>
+                                    <li><a href="#">بیشترین پاسخ</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="md:col-span-1 col-span-4">
+                        <div class="md:text-left">
+                            <span class="text-neutral-600 text-sm dark:text-white">@_ProductCommentPublicService.resultProductComments.Count() نظر تایید شده</span>
+                        </div>
+                    </div>
+                </div>
+                @foreach (var item in _ProductCommentPublicService.resultProductComments)
+                {
+                    var rating = item.Rating ?? 0;
+
+                    <div class="border border-gray-300 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gray-700 dark:text-white">@item.AuthorName</span>
+                                <span class="text-gray-500 text-sm">@item.RegisterDate</span>
+                            </div>
+
+                            <span class="bg-green-200 text-green-700 text-xs px-2 py-1 rounded">
+                                خریدار: @((MarkupString)item.IsVerifiedBuyer)
+                            </span>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="flex items-center mt-3">
+                            <div class="flex gap-1" aria-label="@($"امتیاز: {rating} از 5")">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    bool filled = rating >= i;
+
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         viewBox="0 0 24 24"
+                                         class="w-5 h-5 @(filled ? "text-amber-400" : "text-gray-300 dark:text-gray-600")"
+                                         fill="currentColor"
+                                         aria-hidden="true">
+                                        <path d="M12 .587l3.668 7.432 8.332 1.151-6.001 5.856 1.417 8.283-7.416-3.897-7.416 3.897 1.417-8.283-6.001-5.856 8.332-1.151z" />
+                                    </svg>
+                                }
+                            </div>
+
+                            <span class="text-xs text-gray-500 dark:text-gray-400 mr-2">
+                                @rating/5
+                            </span>
+                        </div>
+
+                        <p class="text-gray-700 my-4 leading-9 text-sm dark:text-white">@item.Body</p>
+
+                        <div class="flex items-center space-x-4 mt-6">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                     stroke="currentColor" class="size-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+                                </svg>
+                                <span class="text-sm mr-2">@_PublicSettingService.ResultPublicSetting.Name</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+   
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+    [Parameter]
+    public int ProductID { get; set; }
+    [Parameter]
+    public ResultProduct? ResultProduct { get; set; }
+    protected override async Task OnParametersSetAsync()
+    {
+        _ProductCommentPublicService.ProductID = ProductID;
+        _ProductCommentPublicService.OnChange += StateHasChanged;
+        await _ProductCommentPublicService.GetListDataAsync();
+    }
+    public void Dispose()
+    {
+        _ProductCommentPublicService.OnChange -= StateHasChanged;
+    }
+    // متد جهت تعیین رنگ پرکننده درون ستاره (طلایی در صورت انتخاب شدن)
+    private string GetStarFill(int starValue)
+    {
+        var selectedRating = _ProductCommentPublicService.addProductComment.Rating;
+        return (selectedRating.HasValue && selectedRating.Value >= starValue) ? "#FBBF24" : "none";
+    }
+
+    // متد جهت کنترل رنگ خط دور ستاره (Amber/Gray)
+    private string GetStarColorClass(int starValue)
+    {
+        var selectedRating = _ProductCommentPublicService.addProductComment.Rating;
+        return (selectedRating.HasValue && selectedRating.Value >= starValue)
+            ? "text-amber-500"
+            : "text-gray-400 dark:text-gray-600";
+    }
+    private double GetStarFillPercentage(double rating, int starNumber)
+    {
+        var value = rating - (starNumber - 1);
+
+        return Math.Clamp(value, 0, 1) * 100;
+    }
+}

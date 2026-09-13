@@ -1,0 +1,141 @@
+﻿@inject CategoryService _CategoryService;
+
+<nav class="relative space-y-4 divide-y divide-gray-200 p-3 overflow-y-scroll h-full" style="padding-left: 0!important;" aria-label="منوی اصلی">
+    <ul class="space-y-2 text-sm">
+        <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
+            itemtype="http://schema.org/SiteNavigationElement">
+            <a href="/" class="block" itemprop="url">صفحه اصلی</a>
+        </li>
+        <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
+            itemtype="http://schema.org/SiteNavigationElement">
+            <a href="/Shop" class="block" itemprop="url">لیست کالاها</a>
+        </li>
+        <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
+            itemtype="http://schema.org/SiteNavigationElement">
+            <a href="/faq" class="block" itemprop="url">سوالی دارید </a>
+        </li>
+        <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
+            itemtype="http://schema.org/SiteNavigationElement">
+            <a href="#" class="block" itemprop="url">پیگیری سفارش</a>
+        </li>
+        <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
+            itemtype="http://schema.org/SiteNavigationElement">
+            <a href="/Blogs" class="block" itemprop="url">بلاگ</a>
+        </li>
+        @foreach (var item in _CategoryService.ResultCategorys)
+        {
+            <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
+                itemtype="http://schema.org/SiteNavigationElement">
+                <button class="flex justify-between w-full text-right"
+                        aria-expanded="false"
+                        aria-controls="menu-@item.ID"
+                        id="menu1-button-@item.ID"
+                        onclick="toggleDropdown('menu-@item.ID')">
+                    <span itemprop="name">@item.Title</span>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5 transition-transform transform dropdown-icon"
+                    
+                         viewBox="0 0 20 20"
+                         fill="currentColor"
+                         aria-hidden="true">
+                        <path fill-rule="evenodd"
+                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                              clip-rule="evenodd" />
+                    </svg>
+                </button>
+              
+                    <ul id="menu-@item.ID"
+                    class="hidden bg-gray-200 dark:bg-zinc-900 dark:text-white"
+                    role="menu"
+                        aria-labelledby="menu1-button-@item.ID">
+                    @foreach (var item2 in item.ResultCategorys)
+                    {
+                        <li class="border-b border-gray-300" itemscope itemtype="http://schema.org/SiteNavigationElement">
+                            <button class="flex justify-between w-full px-6 py-2 text-right"
+                            aria-expanded="false"
+                            aria-controls="submenu-@item2.ID"
+                                    id="submenu1-button-@item2.ID"
+                                    onclick="toggleDropdown('submenu-@item2.ID')">
+                                <span itemprop="name">@item2.Title</span>
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 transition-transform transform"
+                                id="icon-submenu1"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <ul id="submenu-@item2.ID"
+                            class="hidden bg-gray-100 dark:bg-zinc-500 dark:text-gray-200"
+                            role="menu"
+                                aria-labelledby="submenu1-button-@item2.ID"
+                            itemscope
+                            itemtype="http://schema.org/Brand">
+                            @foreach(var item3 in item2.ResultCategorys)
+                                {
+                                    <li class="px-8 py-2 border-b border-gray-200" itemprop="name">
+                                        <a @onclick="@(() => GoToShop(item3.IdentityCode.ToString()))"
+                                           class="text-xs text-gray-600 block hover:text-green-700 dark:text-gray-300">
+                                            @item3.Title
+
+                                        </a>
+                                    </li>
+                                }
+                               
+                            </ul>
+                        </li>
+                        }
+                    </ul>
+              
+
+
+            </li>
+        }
+
+        <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
+            itemtype="http://schema.org/SiteNavigationElement">
+            <a href="/Contact" class="block" itemprop="url">تماس با ما</a>
+        </li>
+        <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
+            itemtype="http://schema.org/SiteNavigationElement">
+            <a href="/About" class="block" itemprop="url">درباره ما</a>
+        </li>
+    </ul>
+</nav>
+@code {
+    @inject NavigationManager NavManager
+    private int? OpenedId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await _CategoryService.GetListDate();
+        _CategoryService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        _CategoryService.OnChange -= StateHasChanged;
+    }
+
+    private void Toggle(int id)
+    {
+        OpenedId = (OpenedId == id ? null : id);
+    }
+
+   
+
+    private void GoToShop(string? guid)
+    {
+        var parameter = new Dictionary<string, object>
+        {
+            {"Code", guid},
+        };
+
+        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/Shop", parameter));
+    }
+}
+
+
