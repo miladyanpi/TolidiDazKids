@@ -18,6 +18,7 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     public class GroupBlogController(
         IGroupBlogService _GroupBlogService,
         IMapper _mapper,
@@ -104,6 +105,7 @@ namespace Api.Controllers
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("GroupBlogs/Data")]
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         public async Task<IActionResult> GetGroupBlogs([FromBody] PaginationParams @params)
         {
             try
@@ -258,6 +260,7 @@ namespace Api.Controllers
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("GroupBlogs/ByGuid/{guid}")]
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         public async Task<IActionResult> GetGroupBlogById([FromRoute] string guid)
         {
             try

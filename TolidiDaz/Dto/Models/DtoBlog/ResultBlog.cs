@@ -28,6 +28,6 @@ namespace  Dto.Models.DtoBlog
         [DisplayName("گروه مقاله")]
         public ResultGroupBlog? ResultGroupBlog { get; set; } = new();
         [DisplayName("نویسنده(در تیم تخصصی)")]
-        public ResultTeam? ResultTeam { get; set; } = new();
+        public ResultTeam? ResultTeam { get; set; }
     }
 }

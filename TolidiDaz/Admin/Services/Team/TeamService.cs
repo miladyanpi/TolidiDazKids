@@ -50,6 +50,21 @@ namespace Admin.Services.Team
             {
             }
         }
+        public async Task GetAllDataAsync(string? SearchText = "")
+        {
+            try
+            {
+                var resdata = await _RootApiResultTeams.RunMethodApi($"Teams/All", null, method: Method.Get);
+                if (resdata != null && resdata.Status == ResultMessageApi.Success)
+                {
+                    ResultTeams = resdata.Entities.ToList() ?? [];
+                    NotifyStateChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
         public async Task DeleteAsync(int ID)
         {
             var result1 = await Swal.FireAsync(new SweetAlertOptions
