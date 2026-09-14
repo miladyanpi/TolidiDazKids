@@ -15,22 +15,12 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
 
-    public class UploadFileController : ControllerBase
+    public class UploadFileController(
+        IConfiguration _configuration,
+        ICustomerService _customerService
+        )
+        : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private readonly ICustomerService _customerService;
-
-
-
-        public UploadFileController(
-            IConfiguration configuration,
-            ICustomerService customerService
-
-            )
-        {
-            _configuration = configuration;
-            _customerService = customerService;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Upload")]
         [RequestFormLimits(MultipartBodyLengthLimit = 100_000_000)] // ۱۰۰ مگابایت

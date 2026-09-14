@@ -35,7 +35,6 @@ namespace Api.Controllers
         ISettingService _SettingService,
         ICustomerService _CustomerService,
         UserManager<Account> _userManager,
-        RoleManager<IdentityRole> _roleManager,
         IAuthenticationManager _authenticationManager
         )
         : ControllerBase

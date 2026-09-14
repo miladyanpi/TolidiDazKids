@@ -1,16 +1,17 @@
-﻿using AutoMapper;
+﻿using Api.Models.DtoSmsLog;
+using AutoMapper;
 using DAL.Paginagion;
 using Domain;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Api.Models.DtoSmsLog;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using ServicesLibrary.Services.SettingSrv;
+using Dto.Models.Constant;
 using Dto.Models.DtoSmsLog;
 using Dto.Models.ResponseApi;
-using Dto.Models.Constant;
 using Dto.Services.SmsLogSrv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.SettingSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -19,10 +20,7 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class SmsLogController(
         ISmsLogService _SmsLogService,
-        IMapper _mapper,
-        UserManager<Account> _userManager,
-        ISettingService _settingService
-        //UserManager<Account> userManager
+        IMapper _mapper
         ) 
         : ControllerBase
     {
@@ -105,8 +103,61 @@ namespace Api.Controllers
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: count));
         }
+
+        [HttpPost("SmsLogs/Data")]
+        public async Task<IActionResult> GetSmsLogs([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultSmsLog>
+                                                                    (entities: new List<ResultSmsLog>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<SmsLog, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _SmsLogService.GetCountAllAsync(predicate);
+
+                var SmsLogs = await _SmsLogService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedSmsLogs = _mapper.Map<ICollection<ResultSmsLog>>(SmsLogs);
+
+                return Ok(new ResponseApiEntities<ResultSmsLog>
+                                                                (entities: mappedSmsLogs,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultSmsLog>
+                                                                    (entities: new List<ResultSmsLog>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("SmsLogs")]
-        public async Task<IActionResult> GetSmsLogs([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetSmsLogs2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -144,6 +195,34 @@ namespace Api.Controllers
 
         }
 
+        [HttpGet("SmsLogs/ByGuid/{guid}")]
+        public async Task<IActionResult> GetSmsLogById([FromRoute] string guid)
+        {
+            try
+            {
+                var SmsLog = await _SmsLogService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (SmsLog == null)
+                    return BadRequest(new ResponseApiEntity<UpdateSmsLog>
+                                                                              (entity: new UpdateSmsLog(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateSmsLog>(SmsLog);
+                return Ok(new ResponseApiEntity<UpdateSmsLog>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateSmsLog>
+                                                                             (entity: new UpdateSmsLog(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }

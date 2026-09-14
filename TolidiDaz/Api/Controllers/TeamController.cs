@@ -84,8 +84,62 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("Teams/Data")]
+        public async Task<IActionResult> GetTeams([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultTeam>
+                                                                    (entities: new List<ResultTeam>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Team, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Name ?? "").Contains(search)||
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _TeamService.GetCountAllAsync(predicate);
+
+                var Teams = await _TeamService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedTeams = _mapper.Map<ICollection<ResultTeam>>(Teams);
+
+                return Ok(new ResponseApiEntities<ResultTeam>
+                                                                (entities: mappedTeams,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultTeam>
+                                                                    (entities: new List<ResultTeam>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("Teams")]
-        public async Task<IActionResult> GetTeams([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetTeams2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultTeam>
                                                            (entity: new ResultTeam(),
@@ -112,55 +166,6 @@ namespace Api.Controllers
 
         }
 
-        [HttpPost("Teams/Data")]
-        public async Task<IActionResult> GetTeamsData([FromBody] PaginationParams @params)
-        {
-            try
-            {
-                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultTeam>
-                                                                    (entities: new List<ResultTeam>(),
-                                                                    statusCode: ResultMessageApi.ErrorCode,
-                                                                    status: ResultMessageApi.Error,
-                                                                    message: ResultMessageApi.GetError,
-                                                                    countAllRecordTable: 0
-                                                                   ));
-
-                Expression<Func<Team, bool>> predicate = x => true;
-
-                if (!string.IsNullOrWhiteSpace(@params.SearchText))
-                {
-                    var search = @params.SearchText;
-
-                    predicate = x =>
-                        (x.Name ?? "").Contains(search);
-                }
-
-                var count = await _TeamService.GetCountAllAsync(predicate);
-
-                var Teams = await _TeamService
-                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
-
-
-                var mappedTeams = _mapper.Map<ICollection<ResultTeam>>(Teams);
-
-                return Ok(new ResponseApiEntities<ResultTeam>
-                                                                (entities: mappedTeams,
-                                                                status: ResultMessageApi.Success,
-                                                                statusCode: ResultMessageApi.SuccessCode,
-                                                                message: ResultMessageApi.GetOk,
-                                                                countAllRecordTable: count));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseApiEntities<ResultTeam>
-                                                                   (entities: new List<ResultTeam>(),
-                                                                   statusCode: ResultMessageApi.ErrorCode,
-                                                                   status: ResultMessageApi.Error,
-                                                                   message: ex.Message,
-                                                                   countAllRecordTable: 0
-                                                                  ));
-            }
-        }
         [HttpGet("Teams/{id}")]
         public async Task<IActionResult> GetTeamById([FromRoute] int id)
         {
@@ -210,35 +215,6 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.UpdateError));
         }
-        [HttpGet("Teams/ByGuid/{guid}")]
-        public async Task<IActionResult> GetTeamById([FromRoute] string guid)
-        {
-            try
-            {
-                var Team = await _TeamService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
-                if (Team == null)
-                    return BadRequest(new ResponseApiEntity<UpdateTeam>
-                                                                              (entity: new UpdateTeam(),
-                                                                              statusCode: ResultMessageApi.ErrorCode,
-                                                                              status: ResultMessageApi.Error,
-                                                                              message: ResultMessageApi.GetError));
-                var result = _mapper.Map<UpdateTeam>(Team);
-                return Ok(new ResponseApiEntity<UpdateTeam>
-                                                               (entity: result,
-                                                               statusCode: ResultMessageApi.SuccessCode,
-                                                               status: ResultMessageApi.Success,
-                                                               message: ResultMessageApi.GetOk));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseApiEntity<UpdateTeam>
-                                                                              (entity: new UpdateTeam(),
-                                                                              statusCode: ResultMessageApi.ErrorCode,
-                                                                              status: ResultMessageApi.Error,
-                                                                              message: ex.Message));
-            }
-
-        }
 
         [HttpGet("Teams/All")]
         [AllowAnonymous]
@@ -274,6 +250,36 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: Teams.Count()));
+
+        }
+
+        [HttpGet("Teams/ByGuid/{guid}")]
+        public async Task<IActionResult> GetTeamById([FromRoute] string guid)
+        {
+            try
+            {
+                var Team = await _TeamService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Team == null)
+                    return BadRequest(new ResponseApiEntity<UpdateTeam>
+                                                                              (entity: new UpdateTeam(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateTeam>(Team);
+                return Ok(new ResponseApiEntity<UpdateTeam>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateTeam>
+                                                                             (entity: new UpdateTeam(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 

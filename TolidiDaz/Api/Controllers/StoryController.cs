@@ -1,5 +1,4 @@
-﻿using ServicesLibrary.Services.StorySrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -10,6 +9,8 @@ using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.StorySrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -19,7 +20,6 @@ namespace Api.Controllers
     public class StoryController(
         IStoryService _storyService,
         IMapper _mapper
-        //UserManager<Account> userManager
         ) 
         : ControllerBase
     {
@@ -137,9 +137,63 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("Storys/Data")]
+        public async Task<IActionResult> GetStorys([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultStory>
+                                                                    (entities: new List<ResultStory>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Story, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _storyService.GetCountAllAsync(predicate);
+
+                var Storys = await _storyService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedStorys = _mapper.Map<ICollection<ResultStory>>(Storys);
+
+                return Ok(new ResponseApiEntities<ResultStory>
+                                                                (entities: mappedStorys,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultStory>
+                                                                    (entities: new List<ResultStory>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Storys")]
-        public async Task<IActionResult> GetStorys([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetStorys2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -211,6 +265,37 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: Storys.Count()));
+
+        }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("Storys/ByGuid/{guid}")]
+        public async Task<IActionResult> GetStoryById([FromRoute] string guid)
+        {
+            try
+            {
+                var Story = await _storyService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Story == null)
+                    return BadRequest(new ResponseApiEntity<UpdateStory>
+                                                                              (entity: new UpdateStory(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateStory>(Story);
+                return Ok(new ResponseApiEntity<UpdateStory>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateStory>
+                                                                             (entity: new UpdateStory(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 

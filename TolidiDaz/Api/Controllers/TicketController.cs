@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.TicketSrv;
-using ServicesLibrary.Services.DepartmentSrv;
-using ServicesLibrary.Services.ViewCounter;
 using System.Linq.Expressions;
 
 namespace Api.Controllers
@@ -20,10 +18,7 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TicketController(
         ITicketService _TicketService,
-        IDepartmentService _DepartmentService,
-        IMapper _mapper,
-        IViewCounterService _viewCounterService
-        //UserManager<Account> userManager
+        IMapper _mapper
         ) 
         : ControllerBase
     {
@@ -134,6 +129,59 @@ namespace Api.Controllers
         }
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("Tickets/Data")]
+        public async Task<IActionResult> GetTickets([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultTicket>
+                                                                    (entities: new List<ResultTicket>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Ticket, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _TicketService.GetCountAllAsync(predicate);
+
+                var Tickets = await _TicketService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedTickets = _mapper.Map<ICollection<ResultTicket>>(Tickets);
+
+                return Ok(new ResponseApiEntities<ResultTicket>
+                                                                (entities: mappedTickets,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultTicket>
+                                                                    (entities: new List<ResultTicket>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Tickets")]
         public async Task<IActionResult> GetTickets([FromQuery] PaginationParams @params, int? DepartmentID)
         {
@@ -205,6 +253,37 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: count));
+
+        }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("Tickets/ByGuid/{guid}")]
+        public async Task<IActionResult> GetTicketById([FromRoute] string guid)
+        {
+            try
+            {
+                var Ticket = await _TicketService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Ticket == null)
+                    return BadRequest(new ResponseApiEntity<UpdateTicket>
+                                                                              (entity: new UpdateTicket(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateTicket>(Ticket);
+                return Ok(new ResponseApiEntity<UpdateTicket>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateTicket>
+                                                                             (entity: new UpdateTicket(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 
