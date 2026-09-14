@@ -21,8 +21,7 @@ namespace Api.Controllers
     public class ReportController(
         IProductService _ProductService,
         ICustomerService _CustomerService,
-        IOrderService _OrderService,
-        IMapper _mapper
+        IOrderService _OrderService
         )
         : ControllerBase
     {

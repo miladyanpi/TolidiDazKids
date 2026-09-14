@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Dto.Models.ResponseApi;
+using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoSetting;
-using Dto.Enum;
+using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.SettingSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -64,9 +65,61 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.UpdateError));
         }
-       
+
+        [HttpPost("Settings/Data")]
+        public async Task<IActionResult> GetSettings([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultSetting>
+                                                                    (entities: new List<ResultSetting>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Setting, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Name ?? "").Contains(search);
+                }
+
+                var count = await _SettingService.GetCountAllAsync(predicate);
+
+                var Settings = await _SettingService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedSettings = _mapper.Map<ICollection<ResultSetting>>(Settings);
+
+                return Ok(new ResponseApiEntities<ResultSetting>
+                                                                (entities: mappedSettings,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultSetting>
+                                                                    (entities: new List<ResultSetting>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("Settings")]
-        public async Task<IActionResult> GetSettings([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetSettings2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -84,7 +137,6 @@ namespace Api.Controllers
                                                              countAllRecordTable: count));
         }
       
-  
         [HttpGet("Settings/{id}")]
         public async Task<IActionResult> GetSettingById([FromRoute] int id)
         {
@@ -135,6 +187,36 @@ namespace Api.Controllers
                          statusCode: ResultMessageApi.SuccessCode,
                          message: ResultMessageApi.GetOk,
                          countAllRecordTable: mappedSettings.Count));
+        }
+
+        [HttpGet("Settings/ByGuid/{guid}")]
+        public async Task<IActionResult> GetSettingById([FromRoute] string guid)
+        {
+            try
+            {
+                var Setting = await _SettingService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Setting == null)
+                    return BadRequest(new ResponseApiEntity<UpdateSetting>
+                                                                              (entity: new UpdateSetting(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateSetting>(Setting);
+                return Ok(new ResponseApiEntity<UpdateSetting>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateSetting>
+                                                                             (entity: new UpdateSetting(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
+
         }
 
     }

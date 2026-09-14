@@ -1,16 +1,16 @@
-﻿using AutoMapper;
+﻿using Api.Models.DtoReminderEvent;
+using AutoMapper;
 using DAL.Paginagion;
 using Domain;
+using Dto.Models.Constant;
+using Dto.Models.ResponseApi;
+using Dto.Services.ReminderEventSrv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Api.Models.DtoReminderEvent;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using ServicesLibrary.Services.SettingSrv;
-using Dto.Models.ResponseApi;
-using Dto.Models.Constant;
+using System.Linq.Expressions;
 using static Dto.Enum.EnumConstant;
-using Dto.Services.ReminderEventSrv;
 
 namespace Api.Controllers
 {
@@ -19,9 +19,7 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ReminderEventController(
         IReminderEventService _ReminderEventService,
-        IMapper _mapper,
-        ISettingService _settingService
-        //UserManager<Account> _userManager
+        IMapper _mapper
         )
         : ControllerBase
     {
@@ -86,8 +84,61 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("ReminderEvents/Data")]
+        public async Task<IActionResult> GetReminderEvents([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultReminderEvent>
+                                                                    (entities: new List<ResultReminderEvent>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<ReminderEvent, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _ReminderEventService.GetCountAllAsync(predicate);
+
+                var ReminderEvents = await _ReminderEventService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedReminderEvents = _mapper.Map<ICollection<ResultReminderEvent>>(ReminderEvents);
+
+                return Ok(new ResponseApiEntities<ResultReminderEvent>
+                                                                (entities: mappedReminderEvents,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultReminderEvent>
+                                                                    (entities: new List<ResultReminderEvent>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("ReminderEvents")]
-        public async Task<IActionResult> GetReminderEvents([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetReminderEvents2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -143,7 +194,35 @@ namespace Api.Controllers
 
         }
 
+        [HttpGet("ReminderEvents/ByGuid/{guid}")]
+        public async Task<IActionResult> GetReminderEventById([FromRoute] string guid)
+        {
+            try
+            {
+                var ReminderEvent = await _ReminderEventService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (ReminderEvent == null)
+                    return BadRequest(new ResponseApiEntity<UpdateReminderEvent>
+                                                                              (entity: new UpdateReminderEvent(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateReminderEvent>(ReminderEvent);
+                return Ok(new ResponseApiEntity<UpdateReminderEvent>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateReminderEvent>
+                                                                             (entity: new UpdateReminderEvent(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
 
     }
 }

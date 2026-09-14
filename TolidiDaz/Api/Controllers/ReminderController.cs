@@ -1,15 +1,14 @@
 ﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Dto.Services.ReminderSrv;
-using ServicesLibrary.Services.SettingSrv;
+using Dto.Models.Constant;
 using Dto.Models.DtoReminderSrv;
 using Dto.Models.ResponseApi;
-using Dto.Models.Constant;
+using Dto.Services.ReminderSrv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -18,9 +17,7 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ReminderController(
         IReminderService _ReminderService,
-        IMapper _mapper,
-        ISettingService _settingService,
-        UserManager<Account> _userManager
+        IMapper _mapper
         )
         : ControllerBase
     {
@@ -85,8 +82,61 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("Reminders/Data")]
+        public async Task<IActionResult> GetReminders([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultReminder>
+                                                                    (entities: new List<ResultReminder>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Reminder, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _ReminderService.GetCountAllAsync(predicate);
+
+                var Reminders = await _ReminderService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedReminders = _mapper.Map<ICollection<ResultReminder>>(Reminders);
+
+                return Ok(new ResponseApiEntities<ResultReminder>
+                                                                (entities: mappedReminders,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultReminder>
+                                                                    (entities: new List<ResultReminder>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("Reminders")]
-        public async Task<IActionResult> GetReminders([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetReminders2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -124,6 +174,34 @@ namespace Api.Controllers
 
         }
 
+        [HttpGet("Reminders/ByGuid/{guid}")]
+        public async Task<IActionResult> GetReminderById([FromRoute] string guid)
+        {
+            try
+            {
+                var Reminder = await _ReminderService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Reminder == null)
+                    return BadRequest(new ResponseApiEntity<UpdateReminder>
+                                                                              (entity: new UpdateReminder(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateReminder>(Reminder);
+                return Ok(new ResponseApiEntity<UpdateReminder>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateReminder>
+                                                                             (entity: new UpdateReminder(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }

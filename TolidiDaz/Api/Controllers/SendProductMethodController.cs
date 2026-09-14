@@ -1,5 +1,4 @@
-﻿using ServicesLibrary.Services.SendProductMethodSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -9,6 +8,8 @@ using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.SendProductMethodSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -18,7 +19,6 @@ namespace Api.Controllers
     public class SendProductMethodController(
         ISendProductMethodService _SendProductMethodService,
         IMapper _mapper
-        //UserManager<Account> userManager
         )
         : ControllerBase
     {
@@ -97,9 +97,63 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("SendProductMethods/Data")]
+        public async Task<IActionResult> GetSendProductMethods([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultSendProductMethod>
+                                                                    (entities: new List<ResultSendProductMethod>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<SendProductMethod, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _SendProductMethodService.GetCountAllAsync(predicate);
+
+                var SendProductMethods = await _SendProductMethodService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedSendProductMethods = _mapper.Map<ICollection<ResultSendProductMethod>>(SendProductMethods);
+
+                return Ok(new ResponseApiEntities<ResultSendProductMethod>
+                                                                (entities: mappedSendProductMethods,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultSendProductMethod>
+                                                                    (entities: new List<ResultSendProductMethod>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("SendProductMethods")]
-        public async Task<IActionResult> GetSendProductMethods([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetSendProductMethods2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultSendProductMethod>
                                                            (entity: new ResultSendProductMethod(),
@@ -174,6 +228,35 @@ namespace Api.Controllers
 
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("SendProductMethods/ByGuid/{guid}")]
+        public async Task<IActionResult> GetSendProductMethodById([FromRoute] string guid)
+        {
+            try
+            {
+                var SendProductMethod = await _SendProductMethodService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (SendProductMethod == null)
+                    return BadRequest(new ResponseApiEntity<UpdateSendProductMethod>
+                                                                              (entity: new UpdateSendProductMethod(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateSendProductMethod>(SendProductMethod);
+                return Ok(new ResponseApiEntity<UpdateSendProductMethod>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateSendProductMethod>
+                                                                             (entity: new UpdateSendProductMethod(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }
