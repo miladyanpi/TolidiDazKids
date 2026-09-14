@@ -1,14 +1,12 @@
 ﻿using ServicesLibrary.Services.CustomerSrv;
 using ServicesLibrary.Services.ProductSrv;
 using ServicesLibrary.Services.OrderItemSrv;
-using ServicesLibrary.Services.OrderSrv;
 using ServicesLibrary.Services.SettingSrv;
 using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
-using Dto.Models.DtoCartItem;
 using Dto.Models.DtoOrder;
 using Dto.Models.DtoOrderItem;
 using Dto.Models.ResponseApi;
@@ -16,7 +14,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace Api.Controllers
@@ -26,24 +23,15 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
 
-    public class OrderItemPublicController : ControllerBase
+    public class OrderItemPublicController(
+        IProductService _ProductService,
+        ICustomerService _CustomerService,
+        IOrderItemService _OrderItemService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly IProductService _ProductService;
-        private readonly ICustomerService _CustomerService;
-        private readonly IOrderItemService _OrderItemService;
-        private readonly IMapper _mapper;
-        public OrderItemPublicController(
-            ICustomerService CustomerService,
-            IProductService ProductService,
-            IOrderItemService OrderItemService,
-            IMapper mapper
-            )
-        {
-            _CustomerService=CustomerService;
-            _ProductService = ProductService;
-            _OrderItemService = OrderItemService;
-            _mapper = mapper;
-        }
+       
         //[HttpGet("OrderItems/Public/CheckProductExistInOrderItem/{ProductUniqCode}")]
         //public async Task<IActionResult> CheckProductExistInOrderItem([FromRoute] string ProductUniqCode)
         //{

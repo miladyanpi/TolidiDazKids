@@ -3,10 +3,8 @@ using DAL.Paginagion;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ServicesLibrary.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using DAL.Context;
 using Dto.Services.ReminderSrv;
 using ServicesLibrary.Services.SettingSrv;
 using Dto.Models.DtoReminderSrv;
@@ -18,25 +16,14 @@ namespace Api.Controllers
     [Route("Api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ReminderController : ControllerBase
+    public class ReminderController(
+        IReminderService _ReminderService,
+        IMapper _mapper,
+        ISettingService _settingService,
+        UserManager<Account> _userManager
+        )
+        : ControllerBase
     {
-        private readonly IReminderService _ReminderService;
-        private readonly IMapper _mapper;
-        private readonly UserManager<Account> _userManager;
-        private readonly ISettingService _settingService;
-
-        public ReminderController(
-            IReminderService ReminderService,
-            IMapper mapper,
-            UserManager<Account> userManager,
-            ISettingService settingService
-            )
-        {
-            _ReminderService = ReminderService;
-            _mapper = mapper;
-            _userManager = userManager;
-            _settingService = settingService;
-        }
         [HttpPost("Reminders")]
         public async Task<IActionResult> Add([FromBody] AddReminder model)
         {

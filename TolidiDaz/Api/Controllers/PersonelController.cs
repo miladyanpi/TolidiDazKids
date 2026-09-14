@@ -1,7 +1,4 @@
-﻿using ServicesLibrary.Services.CartSrv;
-using ServicesLibrary.Services.PersonelSrv;
-using ServicesLibrary.Services.OrderSrv;
-using ServicesLibrary.Services.ProductSrv;
+﻿using ServicesLibrary.Services.PersonelSrv;
 using AutoMapper;
 using DAL.Paginagion;
 using Domain;
@@ -10,34 +7,23 @@ using Dto.Models.Constant;
 using Dto.Models.DtoPersonel;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
-using LinqKit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
-using Utility;
-using static Dto.Enum.EnumConstant;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class PersonelController : ControllerBase
+    public class PersonelController(
+        IPersonelService _PersonelService,
+        IMapper _mapper,
+        UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IPersonelService _PersonelService;
-        private readonly IMapper _mapper;
-        public PersonelController(
-            IPersonelService PersonelService,
-        IMapper mapper,
-            UserManager<Account> userManager)
-        {
-            _PersonelService = PersonelService;
-            _mapper = mapper;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Personels")]
         public async Task<IActionResult> Add([FromBody] AddPersonel model)

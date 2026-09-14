@@ -8,7 +8,6 @@ using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.TeamSrv;
 
@@ -17,15 +16,12 @@ namespace Api.Controllers
     [Route("Api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class TeamController : ControllerBase
+    public class TeamController(
+        ITeamService _TeamService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly ITeamService _TeamService;
-        private readonly IMapper _mapper;
-        public TeamController(ITeamService TeamService, IMapper mapper)
-        {
-            _TeamService = TeamService;
-            _mapper = mapper;
-        }
         [HttpPost("Teams")]
         public async Task<IActionResult> Add([FromBody] AddTeam model)
         {

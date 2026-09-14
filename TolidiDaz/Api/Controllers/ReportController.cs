@@ -18,26 +18,14 @@ namespace Api.Controllers
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-    public class ReportController : ControllerBase
+    public class ReportController(
+        IProductService _ProductService,
+        ICustomerService _CustomerService,
+        IOrderService _OrderService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly IProductService _ProductService;
-        private readonly ICustomerService _CustomerService;
-        private readonly IOrderService _OrderService;
-        private readonly IMapper _mapper;
-
-        public ReportController(
-            ICustomerService CustomerService,
-            IOrderService OrderService,
-            IProductService ProductService,
-            IMapper mapper
-            )
-        {
-            _OrderService= OrderService;
-            _CustomerService =CustomerService;
-            _ProductService = ProductService;
-            _mapper = mapper;
-        }
-    
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Report/Count")]
         public async Task<IActionResult> GetProductsCountAll()

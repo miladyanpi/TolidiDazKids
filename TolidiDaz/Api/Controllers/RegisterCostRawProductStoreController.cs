@@ -4,12 +4,9 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoRegisterCostRawProductStore;
-using Dto.Models.DtoRegisterCostRawProductStore;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.RegisterCostRawProductStoreSrv;
 
@@ -18,18 +15,13 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class RegisterCostRawProductStoreController : ControllerBase
+    public class RegisterCostRawProductStoreController(
+        IRegisterCostRawProductStoreService _RegisterCostRawProductStoreService,
+        IMapper _mapper
+        //UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IRegisterCostRawProductStoreService _RegisterCostRawProductStoreService;
-        private readonly IMapper _mapper;
-        public RegisterCostRawProductStoreController(
-            IRegisterCostRawProductStoreService RegisterCostRawProductStoreService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _RegisterCostRawProductStoreService = RegisterCostRawProductStoreService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("RegisterCostRawProductStores")]
         public async Task<IActionResult> Add([FromBody] AddRegisterCostRawProductStore model)

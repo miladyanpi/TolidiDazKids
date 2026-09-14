@@ -17,18 +17,12 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class SliderController : ControllerBase
+    public class SliderController(
+        ISliderService _SliderService,
+        IMapper _mapper
+        ) 
+        : ControllerBase
     {
-        private readonly ISliderService _SliderService;
-        private readonly IMapper _mapper;
-        public SliderController(
-            ISliderService storyService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _SliderService = storyService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Sliders")]
         public async Task<IActionResult> Add([FromBody] AddSlider model)

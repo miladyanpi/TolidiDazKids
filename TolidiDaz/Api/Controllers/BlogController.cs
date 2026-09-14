@@ -4,15 +4,11 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoBlog;
-using Dto.Models.DtoBlog;
-using Dto.Models.DtoProduct;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using ServicesLibrary.Services.BlogSrv;
 using ServicesLibrary.Services.GroupBlogSrv;
 using ServicesLibrary.Services.ViewCounter;
@@ -24,24 +20,14 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class BlogController : ControllerBase
+    public class BlogController(
+        IBlogService _BlogService,
+        IGroupBlogService _GroupBlogService,
+        IMapper _mapper,
+        IViewCounterService _viewCounterService
+        )
+        : ControllerBase
     {
-        private readonly IBlogService _BlogService;
-        private readonly IGroupBlogService _GroupBlogService;
-        private readonly IMapper _mapper;
-        private readonly IViewCounterService _viewCounterService;
-        public BlogController(
-            IBlogService BlogService,
-            IGroupBlogService GroupBlogService,
-            IViewCounterService viewCounterService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _BlogService = BlogService;
-            _GroupBlogService = GroupBlogService;
-            _viewCounterService = viewCounterService;
-            _mapper = mapper;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Blogs")]
         public async Task<IActionResult> Add([FromBody] AddBlog model)
@@ -131,7 +117,6 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.UpdateError));
         }
-
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpDelete("Blogs/{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
@@ -228,6 +213,59 @@ namespace Api.Controllers
             int hash = (ip + userAgent).GetHashCode();
             return $"guest:{ip}:{hash}";
         }
+
+        [HttpPost("Blogs/Data")]
+        public async Task<IActionResult> GetBlogs([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultBlog>
+                                                                    (entities: new List<ResultBlog>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Blog, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _BlogService.GetCountAllAsync(predicate);
+
+                var Blogs = await _BlogService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedBlogs = _mapper.Map<ICollection<ResultBlog>>(Blogs);
+
+                return Ok(new ResponseApiEntities<ResultBlog>
+                                                                (entities: mappedBlogs,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultBlog>
+                                                                    (entities: new List<ResultBlog>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Blogs")]
         public async Task<IActionResult> GetBlogs([FromQuery] PaginationParams @params, int? GroupBlogID)
@@ -423,5 +461,34 @@ namespace Api.Controllers
                                                             countAllRecordTable: mappedProducts.Count()));
         }
 
+        [HttpGet("Blogs/ByGuid/{guid}")]
+        public async Task<IActionResult> GetBlogById([FromRoute] string guid)
+        {
+            try
+            {
+                var Blog = await _BlogService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Blog == null)
+                    return BadRequest(new ResponseApiEntity<UpdateBlog>
+                                                                              (entity: new UpdateBlog(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateBlog>(Blog);
+                return Ok(new ResponseApiEntity<UpdateBlog>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateBlog>
+                                                                             (entity: new UpdateBlog(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
+
+        }
     }
 }

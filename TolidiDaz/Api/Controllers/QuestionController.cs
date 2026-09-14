@@ -4,44 +4,31 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoQuestion;
-using Dto.Models.DtoQuestion;
-using Dto.Models.DtoProduct;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using ServicesLibrary.Services.QuestionSrv;
 using ServicesLibrary.Services.GroupQuestionSrv;
 using ServicesLibrary.Services.ViewCounter;
 using System.Linq.Expressions;
-using System.Security.Claims;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class QuestionController : ControllerBase
+    public class QuestionController(
+        IQuestionService _QuestionService,
+        IGroupQuestionService _GroupQuestionService,
+        IMapper _mapper,
+        IViewCounterService _viewCounterService
+        //UserManager<Account> userManager
+        )
+        : ControllerBase
     {
-        private readonly IQuestionService _QuestionService;
-        private readonly IGroupQuestionService _GroupQuestionService;
-        private readonly IMapper _mapper;
-        private readonly IViewCounterService _viewCounterService;
-        public QuestionController(
-            IQuestionService QuestionService,
-            IGroupQuestionService GroupQuestionService,
-            IViewCounterService viewCounterService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _QuestionService = QuestionService;
-            _GroupQuestionService = GroupQuestionService;
-            _viewCounterService = viewCounterService;
-            _mapper = mapper;
-        }
+        
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Questions")]
         public async Task<IActionResult> Add([FromBody] AddQuestion model)

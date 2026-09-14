@@ -13,25 +13,14 @@ namespace Api.Controllers
 {
     [Route("Api/")]
     [ApiController]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController(
+        IAuthenticationManager _authenticationManager,
+        UserManager<Account> _userManager,
+        //UserManager<Account> _userManager,
+        IRefreshTokenEntityService _refreshTokenEntity
+        ) 
+        : ControllerBase
     {
-        private readonly IAuthenticationManager _authenticationManager;
-        private UserManager<Account> _userManager;
-        //private readonly IConfiguration _configuration;
-        private readonly IRefreshTokenEntityService _refreshTokenEntity;
-
-
-        public AuthenticationController(
-            UserManager<Account> userManager,
-            IAuthenticationManager authenticationManager,
-            //IConfiguration configuration,
-            IRefreshTokenEntityService refreshTokenEntity)
-        {
-            _authenticationManager = authenticationManager;
-            _userManager = userManager;
-            //_configuration = configuration;
-            _refreshTokenEntity = refreshTokenEntity;
-        }
         [HttpPost("auth/Login")]
         public async Task<IActionResult> Login([FromBody] LoginAccount credentials)
         {
@@ -213,7 +202,6 @@ namespace Api.Controllers
                                                          status: ResultMessageApi.Success,
                                                          message: ResultMessageApi.OKExpiredTokenRefresh));
         }
-    
 
     }
 }

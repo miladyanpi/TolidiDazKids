@@ -1,7 +1,4 @@
-﻿using ServicesLibrary.Services.CustomerAddressSrv;
-using ServicesLibrary.Services.CustomerSrv;
-using ServicesLibrary.Services.OrderSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -10,35 +7,26 @@ using Dto.Models.DtoCustomerAddress;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.CustomerAddressSrv;
+using ServicesLibrary.Services.CustomerSrv;
+using ServicesLibrary.Services.OrderSrv;
+using System.Linq.Expressions;
 using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class CustomerAddressController : ControllerBase
+    public class CustomerAddressController(
+        ICustomerAddressService _CustomerAddressService,
+        IMapper _mapper,
+        ICustomerService _customerService,
+        IOrderService _orderService
+        )
+        : ControllerBase
     {
-        private readonly ICustomerAddressService _CustomerAddressService;
-        private readonly IMapper _mapper;
-        private readonly ICustomerService _customerService;
-        private readonly IOrderService _orderService;
-
-        public CustomerAddressController(
-            ICustomerService customerService,
-             IOrderService orderService,
-        ICustomerAddressService CustomerAddressService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _customerService = customerService;
-            _CustomerAddressService = CustomerAddressService;
-            _mapper = mapper;
-            _orderService = orderService;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("CustomerAddresss")]
         public async Task<IActionResult> Add([FromBody] AddCustomerAddress model)
@@ -135,6 +123,59 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("CustomerAddresss/Data")]
+        public async Task<IActionResult> GetCustomerAddresss([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultCustomerAddress>
+                                                                    (entities: new List<ResultCustomerAddress>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<CustomerAddress, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.CityID.ToString() ?? "").Contains(search);
+                }
+
+                var count = await _CustomerAddressService.GetCountAllAsync(predicate);
+
+                var CustomerAddresss = await _CustomerAddressService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedCustomerAddresss = _mapper.Map<ICollection<ResultCustomerAddress>>(CustomerAddresss);
+
+                return Ok(new ResponseApiEntities<ResultCustomerAddress>
+                                                                (entities: mappedCustomerAddresss,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultCustomerAddress>
+                                                                    (entities: new List<ResultCustomerAddress>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("CustomerAddresss")]
         public async Task<IActionResult> GetCustomerAddresss([FromQuery] PaginationParams @params,int? CustomerID)
@@ -573,6 +614,34 @@ namespace Api.Controllers
 
         //}
 
+        [HttpGet("CustomerAddresss/ByGuid/{guid}")]
+        public async Task<IActionResult> GetCustomerAddressById([FromRoute] string guid)
+        {
+            try
+            {
+                var CustomerAddress = await _CustomerAddressService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (CustomerAddress == null)
+                    return BadRequest(new ResponseApiEntity<UpdateCustomerAddress>
+                                                                              (entity: new UpdateCustomerAddress(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateCustomerAddress>(CustomerAddress);
+                return Ok(new ResponseApiEntity<UpdateCustomerAddress>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateCustomerAddress>
+                                                                             (entity: new UpdateCustomerAddress(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }

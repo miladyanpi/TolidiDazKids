@@ -1,35 +1,29 @@
-﻿using ServicesLibrary.Services.FaqSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoFaq;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Dto.Models.DtoContactUs;
+using ServicesLibrary.Services.FaqSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class FaqController : ControllerBase
+    public class FaqController(
+        IFaqService _FaqService,
+        IMapper _mapper,
+        UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IFaqService _FaqService;
-        private readonly IMapper _mapper;
-        public FaqController(
-            IFaqService storyService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _FaqService = storyService;
-            _mapper = mapper;   
-        }
         [HttpPost("Faqs")]
         [AllowAnonymous]
         public async Task<IActionResult> Add([FromBody] AddFaq model, string Key)
@@ -113,9 +107,62 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("Faqs/Data")]
+        public async Task<IActionResult> GetFaqs([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultFaq>
+                                                                    (entities: new List<ResultFaq>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Faq, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.FullName ?? "").Contains(search);
+                }
+
+                var count = await _FaqService.GetCountAllAsync(predicate);
+
+                var Faqs = await _FaqService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedFaqs = _mapper.Map<ICollection<ResultFaq>>(Faqs);
+
+                return Ok(new ResponseApiEntities<ResultFaq>
+                                                                (entities: mappedFaqs,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultFaq>
+                                                                    (entities: new List<ResultFaq>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("Faqs")]
-        public async Task<IActionResult> GetFaqs([FromQuery] PaginationParams @params)
+        [HttpGet("Faqs2")]
+        public async Task<IActionResult> GetFaqs2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -184,9 +231,34 @@ namespace Api.Controllers
                                                             countAllRecordTable: Faqs.Count()));
 
         }
+        [HttpGet("Faqs/ByGuid/{guid}")]
+        public async Task<IActionResult> GetFaqById([FromRoute] string guid)
+        {
+            try
+            {
+                var Faq = await _FaqService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Faq == null)
+                    return BadRequest(new ResponseApiEntity<UpdateFaq>
+                                                                              (entity: new UpdateFaq(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateFaq>(Faq);
+                return Ok(new ResponseApiEntity<UpdateFaq>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateFaq>
+                                                                             (entity: new UpdateFaq(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
-
-
-
+        }
     }
 }

@@ -1,34 +1,27 @@
-﻿using ServicesLibrary.Services.DepartmentSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoDepartment;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.DepartmentSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class DepartmentController : ControllerBase
+    public class DepartmentController(
+        IDepartmentService _DepartmentService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly IDepartmentService _DepartmentService;
-        private readonly IMapper _mapper;
-        public DepartmentController(
-            IDepartmentService dataService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _DepartmentService = dataService;
-            _mapper = mapper;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Departments")]
         public async Task<IActionResult> Add([FromBody] AddDepartment model)
@@ -105,9 +98,62 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("Departments/Data")]
+        public async Task<IActionResult> GetDepartments([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultDepartment>
+                                                                    (entities: new List<ResultDepartment>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Department, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _DepartmentService.GetCountAllAsync(predicate);
+
+                var Departments = await _DepartmentService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedDepartments = _mapper.Map<ICollection<ResultDepartment>>(Departments);
+
+                return Ok(new ResponseApiEntities<ResultDepartment>
+                                                                (entities: mappedDepartments,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultDepartment>
+                                                                    (entities: new List<ResultDepartment>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("Departments")]
-        public async Task<IActionResult> GetDepartments([FromQuery] PaginationParams @params)
+        [HttpGet("Departments2")]
+        public async Task<IActionResult> GetDepartments2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -203,6 +249,35 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: Departments.Count()));
+
+        }
+        [HttpGet("Departments/ByGuid/{guid}")]
+        public async Task<IActionResult> GetDepartmentById([FromRoute] string guid)
+        {
+            try
+            {
+                var Department = await _DepartmentService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Department == null)
+                    return BadRequest(new ResponseApiEntity<UpdateDepartment>
+                                                                              (entity: new UpdateDepartment(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateDepartment>(Department);
+                return Ok(new ResponseApiEntity<UpdateDepartment>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateDepartment>
+                                                                             (entity: new UpdateDepartment(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 

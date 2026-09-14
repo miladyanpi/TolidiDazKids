@@ -32,43 +32,20 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
 
-    public class PaymentZarinPallController : ControllerBase
+    public class PaymentZarinPallController(
+        IWalletService _WalletService,
+        IWalletTransactionService _WalletTransactionSService,
+        IOrderService _OrderService,
+        IOrderItemService _OrderItemService,
+        ICustomerService _CustomerService,
+        ICartService _CartService,
+        ICartItemService _CartItemService,
+        IHttpClientFactory _httpClientFactory,
+        IMapper _mapper,
+        UserManager<Account> _userManager
+        ) 
+        : ControllerBase
     {
-
-        private readonly IWalletService _WalletService;
-        private readonly IWalletTransactionService _WalletTransactionSService;
-        private readonly IOrderService _OrderService;
-        private readonly IOrderItemService _OrderItemService;
-        private readonly ICustomerService _CustomerService;
-        private readonly ICartService _CartService;
-        private readonly ICartItemService _CartItemService;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMapper _mapper;
-        private readonly UserManager<Account> _userManager;
-
-        public PaymentZarinPallController(
-            IWalletService WalletService,
-            IWalletTransactionService WalletTransactionSService,
-            IOrderService OrderService,
-            IOrderItemService OrderItemService,
-            ICustomerService CustomerService,
-            ICartItemService CartItemService,
-            ICartService CartService,
-            IMapper mapper,
-            IHttpClientFactory httpClientFactory,
-            UserManager<Account> userManager)
-        {
-            _WalletService = WalletService;
-            _WalletTransactionSService = WalletTransactionSService;
-            _CustomerService = CustomerService;
-            _OrderService = OrderService;
-            _CartItemService = CartItemService;
-            _CartService = CartService;
-            _OrderItemService = OrderItemService;
-            _mapper = mapper;
-            _httpClientFactory = httpClientFactory;
-            _userManager = userManager;
-        }
         [HttpGet("Payments/Zarinpal/GetAuthorityForAddAmountToWallet/Public")]
         public async Task<IActionResult> PaymentsAddAmountToWallet([FromQuery] Int64 Amount)
         {

@@ -38,55 +38,24 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
 
-    public class PaymentSepController : ControllerBase
+    public class PaymentSepController(
+        IOrderPaymentTempService _OrderPaymentTempService,
+        IRecurringJobManager _recurringJobManager,
+        IWalletService _WalletService,
+        IWalletTransactionService _WalletTransactionSService,
+        IOrderService _OrderService,
+        IOrderItemService _OrderItemService,
+        ICustomerService _CustomerService,
+        ICartService _CartService,
+        ICartItemService _CartItemService,
+        IHttpClientFactory _httpClientFactory,
+        IMapper _mapper,
+        IPricingRuleService _pricingRuleService,
+        IProductService _productService,
+        UserManager<Account> _userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IOrderPaymentTempService _OrderPaymentTempService;
-        private readonly IRecurringJobManager _recurringJobManager;
-
-        private readonly IWalletService _WalletService;
-        private readonly IWalletTransactionService _WalletTransactionSService;
-        private readonly IOrderService _OrderService;
-        private readonly IOrderItemService _OrderItemService;
-        private readonly ICustomerService _CustomerService;
-        private readonly ICartService _CartService;
-        private readonly ICartItemService _CartItemService;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMapper _mapper;
-        private readonly IPricingRuleService _pricingRuleService;
-        private readonly IProductService _productService;
-        private readonly UserManager<Account> _userManager;
-        public PaymentSepController(
-            IRecurringJobManager recurringJobManager,
-            IWalletService WalletService,
-            IWalletTransactionService WalletTransactionSService,
-            IOrderService OrderService,
-            IOrderItemService OrderItemService,
-            ICustomerService CustomerService,
-            ICartItemService CartItemService,
-            ICartService CartService,
-            IMapper mapper,
-            IHttpClientFactory httpClientFactory,
-            IOrderPaymentTempService OrderPaymentTempService,
-            IPricingRuleService pricingRuleService,
-            IProductService productService,
-            UserManager<Account> userManager)
-        {
-            _recurringJobManager = recurringJobManager;
-            _WalletService = WalletService;
-            _WalletTransactionSService = WalletTransactionSService;
-            _CustomerService = CustomerService;
-            _OrderService = OrderService;
-            _CartItemService = CartItemService;
-            _CartService = CartService;
-            _OrderItemService = OrderItemService;
-            _mapper = mapper;
-            _httpClientFactory = httpClientFactory;
-            _userManager = userManager;
-            _OrderPaymentTempService = OrderPaymentTempService;
-            _pricingRuleService = pricingRuleService;
-            _productService = productService;
-
-        }
         [HttpGet("Payments/Sep/GetAuthorityForAddAmountToWallet/Public")]
         public async Task<IActionResult> PaymentsAddAmountToWallet([FromQuery] Int64 Amount)
         {

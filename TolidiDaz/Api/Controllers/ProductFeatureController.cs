@@ -5,11 +5,9 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoProductFeature;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -17,18 +15,14 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ProductFeatureController : ControllerBase
+    public class ProductFeatureController(
+        IProductFeatureService _ProductFeatureService,
+        IMapper _mapper
+        //IProductFeatureService storyService,
+        //UserManager<Account> userManager
+        )
+        : ControllerBase
     {
-        private readonly IProductFeatureService _ProductFeatureService;
-        private readonly IMapper _mapper;
-        public ProductFeatureController(
-            IProductFeatureService storyService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _ProductFeatureService = storyService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("ProductFeatures")]
         public async Task<IActionResult> Add([FromBody] AddProductFeature model)

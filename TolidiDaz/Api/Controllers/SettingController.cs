@@ -17,18 +17,12 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
 
-    public class SettingController : ControllerBase
+    public class SettingController(
+        ISettingService _SettingService,
+        IMapper _mapper
+        ) 
+        : ControllerBase
     {
-        private readonly ISettingService _SettingService;
-        private readonly IMapper _mapper;
-   
-
-        public SettingController(ISettingService SettingService,
-                                IMapper mapper)
-        {
-            _SettingService = SettingService;
-            _mapper = mapper;
-        }
         [HttpPost("Settings")]
         public async Task<IActionResult> Add([FromBody] AddSetting model)
         {

@@ -17,18 +17,13 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class GroupBlogController : ControllerBase
+    public class GroupBlogController(
+        IGroupBlogService _GroupBlogService,
+        IMapper _mapper,
+        UserManager<Account> userManager
+        )
+        : ControllerBase
     {
-        private readonly IGroupBlogService _GroupBlogService;
-        private readonly IMapper _mapper;
-        public GroupBlogController(
-            IGroupBlogService dataService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _GroupBlogService = dataService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("GroupBlogs")]
         public async Task<IActionResult> Add([FromBody] AddGroupBlog model)

@@ -4,11 +4,9 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoBlogComment;
-using Dto.Models.DtoContactUs;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.BlogCommentSrv;
 using ServicesLibrary.Services.BlogSrv;
@@ -20,27 +18,15 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class BlogCommentController : ControllerBase
+    public class BlogCommentController(
+        IBlogCommentService _BlogCommentService,
+        IBlogService _BlogService,
+        //ICustomerService _CustomerService,
+        IMapper _mapper,
+        IViewCounterService _viewCounterService
+        )
+        : ControllerBase
     {
-        private readonly IBlogCommentService _BlogCommentService;
-        private readonly IBlogService _BlogService;
-        //private readonly ICustomerService _CustomerService;
-        private readonly IMapper _mapper;
-        private readonly IViewCounterService _viewCounterService;
-        public BlogCommentController(
-            IBlogCommentService BlogCommentService,
-            IBlogService BlogService,
-            //ICustomerService CustomerService,
-            IViewCounterService viewCounterService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _BlogCommentService = BlogCommentService;
-            _BlogService = BlogService;
-            //_CustomerService = CustomerService;
-            _viewCounterService = viewCounterService;
-            _mapper = mapper;
-        }
         [HttpPost("BlogComments")]
         [AllowAnonymous]
         public async Task<IActionResult> Add([FromBody] AddBlogComment model, string Key)
@@ -103,7 +89,6 @@ namespace Api.Controllers
         //                                                   status: ResultMessageApi.Error,
         //                                                   message: ResultMessageApi.UpdateError));
         //}
-
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpDelete("BlogComments/{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
@@ -123,7 +108,57 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+        [HttpPost("BlogComments/Data")]
+        public async Task<IActionResult> GetBlogComments([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultBlogComment>
+                                                                    (entities: new List<ResultBlogComment>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
 
+                Expression<Func<BlogComment, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.BlogID.ToString() ?? "").Contains(search);
+                }
+
+                var count = await _BlogCommentService.GetCountAllAsync(predicate);
+
+                var BlogComments = await _BlogCommentService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedBlogComments = _mapper.Map<ICollection<ResultBlogComment>>(BlogComments);
+
+                return Ok(new ResponseApiEntities<ResultBlogComment>
+                                                                (entities: mappedBlogComments,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultBlogComment>
+                                                                    (entities: new List<ResultBlogComment>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("BlogComments/SetStatus")]
         public async Task<IActionResult> SetStatus([FromQuery] int Id, EnumConstant.CommentStatus commentStatus)
@@ -324,6 +359,35 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: count));
+
+        }
+        [HttpGet("BlogComments/ByGuid/{guid}")]
+        public async Task<IActionResult> GetBlogCommentById([FromRoute] string guid)
+        {
+            try
+            {
+                var BlogComment = await _BlogCommentService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (BlogComment == null)
+                    return BadRequest(new ResponseApiEntity<UpdateBlogComment>
+                                                                              (entity: new UpdateBlogComment(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateBlogComment>(BlogComment);
+                return Ok(new ResponseApiEntity<UpdateBlogComment>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateBlogComment>
+                                                                             (entity: new UpdateBlogComment(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 

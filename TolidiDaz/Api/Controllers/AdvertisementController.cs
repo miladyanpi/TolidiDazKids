@@ -17,18 +17,12 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class AdvertisementController : ControllerBase
+    public class AdvertisementController(
+        IAdvertisementService _AdvertisementService,
+        IMapper _mapper
+        ) 
+        : ControllerBase
     {
-        private readonly IAdvertisementService _AdvertisementService;
-        private readonly IMapper _mapper;
-        public AdvertisementController(
-            IAdvertisementService advertisementService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _AdvertisementService = advertisementService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Advertisements")]
         public async Task<IActionResult> Add([FromBody] AddAdvertisement model)
@@ -118,7 +112,6 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.UpdateError));
         }
-
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpDelete("Advertisements/{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
@@ -161,7 +154,6 @@ namespace Api.Controllers
                                                             countAllRecordTable: count));
 
         }
-       
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Advertisements/{id}")]
         public async Task<IActionResult> GetAdvertisementById([FromRoute] int id)

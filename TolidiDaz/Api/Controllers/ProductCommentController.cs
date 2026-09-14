@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.CustomerSrv;
 using ServicesLibrary.Services.OrderSrv;
 using ServicesLibrary.Services.ProductCommentSrv;
-using ServicesLibrary.Services.ProductSrv;
 using ServicesLibrary.Services.ViewCounter;
 using System.Linq.Expressions;
 using System.Security.Claims;
@@ -22,27 +21,16 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ProductCommentController : ControllerBase
+    public class ProductCommentController(
+        IProductCommentService _ProductCommentService,
+        IOrderService _OrderService,
+        ICustomerService _CustomerService,
+        IMapper _mapper,
+        IViewCounterService _viewCounterService
+        //UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IProductCommentService _ProductCommentService;
-        private readonly IOrderService _OrderService;
-        private readonly ICustomerService _CustomerService;
-        private readonly IMapper _mapper;
-        private readonly IViewCounterService _viewCounterService;
-        public ProductCommentController(
-            IProductCommentService ProductCommentService,
-            IOrderService OrderService,
-            ICustomerService CustomerService,
-            IViewCounterService viewCounterService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _ProductCommentService = ProductCommentService;
-            _OrderService = OrderService;
-            _CustomerService = CustomerService;
-            _viewCounterService = viewCounterService;
-            _mapper = mapper;
-        }
         [HttpPost("ProductComments")]
         [AllowAnonymous]
         public async Task<IActionResult> Add([FromBody] AddProductComment model, string Key)

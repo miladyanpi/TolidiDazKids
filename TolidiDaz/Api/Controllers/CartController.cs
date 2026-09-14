@@ -1,22 +1,19 @@
 ﻿using AutoMapper;
-using Castle.Core.Resource;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoCart;
 using Dto.Models.DtoOrder;
-using Dto.Models.DtoOrderItem;
-using Dto.Models.DtoSendProductMethod;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.CartItemSrv;
 using ServicesLibrary.Services.CartSrv;
 using ServicesLibrary.Services.CustomerSrv;
 using ServicesLibrary.Services.SettingSrv;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using static Dto.Enum.EnumConstant;
 
@@ -27,27 +24,13 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
 
-    public class CartPublicController : ControllerBase
+    public class CartPublicController(
+        ICustomerService _CustomerService,
+        ICartService _CartService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-
-        private readonly ICustomerService _CustomerService;
-        private readonly ICartService _CartService;
-        private readonly IMapper _mapper;
-
-        public CartPublicController(
-            ICustomerService CustomerService,
-            ICartService CartService,
-            IMapper mapper
-
-            )
-        {
-            _CustomerService=CustomerService;
-            _CartService = CartService;
-            _mapper = mapper;
-
-
-        }
- 
         [HttpGet("Carts/Public")]
         public async Task<IActionResult> GetCarts()
         {
@@ -196,30 +179,15 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
 
-    public class CartController : ControllerBase
+    public class CartController (
+        ICartService _CartService,
+        ICustomerService _CustomerService,
+        IMapper _mapper,
+        ICartItemService _CartItemService,
+         ISettingService settingService
+        ) : 
+        ControllerBase
     {
-        private readonly ICartService _CartService;
-        private readonly ICustomerService _CustomerService;
-        private readonly IMapper _mapper;
-
-        private readonly ICartItemService _CartItemService;
-
-        public CartController(
-            ICartService CartService,
-             ICustomerService CustomerService,
-        IMapper mapper,
-
-            ISettingService settingService,
-            ICartItemService CartItemService
-
-            )
-        {
-            _CartService = CartService;
-            _CustomerService= CustomerService;
-            _mapper = mapper;
-            _CartItemService = CartItemService;
-
-        }
         [HttpPost("Carts")]
         public async Task<IActionResult> Add([FromBody] AddCart model)
         {
@@ -274,6 +242,57 @@ namespace Api.Controllers
                                                            statusCode: ResultMessageApi.ErrorCode,
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
+        }
+        [HttpPost("Carts/Data")]
+        public async Task<IActionResult> GetCarts([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultCart>
+                                                                    (entities: new List<ResultCart>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Cart, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.CustomerID.ToString() ?? "").Contains(search);
+                }
+
+                var count = await _CartService.GetCountAllAsync(predicate);
+
+                var Carts = await _CartService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedCarts = _mapper.Map<ICollection<ResultCart>>(Carts);
+
+                return Ok(new ResponseApiEntities<ResultCart>
+                                                                (entities: mappedCarts,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultCart>
+                                                                    (entities: new List<ResultCart>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
         }
         [HttpGet("Carts")]
         public async Task<IActionResult> GetCarts([FromQuery] PaginationParams @params, string? IdentityCode,CartStatus? cartStatus=CartStatus.All)
@@ -377,7 +396,36 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.GetError));
 
         }
-        
+        [HttpGet("Carts/ByGuid/{guid}")]
+        public async Task<IActionResult> GetCartById([FromRoute] string guid)
+        {
+            try
+            {
+                var Cart = await _CartService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Cart == null)
+                    return BadRequest(new ResponseApiEntity<UpdateCart>
+                                                                              (entity: new UpdateCart(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateCart>(Cart);
+                return Ok(new ResponseApiEntity<UpdateCart>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateCart>
+                                                                             (entity: new UpdateCart(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
+
+        }
+
     }
 
     

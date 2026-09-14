@@ -154,24 +154,14 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
 
-    public class OrderController : ControllerBase
+    public class OrderController(
+        IOrderService _OrderService,
+        ICustomerService _CustomerService,
+        IMapper _mapper,
+        IOrderItemService _OrderItemService
+        )
+        : ControllerBase
     {
-        private readonly IOrderService _OrderService;
-        private readonly ICustomerService _CustomerService;
-        private readonly IMapper _mapper;
-        private readonly IOrderItemService _OrderItemService;
-        public OrderController(
-            IOrderService OrderService,
-             ICustomerService CustomerService,
-            IMapper mapper,
-            IOrderItemService OrderItemService
-            )
-        {
-            _OrderService = OrderService;
-            _CustomerService = CustomerService;
-            _mapper = mapper;
-            _OrderItemService= OrderItemService;
-        }
         [HttpPost("Orders")]
         public async Task<IActionResult> Add([FromBody] AddOrder model)
         {
@@ -194,7 +184,6 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.AddError));
         }
-
         [HttpPatch("Orders")]
         public async Task<IActionResult> Update([FromBody] UpdateOrder model)
         {
@@ -337,7 +326,6 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.GetError));
 
         }
-
         [HttpGet("Orders/ChangeStatus/{id}")]
         public async Task<IActionResult> GetOrderChangeStatusById([FromRoute] int id)
         {

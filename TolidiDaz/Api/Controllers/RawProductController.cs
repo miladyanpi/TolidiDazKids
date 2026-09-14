@@ -4,8 +4,6 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoRawProduct;
-using Dto.Models.DtoRawProduct;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -20,18 +18,13 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
 
-    public class RawProductController : ControllerBase
+    public class RawProductController(
+        IRawProductService _RawProductService,
+        IMapper _mapper
+        //UserManager<Account> userManager
+        )
+        : ControllerBase
     {
-        private readonly IRawProductService _RawProductService;
-        private readonly IMapper _mapper;
-        public RawProductController(
-            IRawProductService RawProductService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _RawProductService = RawProductService;
-            _mapper = mapper;   
-        }
         [HttpPost("RawProducts")]
         public async Task<IActionResult> Add([FromBody] AddRawProduct model)
         {

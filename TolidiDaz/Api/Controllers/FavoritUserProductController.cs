@@ -3,7 +3,6 @@ using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
-using Dto.Models.DtoCart;
 using Dto.Models.DtoFavoritUserProduct;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,7 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.CustomerSrv;
 using ServicesLibrary.Services.FavoritUserProductSrv;
-using System;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace Api.Controllers
@@ -20,21 +19,14 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class FavoritUserProductController : ControllerBase
+    public class FavoritUserProductController(
+        IFavoritUserProductService _FavoritUserProductService,
+        ICustomerService _CustomerService,
+        IMapper _mapper,
+         UserManager<Account> userManager
+        )
+        : ControllerBase
     {
-        private readonly IFavoritUserProductService _FavoritUserProductService;
-        private readonly ICustomerService _CustomerService;
-        private readonly IMapper _mapper;
-        public FavoritUserProductController(
-            IFavoritUserProductService FavoritUserProductService,
-            ICustomerService CustomerService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _FavoritUserProductService = FavoritUserProductService;
-            _CustomerService = CustomerService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
         [HttpPost("FavoritUserProducts")]
         public async Task<IActionResult> Add([FromQuery] int? ProductID)
@@ -150,6 +142,59 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("FavoritUserProducts/Data")]
+        public async Task<IActionResult> GetFavoritUserProducts([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultFavoritUserProduct>
+                                                                    (entities: new List<ResultFavoritUserProduct>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                //Expression<Func<FavoritUserProduct, bool>> predicate = x => true;
+
+                //if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                //{
+                //    var search = @params.SearchText;
+
+                //    predicate = x =>
+                //        (x.Name ?? "").Contains(search);
+                //}
+
+                var count = await _FavoritUserProductService.GetCountAllAsync();
+
+                var FavoritUserProducts = await _FavoritUserProductService
+                                    .GetAllAsync( page: @params.Page, take: @params.Take);
+
+
+                var mappedFavoritUserProducts = _mapper.Map<ICollection<ResultFavoritUserProduct>>(FavoritUserProducts);
+
+                return Ok(new ResponseApiEntities<ResultFavoritUserProduct>
+                                                                (entities: mappedFavoritUserProducts,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultFavoritUserProduct>
+                                                                    (entities: new List<ResultFavoritUserProduct>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("FavoritUserProducts")]
         public async Task<IActionResult> GetFavoritUserProducts([FromQuery] PaginationParams @params,int? CustomerID)
@@ -217,8 +262,8 @@ namespace Api.Controllers
 
         }
         [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
-        [HttpGet("FavoritUserProducts/Public")]
-        public async Task<IActionResult> GetFavoritUserProducts([FromQuery] PaginationParams @params)
+        [HttpGet("FavoritUserProducts2/Public")]
+        public async Task<IActionResult> GetFavoritUserProducts2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultFavoritUserProduct>
                                                            (entity: new ResultFavoritUserProduct(),
@@ -285,6 +330,36 @@ namespace Api.Controllers
                                                            statusCode: ResultMessageApi.ErrorCode,
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.GetError));
+
+        }
+
+        [HttpGet("FavoritUserProducts/ByGuid/{guid}")]
+        public async Task<IActionResult> GetFavoritUserProductById([FromRoute] string guid)
+        {
+            try
+            {
+                var FavoritUserProduct = await _FavoritUserProductService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (FavoritUserProduct == null)
+                    return BadRequest(new ResponseApiEntity<UpdateFavoritUserProduct>
+                                                                              (entity: new UpdateFavoritUserProduct(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateFavoritUserProduct>(FavoritUserProduct);
+                return Ok(new ResponseApiEntity<UpdateFavoritUserProduct>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateFavoritUserProduct>
+                                                                             (entity: new UpdateFavoritUserProduct(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 

@@ -1,36 +1,27 @@
-﻿using ServicesLibrary.Services.CitySrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoCity;
-using Dto.Models.DtoCity;
-using Dto.Models.DtoProvince;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.CitySrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class CityController : ControllerBase
+    public class CityController(
+        ICityService _CityService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly ICityService _CityService;
-        private readonly IMapper _mapper;
-        public CityController(
-            ICityService CityService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _CityService = CityService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Citys")]
         public async Task<IActionResult> Add([FromBody] AddCity model)
@@ -106,6 +97,59 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("Citys/Data")]
+        public async Task<IActionResult> GetCitys([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultCity>
+                                                                    (entities: new List<ResultCity>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<City, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _CityService.GetCountAllAsync(predicate);
+
+                var Citys = await _CityService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedCitys = _mapper.Map<ICollection<ResultCity>>(Citys);
+
+                return Ok(new ResponseApiEntities<ResultCity>
+                                                                (entities: mappedCitys,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultCity>
+                                                                    (entities: new List<ResultCity>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Citys")]
         public async Task<IActionResult> GetCitys([FromQuery] PaginationParams @params,int? ProvinceID)
@@ -198,7 +242,34 @@ namespace Api.Controllers
                                                             countAllRecordTable: Citys.Count()));
 
         }
+        [HttpGet("Citys/ByGuid/{guid}")]
+        public async Task<IActionResult> GetCityById([FromRoute] string guid)
+        {
+            try
+            {
+                var City = await _CityService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (City == null)
+                    return BadRequest(new ResponseApiEntity<UpdateCity>
+                                                                              (entity: new UpdateCity(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateCity>(City);
+                return Ok(new ResponseApiEntity<UpdateCity>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateCity>
+                                                                             (entity: new UpdateCity(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
-
+        }
     }
 }

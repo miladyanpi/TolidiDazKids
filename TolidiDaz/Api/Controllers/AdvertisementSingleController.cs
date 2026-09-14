@@ -17,18 +17,14 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class AdvertisementSingleController : ControllerBase
+    public class AdvertisementSingleController(
+        IAdvertisementSingleService _AdvertisementSingleService,
+        IMapper _mapper,
+        UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IAdvertisementSingleService _AdvertisementSingleService;
-        private readonly IMapper _mapper;
-        public AdvertisementSingleController(
-            IAdvertisementSingleService advertisementSingleService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _AdvertisementSingleService = advertisementSingleService;
-            _mapper = mapper;   
-        }
+        
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("AdvertisementSingles")]
         public async Task<IActionResult> Add([FromBody] AddAdvertisementSingle model)
@@ -118,7 +114,6 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.UpdateError));
         }
-
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpDelete("AdvertisementSingles/{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
@@ -161,7 +156,6 @@ namespace Api.Controllers
                                                             countAllRecordTable: count));
 
         }
-       
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("AdvertisementSingles/{id}")]
         public async Task<IActionResult> GetAdvertisementSingleById([FromRoute] int id)

@@ -18,18 +18,13 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ProductFeatureValueController : ControllerBase
+    public class ProductFeatureValueController(
+        IProductFeatureValueService _ProductFeatureValueService,
+        IMapper _mapper
+        //UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IProductFeatureValueService _ProductFeatureValueService;
-        private readonly IMapper _mapper;
-        public ProductFeatureValueController(
-            IProductFeatureValueService productFeatureValueService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _ProductFeatureValueService = productFeatureValueService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("ProductFeatureValues")]
         public async Task<IActionResult> Add([FromBody] AddProductFeatureValue model)

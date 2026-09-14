@@ -18,18 +18,13 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
 
-    public class PositionController : ControllerBase
+    public class PositionController(
+        IPositionService _PositionService,
+        IMapper _mapper,
+        UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IPositionService _PositionService;
-        private readonly IMapper _mapper;
-        public PositionController(
-            IPositionService PositionService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _PositionService = PositionService;
-            _mapper = mapper;   
-        }
         [HttpPost("Positions")]
         public async Task<IActionResult> Add([FromBody] AddPosition model)
         {

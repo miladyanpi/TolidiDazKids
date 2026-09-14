@@ -10,12 +10,10 @@ using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.CategorySrv;
 using ServicesLibrary.Services.ProductSrv;
-using ServicesLibrary.Services.SettingSrv;
-using System.Data.Entity;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -24,26 +22,14 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
 
-    public class CategoryController : ControllerBase
+    public class CategoryController(
+        ICategoryService _CategoryService,
+        IProductService _ProductService,
+        IMapper _mapper,
+         ApplicationDbContext _ApplicationDbContext
+        ) 
+        : ControllerBase
     {
-        private readonly ICategoryService _CategoryService;
-        private readonly IProductService _ProductService;
-        private readonly IMapper _mapper;
-        private readonly ApplicationDbContext _ApplicationDbContext;
-
-
-        public CategoryController(
-            ICategoryService CategoryService,
-            IProductService ProductService,
-            ApplicationDbContext ApplicationDbContext,
-            IMapper mapper
-            )
-        {
-            _CategoryService = CategoryService;
-            _ProductService = ProductService;
-            _ApplicationDbContext = ApplicationDbContext;
-            _mapper = mapper;
-        }
         [HttpPost("Categorys")]
         public async Task<IActionResult> Add([FromBody] AddCategory model)
         {
@@ -130,6 +116,57 @@ namespace Api.Controllers
                                                            statusCode: ResultMessageApi.ErrorCode,
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
+        }
+        [HttpPost("Categorys/Data")]
+        public async Task<IActionResult> GetCategorys([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultCategory>
+                                                                    (entities: new List<ResultCategory>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Category, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _CategoryService.GetCountAllAsync(predicate);
+
+                var Categorys = await _CategoryService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedCategorys = _mapper.Map<ICollection<ResultCategory>>(Categorys);
+
+                return Ok(new ResponseApiEntities<ResultCategory>
+                                                                (entities: mappedCategorys,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultCategory>
+                                                                    (entities: new List<ResultCategory>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
         }
         [HttpGet("Categorys")]
         public async Task<IActionResult> GetCategorys([FromQuery] PaginationParams @params, int? ParentID = null)
@@ -312,6 +349,35 @@ namespace Api.Controllers
                                                             status: ResultMessageApi.Success,
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk));
+        }
+        [HttpGet("Categorys/ByGuid/{guid}")]
+        public async Task<IActionResult> GetCategoryById([FromRoute] string guid)
+        {
+            try
+            {
+                var Category = await _CategoryService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Category == null)
+                    return BadRequest(new ResponseApiEntity<UpdateCategory>
+                                                                              (entity: new UpdateCategory(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateCategory>(Category);
+                return Ok(new ResponseApiEntity<UpdateCategory>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateCategory>
+                                                                             (entity: new UpdateCategory(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
+
         }
     }
 }

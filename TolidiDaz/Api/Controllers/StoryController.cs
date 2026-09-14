@@ -9,7 +9,6 @@ using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -17,18 +16,13 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class StoryController : ControllerBase
+    public class StoryController(
+        IStoryService _storyService,
+        IMapper _mapper
+        //UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IStoryService _storyService;
-        private readonly IMapper _mapper;
-        public StoryController(
-            IStoryService storyService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _storyService = storyService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Storys")]
         public async Task<IActionResult> Add([FromBody] AddStory model)

@@ -5,7 +5,6 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoGroupQuestion;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -17,18 +16,14 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class GroupQuestionController : ControllerBase
+    public class GroupQuestionController(
+        IGroupQuestionService _GroupQuestionService,
+        IMapper _mapper,
+        UserManager<Account> userManager
+        )
+        : ControllerBase
     {
-        private readonly IGroupQuestionService _GroupQuestionService;
-        private readonly IMapper _mapper;
-        public GroupQuestionController(
-            IGroupQuestionService dataService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _GroupQuestionService = dataService;
-            _mapper = mapper;
-        }
+       
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("GroupQuestions")]
         public async Task<IActionResult> Add([FromBody] AddGroupQuestion model)

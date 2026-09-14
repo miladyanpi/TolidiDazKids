@@ -4,10 +4,8 @@ using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Api.Models.DtoSmsLog;
-using ServicesLibrary.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using DAL.Context;
 using ServicesLibrary.Services.SettingSrv;
 using Dto.Models.DtoSmsLog;
 using Dto.Models.ResponseApi;
@@ -19,25 +17,15 @@ namespace Api.Controllers
     [Route("Api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class SmsLogController : ControllerBase
+    public class SmsLogController(
+        ISmsLogService _SmsLogService,
+        IMapper _mapper,
+        UserManager<Account> _userManager,
+        ISettingService _settingService
+        //UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly ISmsLogService _SmsLogService;
-        private readonly IMapper _mapper;
-        private readonly UserManager<Account> _userManager;
-        private readonly ISettingService _settingService;
-
-        public SmsLogController(
-            ISmsLogService SmsLogService,
-            IMapper mapper,
-            UserManager<Account> userManager,
-            ISettingService settingService
-            )
-        {
-            _SmsLogService = SmsLogService;
-            _mapper = mapper;
-            _userManager = userManager;
-            _settingService = settingService;
-        }
         [HttpPost("SmsLogs")]
         public async Task<IActionResult> Add([FromBody] AddSmsLog model)
         {

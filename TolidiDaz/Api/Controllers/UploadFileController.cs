@@ -1,21 +1,12 @@
 ﻿using ServicesLibrary.Services.CustomerSrv;
-using ServicesLibrary.Services.OrderItemSrv;
-using ServicesLibrary.Services.ProductSrv;
-using AutoMapper;
 using Dto.Enum;
 using Dto.Models.Constant;
-using Dto.Models.DtoCustomer;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Net;
-using System.Security.Claims;
-using static Dto.Enum.EnumConstant;
-using static System.Net.WebRequestMethods;
 
 namespace Api.Controllers
 {
@@ -152,7 +143,6 @@ namespace Api.Controllers
         //    }
 
         //}
-
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("DeleteFile/MultiFiles")]
         public async Task<IActionResult> DeleteMultiFiles([FromBody]  DeleteUploadFile deleteUploadFile)
@@ -436,7 +426,6 @@ namespace Api.Controllers
                     status: ResultMessageApi.Success,
                     message: ResultMessageApi.DeleteFilesSuccess));
         }
-       
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpDelete("Ftp/DeleteFile/OtherAllFiles")]
         public async Task<IActionResult> DeleteFtpFileOtherAllFiles([FromQuery]  string FileName)
@@ -489,8 +478,6 @@ namespace Api.Controllers
                     status: ResultMessageApi.Success,
                     message: ResultMessageApi.DeleteFilesSuccess));
         }
-
-
         /// <summary>
         /// یک دایرکتوری جدید را در سرور FTP ایجاد می‌کند.
         /// </summary>

@@ -8,7 +8,6 @@ using Dto.Models.DtoSendProductMethod;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -16,18 +15,13 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class SendProductMethodController : ControllerBase
+    public class SendProductMethodController(
+        ISendProductMethodService _SendProductMethodService,
+        IMapper _mapper
+        //UserManager<Account> userManager
+        )
+        : ControllerBase
     {
-        private readonly ISendProductMethodService _SendProductMethodService;
-        private readonly IMapper _mapper;
-        public SendProductMethodController(
-            ISendProductMethodService SendProductMethodService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _SendProductMethodService = SendProductMethodService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("SendProductMethods")]
         public async Task<IActionResult> Add([FromBody] AddSendProductMethod model)

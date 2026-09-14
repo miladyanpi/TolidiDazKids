@@ -16,18 +16,13 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ProvinceController : ControllerBase
+    public class ProvinceController(
+        IProvinceService _ProvinceService,
+        IMapper _mapper
+        //UserManager<Account> userManager
+        )
+        : ControllerBase
     {
-        private readonly IProvinceService _ProvinceService;
-        private readonly IMapper _mapper;
-        public ProvinceController(
-            IProvinceService ProvinceService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _ProvinceService = ProvinceService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Provinces")]
         public async Task<IActionResult> Add([FromBody] AddProvince model)

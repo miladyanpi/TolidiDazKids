@@ -17,19 +17,12 @@ namespace Api.Controllers
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-    public class AccountController : ControllerBase
+    public class AccountController(
+        UserManager<Account> _userManager,
+        RoleManager<IdentityRole> _roleManager
+        ) 
+        : ControllerBase
     {
-        private readonly UserManager<Account> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-
-        public AccountController(
-                                 UserManager<Account> userManager,
-                                 RoleManager<IdentityRole> roleManager
-                                 )
-        {
-            _userManager = userManager;
-            _roleManager = roleManager;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName)]
         [HttpPost("Accounts/User")]
         public async Task<IActionResult> AddUser([FromBody] AddUser model)

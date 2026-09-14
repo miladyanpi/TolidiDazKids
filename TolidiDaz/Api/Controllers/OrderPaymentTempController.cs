@@ -1,11 +1,9 @@
 ﻿using ServicesLibrary.Services.OrderPaymentTempSrv;
 using AutoMapper;
-using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoOrderPaymentTemp;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -18,19 +16,14 @@ namespace Api.Controllers
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
-    public class OrderPaymentTempController : ControllerBase
+    public class OrderPaymentTempController(
+        IOrderPaymentTempService _OrderPaymentTempService,
+        IMapper _mapper,
+        IOrderPaymentTempService storyService,
+        UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IOrderPaymentTempService _OrderPaymentTempService;
-        private readonly IMapper _mapper;
-        public OrderPaymentTempController(
-            IOrderPaymentTempService storyService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _OrderPaymentTempService = storyService;
-            _mapper = mapper;   
-        }
-   
         [HttpPost("OrderPaymentTemps")]
         [AllowAnonymous]
         public async Task<IActionResult> GetOrderPaymentTemps([FromBody] SearchOrderPaymentTemp @params)
@@ -59,8 +52,5 @@ namespace Api.Controllers
                                                             message: ResultMessageApi.GetOk));
 
         }
-
-
-
     }
 }

@@ -20,23 +20,13 @@ namespace Api.Controllers
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-    public class AboutController : ControllerBase
+    public class AboutController(
+        IAboutService _AboutService,
+        IMapper _mapper,
+        UserManager<Account> _userManager
+        )
+        : ControllerBase
     {
-        private readonly IAboutService _AboutService;
-        private readonly IMapper _mapper;
-        private readonly UserManager<Account> _userManager;
-
-
-        public AboutController(
-            IAboutService AboutService,
-            IMapper mapper,
-            UserManager<Account> userManager
-            )
-        {
-            _AboutService = AboutService;
-            _mapper = mapper;
-            _userManager = userManager;
-        }
         [HttpPost("Abouts")]
         public async Task<IActionResult> Add([FromBody] AddAbout model)
         {
@@ -59,7 +49,6 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.AddError));
         }
-
         [HttpPatch("Abouts")]
         public async Task<IActionResult> Update([FromBody] UpdateAbout model)
         {
@@ -121,7 +110,6 @@ namespace Api.Controllers
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: count));
         }
-
         [HttpGet("Abouts/LastRecord")]
         public async Task<IActionResult> GetAboutsLastRecord()
         {
@@ -137,8 +125,6 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk));
         }
-
-
         [HttpGet("Abouts/{id}")]
         public async Task<IActionResult> GetAboutById([FromRoute] int id)
         {
@@ -191,7 +177,6 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.UpdateError));
         }
-
         [HttpGet("Abouts/All")]
         [AllowAnonymous]
         public async Task<IActionResult> GetAboutsAll()

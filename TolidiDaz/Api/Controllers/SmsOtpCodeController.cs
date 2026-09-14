@@ -1,11 +1,8 @@
 ﻿using ServicesLibrary.Services.AuthenticationManagerSrv;
 using ServicesLibrary.Services.CustomerSrv;
-
 using ServicesLibrary.Services.SettingSrv;
 using ServicesLibrary.Services.SmsOtpCodeSrv;
-using ServicesLibrary.Services.WalletSrv;
 using AutoMapper;
-using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models;
@@ -32,36 +29,17 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.CustomerName + "," + ConstantRoles.BranchStoreName)]
 
-    public class SmsOtpCodeController : ControllerBase
+    public class SmsOtpCodeController(
+        ISmsOtpCodeService _SmsOtpCodeService,
+        IMapper _mapper,
+        ISettingService _SettingService,
+        ICustomerService _CustomerService,
+        UserManager<Account> _userManager,
+        RoleManager<IdentityRole> _roleManager,
+        IAuthenticationManager _authenticationManager
+        )
+        : ControllerBase
     {
-        private readonly ISmsOtpCodeService _SmsOtpCodeService;
-        private readonly IMapper _mapper;
-        private readonly ISettingService _SettingService;
-        private readonly ICustomerService _CustomerService;
-        private readonly UserManager<Account> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IAuthenticationManager _authenticationManager;
-
-        public SmsOtpCodeController(
-            ISmsOtpCodeService SmsOtpCodeService,
-            IMapper mapper,
-            ISettingService SettingService,
-            ICustomerService CustomerService,
-             UserManager<Account> userManager,
-             RoleManager<IdentityRole> roleManager,
-             IAuthenticationManager authenticationManager
-
-            )
-        {
-            _SmsOtpCodeService = SmsOtpCodeService;
-            _mapper = mapper;
-            _SettingService = SettingService;
-            _CustomerService=CustomerService;
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _authenticationManager = authenticationManager;
-
-        }
         [AllowAnonymous]
         [HttpPost("SmsOtpCodes/SendCode/Public")]
         public async Task<IActionResult> SendSms([FromBody] SendSmsOtpCode smsModel)

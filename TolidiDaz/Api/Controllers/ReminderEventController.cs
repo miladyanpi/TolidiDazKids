@@ -4,10 +4,8 @@ using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Api.Models.DtoReminderEvent;
-using ServicesLibrary.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using DAL.Context;
 using ServicesLibrary.Services.SettingSrv;
 using Dto.Models.ResponseApi;
 using Dto.Models.Constant;
@@ -19,25 +17,14 @@ namespace Api.Controllers
     [Route("Api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ReminderEventController : ControllerBase
+    public class ReminderEventController(
+        IReminderEventService _ReminderEventService,
+        IMapper _mapper,
+        ISettingService _settingService
+        //UserManager<Account> _userManager
+        )
+        : ControllerBase
     {
-        private readonly IReminderEventService _ReminderEventService;
-        private readonly IMapper _mapper;
-        private readonly UserManager<Account> _userManager;
-        private readonly ISettingService _settingService;
-
-        public ReminderEventController(
-            IReminderEventService ReminderEventService,
-            IMapper mapper,
-            UserManager<Account> userManager,
-            ISettingService settingService
-            )
-        {
-            _ReminderEventService = ReminderEventService;
-            _mapper = mapper;
-            _userManager = userManager;
-            _settingService = settingService;
-        }
         [HttpPost("ReminderEvents")]
         public async Task<IActionResult> Add([FromBody] AddReminderEvent model)
         {

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using DAL.Context;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -25,30 +24,16 @@ namespace Api.Controllers
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-    public class ProductController : ControllerBase
+    public class ProductController(
+        IProductService _ProductService,
+        ICartItemService _CartItemService,
+        IOrderItemService _OrderItemService,
+        ICategoryService _CategoryService,
+        IMapper _mapper,
+        IViewCounterService _viewCounterService
+        ) 
+        : ControllerBase
     {
-        private readonly IProductService _ProductService;
-        private readonly ICartItemService _CartItemService;
-        private readonly IOrderItemService _OrderItemService;
-        private readonly ICategoryService _CategoryService;
-        private readonly IMapper _mapper;
-        private readonly IViewCounterService _viewCounterService;
-        public ProductController(
-            ICartItemService CartItemService,
-            IOrderItemService OrderItemService,
-            IProductService ProductService,
-            ICategoryService CategoryService,
-            IMapper mapper,
-            IViewCounterService viewCounterService
-            )
-        {
-            _OrderItemService = OrderItemService;
-            _CartItemService = CartItemService;
-            _ProductService = ProductService;
-            _CategoryService = CategoryService;
-            _mapper = mapper;
-            _viewCounterService = viewCounterService;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Products")]
         public async Task<IActionResult> Add([FromBody] AddProduct model)

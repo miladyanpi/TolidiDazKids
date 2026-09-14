@@ -4,43 +4,29 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoTicket;
-using Dto.Models.DtoProduct;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using ServicesLibrary.Services.TicketSrv;
 using ServicesLibrary.Services.DepartmentSrv;
 using ServicesLibrary.Services.ViewCounter;
 using System.Linq.Expressions;
-using System.Security.Claims;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class TicketController : ControllerBase
+    public class TicketController(
+        ITicketService _TicketService,
+        IDepartmentService _DepartmentService,
+        IMapper _mapper,
+        IViewCounterService _viewCounterService
+        //UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly ITicketService _TicketService;
-        private readonly IDepartmentService _DepartmentService;
-        private readonly IMapper _mapper;
-        private readonly IViewCounterService _viewCounterService;
-        public TicketController(
-            ITicketService TicketService,
-            IDepartmentService DepartmentService,
-            IViewCounterService viewCounterService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _TicketService = TicketService;
-            _DepartmentService = DepartmentService;
-            _viewCounterService = viewCounterService;
-            _mapper = mapper;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Tickets")]
         public async Task<IActionResult> Add([FromBody] AddTicket model)

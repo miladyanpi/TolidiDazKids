@@ -1,7 +1,6 @@
 ﻿using ServicesLibrary.Services.CartSrv;
 using ServicesLibrary.Services.CustomerSrv;
 using ServicesLibrary.Services.OrderSrv;
-using ServicesLibrary.Services.ProductSrv;
 using AutoMapper;
 using DAL.Paginagion;
 using Domain;
@@ -10,7 +9,6 @@ using Dto.Models.Constant;
 using Dto.Models.DtoCustomer;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
-using LinqKit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -18,34 +16,21 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using Utility;
-using static Dto.Enum.EnumConstant;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class CustomerController : ControllerBase
+    public class CustomerController(
+        ICustomerService _customerService,
+        ICartService _cartService,
+        IOrderService _OrderService,
+        UserManager<Account> _userManager,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly ICustomerService _customerService;
-        private readonly ICartService _cartService;
-        private readonly IOrderService _OrderService;
-        private readonly UserManager<Account> _userManager;
-        private readonly IMapper _mapper;
-        public CustomerController(
-            ICustomerService customerService,
-            ICartService cartService,
-            IOrderService OrderService,
-        IMapper mapper,
-            UserManager<Account> userManager)
-        {
-            _cartService = cartService;
-            _customerService = customerService;
-            _mapper = mapper;
-            _userManager = userManager;
-            _OrderService = OrderService;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Customers")]
         public async Task<IActionResult> Add([FromBody] AddCustomer model)
@@ -225,9 +210,64 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("Customers/Data")]
+        public async Task<IActionResult> GetCustomers([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultCustomer>
+                                                                    (entities: new List<ResultCustomer>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Customer, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Name ?? "").Contains(search) ||
+                         x.LastName.Contains(search) ||
+                         x.Mobile.Contains(search);
+                }
+
+                var count = await _customerService.GetCountAllAsync(predicate);
+
+                var Customers = await _customerService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedCustomers = _mapper.Map<ICollection<ResultCustomer>>(Customers);
+
+                return Ok(new ResponseApiEntities<ResultCustomer>
+                                                                (entities: mappedCustomers,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultCustomer>
+                                                                    (entities: new List<ResultCustomer>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("Customers")]
-        public async Task<IActionResult> GetCustomers([FromQuery] PaginationParams @params)
+        [HttpGet("Customers2")]
+        public async Task<IActionResult> GetCustomers2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultCustomer>
                                                             (entities: new List<ResultCustomer>(),
@@ -521,7 +561,34 @@ namespace Api.Controllers
 
         }
 
+        [HttpGet("Customers/ByGuid/{guid}")]
+        public async Task<IActionResult> GetCustomerById([FromRoute] string guid)
+        {
+            try
+            {
+                var Customer = await _customerService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Customer == null)
+                    return BadRequest(new ResponseApiEntity<UpdateCustomer>
+                                                                              (entity: new UpdateCustomer(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateCustomer>(Customer);
+                return Ok(new ResponseApiEntity<UpdateCustomer>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateCustomer>
+                                                                             (entity: new UpdateCustomer(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
-
+        }
     }
 }

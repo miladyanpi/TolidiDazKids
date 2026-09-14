@@ -4,7 +4,6 @@ using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoPricingRule;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -19,18 +18,13 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class PricingRuleController : ControllerBase
+    public class PricingRuleController(
+        IPricingRuleService _PricingRuleService,
+        IMapper _mapper, 
+        UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IPricingRuleService _PricingRuleService;
-        private readonly IMapper _mapper;
-        public PricingRuleController(
-            IPricingRuleService PricingRuleService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _PricingRuleService = PricingRuleService;
-            _mapper = mapper;   
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("PricingRules")]
         public async Task<IActionResult> Add([FromBody] AddPricingRule model)

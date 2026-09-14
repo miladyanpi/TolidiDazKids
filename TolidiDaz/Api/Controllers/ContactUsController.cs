@@ -1,5 +1,4 @@
-﻿using ServicesLibrary.Services.ContactUsSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -11,24 +10,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.ContactUsSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ContactUsController : ControllerBase
+    public class ContactUsController(
+        IContactUsService _ContactUsService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly IContactUsService _ContactUsService;
-        private readonly IMapper _mapper;
-        public ContactUsController(
-            IContactUsService storyService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _ContactUsService = storyService;
-            _mapper = mapper;   
-        }
         [HttpPost("ContactUss")]
         [AllowAnonymous]
         public async Task<IActionResult> Add([FromBody] AddContactUs model, string Key)
@@ -112,9 +107,62 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("ContactUss/Data")]
+        public async Task<IActionResult> GetContactUss([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultContactUs>
+                                                                    (entities: new List<ResultContactUs>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<ContactUs, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.FullName ?? "").Contains(search);
+                }
+
+                var count = await _ContactUsService.GetCountAllAsync(predicate);
+
+                var ContactUss = await _ContactUsService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedContactUss = _mapper.Map<ICollection<ResultContactUs>>(ContactUss);
+
+                return Ok(new ResponseApiEntities<ResultContactUs>
+                                                                (entities: mappedContactUss,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultContactUs>
+                                                                    (entities: new List<ResultContactUs>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("ContactUss")]
-        public async Task<IActionResult> GetContactUss([FromQuery] PaginationParams @params)
+        [HttpGet("ContactUs2s")]
+        public async Task<IActionResult> GetContactUs2s([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -183,9 +231,34 @@ namespace Api.Controllers
                                                             countAllRecordTable: ContactUss.Count()));
 
         }
+        [HttpGet("ContactUss/ByGuid/{guid}")]
+        public async Task<IActionResult> GetContactUsById([FromRoute] string guid)
+        {
+            try
+            {
+                var ContactUs = await _ContactUsService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (ContactUs == null)
+                    return BadRequest(new ResponseApiEntity<UpdateContactUs>
+                                                                              (entity: new UpdateContactUs(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateContactUs>(ContactUs);
+                return Ok(new ResponseApiEntity<UpdateContactUs>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateContactUs>
+                                                                             (entity: new UpdateContactUs(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
-
-
-
+        }
     }
 }

@@ -3,9 +3,7 @@ using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
-using Dto.Models.DtoRawProduct;
 using Dto.Models.DtoRawProductStore_Product;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -19,21 +17,14 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class RawProductStore_ProductController : ControllerBase
+    public class RawProductStore_ProductController(
+        IRawProductStore_ProductService _RawProductStore_ProductService,
+        IRegisterCostRawProductStoreService _RegisterCostRawProductStoreService,
+        IMapper _mapper
+        //UserManager<Account> userManager
+        ) 
+        : ControllerBase
     {
-        private readonly IRawProductStore_ProductService _RawProductStore_ProductService;
-        private readonly IRegisterCostRawProductStoreService _RegisterCostRawProductStoreService;
-        private readonly IMapper _mapper;
-        public RawProductStore_ProductController(
-            IRawProductStore_ProductService RawProductStore_ProductService,
-            IMapper mapper,
-            IRegisterCostRawProductStoreService RegisterCostRawProductStoreService,
-        UserManager<Account> userManager)
-        {
-            _RawProductStore_ProductService = RawProductStore_ProductService;
-            _mapper = mapper;
-            _RegisterCostRawProductStoreService= RegisterCostRawProductStoreService;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("RawProductStore_Products")]
         public async Task<IActionResult> Add([FromBody] AddRawProductStore_Product model)
