@@ -1,5 +1,4 @@
-﻿using ServicesLibrary.Services.ProductFeatureSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -9,6 +8,8 @@ using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.ProductFeatureSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -18,8 +19,6 @@ namespace Api.Controllers
     public class ProductFeatureController(
         IProductFeatureService _ProductFeatureService,
         IMapper _mapper
-        //IProductFeatureService storyService,
-        //UserManager<Account> userManager
         )
         : ControllerBase
     {
@@ -99,6 +98,60 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("ProductFeatures/Data")]
+        public async Task<IActionResult> GetProductFeatures([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultProductFeature>
+                                                                    (entities: new List<ResultProductFeature>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<ProductFeature, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _ProductFeatureService.GetCountAllAsync(predicate);
+
+                var ProductFeatures = await _ProductFeatureService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedProductFeatures = _mapper.Map<ICollection<ResultProductFeature>>(ProductFeatures);
+
+                return Ok(new ResponseApiEntities<ResultProductFeature>
+                                                                (entities: mappedProductFeatures,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultProductFeature>
+                                                                    (entities: new List<ResultProductFeature>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("ProductFeatures")]
         public async Task<IActionResult> GetProductFeatures([FromQuery] PaginationParams @params,int? CategoryID=null)
@@ -176,5 +229,35 @@ namespace Api.Controllers
 
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("ProductFeatures/ByGuid/{guid}")]
+        public async Task<IActionResult> GetProductFeatureById([FromRoute] string guid)
+        {
+            try
+            {
+                var ProductFeature = await _ProductFeatureService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (ProductFeature == null)
+                    return BadRequest(new ResponseApiEntity<UpdateProductFeature>
+                                                                              (entity: new UpdateProductFeature(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateProductFeature>(ProductFeature);
+                return Ok(new ResponseApiEntity<UpdateProductFeature>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateProductFeature>
+                                                                             (entity: new UpdateProductFeature(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
+
+        }
     }
 }

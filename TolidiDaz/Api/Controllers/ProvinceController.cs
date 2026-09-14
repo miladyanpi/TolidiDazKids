@@ -1,5 +1,4 @@
-﻿using ServicesLibrary.Services.ProvinceSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -8,8 +7,9 @@ using Dto.Models.DtoProvince;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.ProvinceSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -19,7 +19,6 @@ namespace Api.Controllers
     public class ProvinceController(
         IProvinceService _ProvinceService,
         IMapper _mapper
-        //UserManager<Account> userManager
         )
         : ControllerBase
     {
@@ -98,9 +97,63 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("Provinces/Data")]
+        public async Task<IActionResult> GetProvinces([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultProvince>
+                                                                    (entities: new List<ResultProvince>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Province, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _ProvinceService.GetCountAllAsync(predicate);
+
+                var Provinces = await _ProvinceService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedProvinces = _mapper.Map<ICollection<ResultProvince>>(Provinces);
+
+                return Ok(new ResponseApiEntities<ResultProvince>
+                                                                (entities: mappedProvinces,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultProvince>
+                                                                    (entities: new List<ResultProvince>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Provinces")]
-        public async Task<IActionResult> GetProvinces([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetProvinces2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultProvince>
                                                            (entity: new ResultProvince(),
@@ -176,6 +229,35 @@ namespace Api.Controllers
 
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("Provinces/ByGuid/{guid}")]
+        public async Task<IActionResult> GetProvinceById([FromRoute] string guid)
+        {
+            try
+            {
+                var Province = await _ProvinceService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Province == null)
+                    return BadRequest(new ResponseApiEntity<UpdateProvince>
+                                                                              (entity: new UpdateProvince(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateProvince>(Province);
+                return Ok(new ResponseApiEntity<UpdateProvince>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateProvince>
+                                                                             (entity: new UpdateProvince(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }

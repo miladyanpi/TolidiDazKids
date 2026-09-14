@@ -15,6 +15,7 @@ using ServicesLibrary.Services.CategorySrv;
 using ServicesLibrary.Services.OrderItemSrv;
 using ServicesLibrary.Services.ProductSrv;
 using ServicesLibrary.Services.ViewCounter;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using Utility;
 
@@ -150,6 +151,60 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("Products/Data")]
+        public async Task<IActionResult> GetProducts([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultProduct>
+                                                                    (entities: new List<ResultProduct>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Product, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _ProductService.GetCountAllAsync(predicate);
+
+                var Products = await _ProductService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedProducts = _mapper.Map<ICollection<ResultProduct>>(Products);
+
+                return Ok(new ResponseApiEntities<ResultProduct>
+                                                                (entities: mappedProducts,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultProduct>
+                                                                    (entities: new List<ResultProduct>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Products")]
         public async Task<IActionResult> GetProducts([FromQuery] PaginationParams @params, int? CategoryID = null)
@@ -512,6 +567,38 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: mappedProducts.Count()));
+        }
+
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("Products/ByGuid/{guid}")]
+        public async Task<IActionResult> GetProductById([FromRoute] string guid)
+        {
+            try
+            {
+                var Product = await _ProductService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Product == null)
+                    return BadRequest(new ResponseApiEntity<UpdateProduct>
+                                                                              (entity: new UpdateProduct(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateProduct>(Product);
+                return Ok(new ResponseApiEntity<UpdateProduct>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateProduct>
+                                                                             (entity: new UpdateProduct(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
+
         }
     }
 

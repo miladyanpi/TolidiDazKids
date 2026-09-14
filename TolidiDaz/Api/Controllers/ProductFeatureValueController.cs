@@ -1,6 +1,4 @@
-﻿using ServicesLibrary.Services.CustomerSrv;
-using ServicesLibrary.Services.ProductFeatureValueSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -9,9 +7,9 @@ using Dto.Models.DtoProductFeature;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using ServicesLibrary.Services.ProductFeatureValueSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -21,7 +19,6 @@ namespace Api.Controllers
     public class ProductFeatureValueController(
         IProductFeatureValueService _ProductFeatureValueService,
         IMapper _mapper
-        //UserManager<Account> userManager
         ) 
         : ControllerBase
     {
@@ -157,6 +154,60 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("ProductFeatureValues/Data")]
+        public async Task<IActionResult> GetProductFeatureValues([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultProductFeatureValue>
+                                                                    (entities: new List<ResultProductFeatureValue>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<ProductFeatureValue, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Value ?? "").Contains(search);
+                }
+
+                var count = await _ProductFeatureValueService.GetCountAllAsync(predicate);
+
+                var ProductFeatureValues = await _ProductFeatureValueService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedProductFeatureValues = _mapper.Map<ICollection<ResultProductFeatureValue>>(ProductFeatureValues);
+
+                return Ok(new ResponseApiEntities<ResultProductFeatureValue>
+                                                                (entities: mappedProductFeatureValues,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultProductFeatureValue>
+                                                                    (entities: new List<ResultProductFeatureValue>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("ProductFeatureValues")]
         public async Task<IActionResult> GetProductFeatureValues([FromQuery] PaginationParams @params,int? ProductID=null)
@@ -254,6 +305,37 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: ProductFeatureValues.Count()));
+
+        }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("ProductFeatureValues/ByGuid/{guid}")]
+        public async Task<IActionResult> GetProductFeatureValueById([FromRoute] string guid)
+        {
+            try
+            {
+                var ProductFeatureValue = await _ProductFeatureValueService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (ProductFeatureValue == null)
+                    return BadRequest(new ResponseApiEntity<UpdateProductFeatureValue>
+                                                                              (entity: new UpdateProductFeatureValue(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateProductFeatureValue>(ProductFeatureValue);
+                return Ok(new ResponseApiEntity<UpdateProductFeatureValue>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateProductFeatureValue>
+                                                                             (entity: new UpdateProductFeatureValue(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
     }

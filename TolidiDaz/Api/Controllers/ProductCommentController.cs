@@ -7,7 +7,6 @@ using Dto.Models.DtoProductComment;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.CustomerSrv;
 using ServicesLibrary.Services.OrderSrv;
@@ -25,9 +24,7 @@ namespace Api.Controllers
         IProductCommentService _ProductCommentService,
         IOrderService _OrderService,
         ICustomerService _CustomerService,
-        IMapper _mapper,
-        IViewCounterService _viewCounterService
-        //UserManager<Account> userManager
+        IMapper _mapper
         ) 
         : ControllerBase
     {
@@ -136,6 +133,60 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("ProductComments/Data")]
+        public async Task<IActionResult> GetProductComments([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultProductComment>
+                                                                    (entities: new List<ResultProductComment>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<ProductComment, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.AuthorName ?? "").Contains(search);
+                }
+
+                var count = await _ProductCommentService.GetCountAllAsync(predicate);
+
+                var ProductComments = await _ProductCommentService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedProductComments = _mapper.Map<ICollection<ResultProductComment>>(ProductComments);
+
+                return Ok(new ResponseApiEntities<ResultProductComment>
+                                                                (entities: mappedProductComments,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultProductComment>
+                                                                    (entities: new List<ResultProductComment>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("ProductComments/SetStatus")]
         public async Task<IActionResult> SetStatus([FromQuery] int Id, EnumConstant.CommentStatus commentStatus)
@@ -336,6 +387,37 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: count));
+
+        }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("ProductComments/ByGuid/{guid}")]
+        public async Task<IActionResult> GetProductCommentById([FromRoute] string guid)
+        {
+            try
+            {
+                var ProductComment = await _ProductCommentService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (ProductComment == null)
+                    return BadRequest(new ResponseApiEntity<UpdateProductComment>
+                                                                              (entity: new UpdateProductComment(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateProductComment>(ProductComment);
+                return Ok(new ResponseApiEntity<UpdateProductComment>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateProductComment>
+                                                                             (entity: new UpdateProductComment(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 
