@@ -18,6 +18,7 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     public class GroupBlogController(
         IGroupBlogService _GroupBlogService,
         IMapper _mapper,
@@ -103,6 +104,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("GroupBlogs/Data")]
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         public async Task<IActionResult> GetGroupBlogs([FromBody] PaginationParams @params)
         {
             try
@@ -155,7 +157,7 @@ namespace Api.Controllers
         }
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("GroupBlogs2")]
+        [HttpGet("GroupBlogs")]
         public async Task<IActionResult> GetGroupBlogs2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
@@ -255,6 +257,7 @@ namespace Api.Controllers
 
         }
         [HttpGet("GroupBlogs/ByGuid/{guid}")]
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         public async Task<IActionResult> GetGroupBlogById([FromRoute] string guid)
         {
             try
