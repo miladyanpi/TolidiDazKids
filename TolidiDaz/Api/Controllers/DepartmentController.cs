@@ -152,7 +152,7 @@ namespace Api.Controllers
         }
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("Departments2")]
+        [HttpGet("Departments")]
         public async Task<IActionResult> GetDepartments2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
