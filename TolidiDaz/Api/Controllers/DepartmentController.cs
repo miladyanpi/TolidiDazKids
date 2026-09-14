@@ -99,6 +99,7 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.DeleteError));
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Departments/Data")]
         public async Task<IActionResult> GetDepartments([FromBody] PaginationParams @params)
         {
@@ -251,6 +252,8 @@ namespace Api.Controllers
                                                             countAllRecordTable: Departments.Count()));
 
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Departments/ByGuid/{guid}")]
         public async Task<IActionResult> GetDepartmentById([FromRoute] string guid)
         {

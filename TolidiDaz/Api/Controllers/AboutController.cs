@@ -22,8 +22,7 @@ namespace Api.Controllers
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
     public class AboutController(
         IAboutService _AboutService,
-        IMapper _mapper,
-        UserManager<Account> _userManager
+        IMapper _mapper
         )
         : ControllerBase
     {

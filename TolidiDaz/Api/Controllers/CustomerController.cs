@@ -211,6 +211,7 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.DeleteError));
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Customers/Data")]
         public async Task<IActionResult> GetCustomers([FromBody] PaginationParams @params)
         {
@@ -561,6 +562,7 @@ namespace Api.Controllers
 
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Customers/ByGuid/{guid}")]
         public async Task<IActionResult> GetCustomerById([FromRoute] string guid)
         {

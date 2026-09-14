@@ -102,6 +102,7 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.DeleteError));
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("GroupBlogs/Data")]
         public async Task<IActionResult> GetGroupBlogs([FromBody] PaginationParams @params)
         {
@@ -254,6 +255,8 @@ namespace Api.Controllers
                                                             countAllRecordTable: GroupBlogs.Count()));
 
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("GroupBlogs/ByGuid/{guid}")]
         public async Task<IActionResult> GetGroupBlogById([FromRoute] string guid)
         {

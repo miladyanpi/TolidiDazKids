@@ -143,6 +143,7 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.DeleteError));
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("FavoritUserProducts/Data")]
         public async Task<IActionResult> GetFavoritUserProducts([FromBody] PaginationParams @params)
         {
@@ -333,6 +334,7 @@ namespace Api.Controllers
 
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("FavoritUserProducts/ByGuid/{guid}")]
         public async Task<IActionResult> GetFavoritUserProductById([FromRoute] string guid)
         {

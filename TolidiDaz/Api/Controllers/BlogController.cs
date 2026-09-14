@@ -213,7 +213,7 @@ namespace Api.Controllers
             int hash = (ip + userAgent).GetHashCode();
             return $"guest:{ip}:{hash}";
         }
-
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Blogs/Data")]
         public async Task<IActionResult> GetBlogs([FromBody] PaginationParams @params)
         {
@@ -460,7 +460,7 @@ namespace Api.Controllers
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: mappedProducts.Count()));
         }
-
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Blogs/ByGuid/{guid}")]
         public async Task<IActionResult> GetBlogById([FromRoute] string guid)
         {

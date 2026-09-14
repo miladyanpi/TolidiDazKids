@@ -220,41 +220,41 @@ namespace Api.Controllers
 
         }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("BlogComments/ByGuid/{guid}")]
-        public async Task<IActionResult> GetBlogCommentByGuid([FromRoute] string guid)
-        {
-            bool isValid = Guid.TryParse(guid, out Guid gid);
-            if (!isValid)
-                return BadRequest(new ResponseApiEntity<ResultBlogComment>
-                                                            (entity: new ResultBlogComment(),
-                                                            statusCode: ResultMessageApi.ErrorCode,
-                                                            status: ResultMessageApi.Error,
-                                                            message: ResultMessageApi.GetError));
+        //[HttpGet("BlogComments/ByGuid/{guid}")]
+        //public async Task<IActionResult> GetBlogCommentByGuid([FromRoute] string guid)
+        //{
+        //    bool isValid = Guid.TryParse(guid, out Guid gid);
+        //    if (!isValid)
+        //        return BadRequest(new ResponseApiEntity<ResultBlogComment>
+        //                                                    (entity: new ResultBlogComment(),
+        //                                                    statusCode: ResultMessageApi.ErrorCode,
+        //                                                    status: ResultMessageApi.Error,
+        //                                                    message: ResultMessageApi.GetError));
 
 
-            var data = await _BlogCommentService.FirstOrDefaultAsync(s => s.IdentityCode == gid);
-            if (data == null)
-                return BadRequest(new ResponseApiEntity<ResultBlogComment>
-                                                           (entity: new ResultBlogComment(),
-                                                           statusCode: ResultMessageApi.ErrorCode,
-                                                           status: ResultMessageApi.Error,
-                                                           message: ResultMessageApi.GetError));
+        //    var data = await _BlogCommentService.FirstOrDefaultAsync(s => s.IdentityCode == gid);
+        //    if (data == null)
+        //        return BadRequest(new ResponseApiEntity<ResultBlogComment>
+        //                                                   (entity: new ResultBlogComment(),
+        //                                                   statusCode: ResultMessageApi.ErrorCode,
+        //                                                   status: ResultMessageApi.Error,
+        //                                                   message: ResultMessageApi.GetError));
 
-            var result = _mapper.Map<ResultBlogComment>(data);
-            if (result != null)
-                return Ok(new ResponseApiEntity<ResultBlogComment>
-                                                               (entity: result,
-                                                               statusCode: ResultMessageApi.SuccessCode,
-                                                               status: ResultMessageApi.Success,
-                                                               message: ResultMessageApi.GetOk));
-            else
-                return BadRequest(new ResponseApiEntity<ResultBlogComment>
-                                                           (entity: new ResultBlogComment(),
-                                                           statusCode: ResultMessageApi.ErrorCode,
-                                                           status: ResultMessageApi.Error,
-                                                           message: ResultMessageApi.GetError));
+        //    var result = _mapper.Map<ResultBlogComment>(data);
+        //    if (result != null)
+        //        return Ok(new ResponseApiEntity<ResultBlogComment>
+        //                                                       (entity: result,
+        //                                                       statusCode: ResultMessageApi.SuccessCode,
+        //                                                       status: ResultMessageApi.Success,
+        //                                                       message: ResultMessageApi.GetOk));
+        //    else
+        //        return BadRequest(new ResponseApiEntity<ResultBlogComment>
+        //                                                   (entity: new ResultBlogComment(),
+        //                                                   statusCode: ResultMessageApi.ErrorCode,
+        //                                                   status: ResultMessageApi.Error,
+        //                                                   message: ResultMessageApi.GetError));
 
-        }
+        //}
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("BlogComments")]
         public async Task<IActionResult> GetBlogComments([FromQuery] PaginationParams @params, int? BlogID)
@@ -361,6 +361,7 @@ namespace Api.Controllers
                                                             countAllRecordTable: count));
 
         }
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("BlogComments/ByGuid/{guid}")]
         public async Task<IActionResult> GetBlogCommentById([FromRoute] string guid)
         {

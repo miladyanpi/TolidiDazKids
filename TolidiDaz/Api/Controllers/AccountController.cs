@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using DAL.Paginagion;
+﻿using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;

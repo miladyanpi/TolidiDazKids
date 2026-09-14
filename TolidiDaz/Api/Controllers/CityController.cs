@@ -97,7 +97,7 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
-
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Citys/Data")]
         public async Task<IActionResult> GetCitys([FromBody] PaginationParams @params)
         {
@@ -242,6 +242,7 @@ namespace Api.Controllers
                                                             countAllRecordTable: Citys.Count()));
 
         }
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Citys/ByGuid/{guid}")]
         public async Task<IActionResult> GetCityById([FromRoute] string guid)
         {
