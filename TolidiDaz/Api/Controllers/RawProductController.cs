@@ -7,9 +7,9 @@ using Dto.Models.DtoRawProduct;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.RawProductSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -21,7 +21,6 @@ namespace Api.Controllers
     public class RawProductController(
         IRawProductService _RawProductService,
         IMapper _mapper
-        //UserManager<Account> userManager
         )
         : ControllerBase
     {
@@ -98,8 +97,61 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("RawProducts/Data")]
+        public async Task<IActionResult> GetRawProducts([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultRawProduct>
+                                                                    (entities: new List<ResultRawProduct>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<RawProduct, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _RawProductService.GetCountAllAsync(predicate);
+
+                var RawProducts = await _RawProductService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedRawProducts = _mapper.Map<ICollection<ResultRawProduct>>(RawProducts);
+
+                return Ok(new ResponseApiEntities<ResultRawProduct>
+                                                                (entities: mappedRawProducts,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultRawProduct>
+                                                                    (entities: new List<ResultRawProduct>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("RawProducts")]
-        public async Task<IActionResult> GetRawProducts([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetRawProducts2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultRawProduct>
                                                            (entity: new ResultRawProduct(),
@@ -173,6 +225,34 @@ namespace Api.Controllers
 
         }
 
+        [HttpGet("RawProducts/ByGuid/{guid}")]
+        public async Task<IActionResult> GetRawProductById([FromRoute] string guid)
+        {
+            try
+            {
+                var RawProduct = await _RawProductService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (RawProduct == null)
+                    return BadRequest(new ResponseApiEntity<UpdateRawProduct>
+                                                                              (entity: new UpdateRawProduct(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateRawProduct>(RawProduct);
+                return Ok(new ResponseApiEntity<UpdateRawProduct>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateRawProduct>
+                                                                             (entity: new UpdateRawProduct(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }

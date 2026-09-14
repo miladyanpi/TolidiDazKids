@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.RawProductStoreSrv;
+using System.Linq.Expressions;
 using Utility;
 using static Dto.Enum.EnumConstant;
 
@@ -19,18 +20,12 @@ namespace Api.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class RawProductStoreController : ControllerBase
+    public class RawProductStoreController(
+        IRawProductStoreService _RawProductStoreService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly IRawProductStoreService _RawProductStoreService;
-        private readonly IMapper _mapper;
-        public RawProductStoreController(
-            IRawProductStoreService RawProductStoreService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _RawProductStoreService = RawProductStoreService;
-            _mapper = mapper;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("RawProductStores")]
         public async Task<IActionResult> Add([FromBody] AddRawProductStore model)
@@ -107,6 +102,60 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("RawProductStores/Data")]
+        public async Task<IActionResult> GetRawProductStores([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultRawProductStore>
+                                                                    (entities: new List<ResultRawProductStore>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<RawProductStore, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.MessurmentType.ToString() ?? "").Contains(search);
+                }
+
+                var count = await _RawProductStoreService.GetCountAllAsync(predicate);
+
+                var RawProductStores = await _RawProductStoreService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedRawProductStores = _mapper.Map<ICollection<ResultRawProductStore>>(RawProductStores);
+
+                return Ok(new ResponseApiEntities<ResultRawProductStore>
+                                                                (entities: mappedRawProductStores,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultRawProductStore>
+                                                                    (entities: new List<ResultRawProductStore>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("RawProductStores")]
         public async Task<IActionResult> GetRawProductStores([FromQuery] PaginationParams @params, int? RawProductID=null)
@@ -282,6 +331,37 @@ namespace Api.Controllers
 
         //}
 
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("RawProductStores/ByGuid/{guid}")]
+        public async Task<IActionResult> GetRawProductStoreById([FromRoute] string guid)
+        {
+            try
+            {
+                var RawProductStore = await _RawProductStoreService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (RawProductStore == null)
+                    return BadRequest(new ResponseApiEntity<UpdateRawProductStore>
+                                                                              (entity: new UpdateRawProductStore(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateRawProductStore>(RawProductStore);
+                return Ok(new ResponseApiEntity<UpdateRawProductStore>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateRawProductStore>
+                                                                             (entity: new UpdateRawProductStore(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
+
+        }
 
     }
 }
