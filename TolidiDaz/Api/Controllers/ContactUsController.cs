@@ -161,7 +161,7 @@ namespace Api.Controllers
         }
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("ContactUs2s")]
+        [HttpGet("ContactUss")]
         public async Task<IActionResult> GetContactUs2s([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();

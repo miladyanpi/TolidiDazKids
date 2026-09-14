@@ -1,24 +1,21 @@
-﻿using ServicesLibrary.Services.CustomerSrv;
-using ServicesLibrary.Services.OrderItemSrv;
-using ServicesLibrary.Services.OrderSrv;
-using ServicesLibrary.Services.SettingSrv;
-using AutoMapper;
-using Castle.Core.Resource;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
 using Dto.Models.Constant;
-using Dto.Models.DtoCart;
 using Dto.Models.DtoOrder;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using ServicesLibrary.Services.CustomerSrv;
+using ServicesLibrary.Services.OrderItemSrv;
+using ServicesLibrary.Services.OrderSrv;
+using ServicesLibrary.Services.SettingSrv;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using static Dto.Enum.EnumConstant;
-using ZstdSharp.Unsafe;
 
 namespace Api.Controllers
 {
@@ -229,6 +226,59 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("Orders/Data")]
+        public async Task<IActionResult> GetOrders([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultOrder>
+                                                                    (entities: new List<ResultOrder>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Order, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.OrderCode.ToString() ?? "").Contains(search);
+                }
+
+                var count = await _OrderService.GetCountAllAsync(predicate);
+
+                var Orders = await _OrderService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedOrders = _mapper.Map<ICollection<ResultOrder>>(Orders);
+
+                return Ok(new ResponseApiEntities<ResultOrder>
+                                                                (entities: mappedOrders,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultOrder>
+                                                                    (entities: new List<ResultOrder>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("Orders")]
         public async Task<IActionResult> GetOrders([FromQuery] PaginationParams @params, string? IdentityCode, OrderStatus? OrderStatus=EnumConstant.OrderStatus.All)
         {
@@ -395,6 +445,36 @@ namespace Api.Controllers
                                                            statusCode: ResultMessageApi.ErrorCode,
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.GetError));
+
+        }
+
+        [HttpGet("Orders/ByGuid/{guid}")]
+        public async Task<IActionResult> GetOrderById([FromRoute] string guid)
+        {
+            try
+            {
+                var Order = await _OrderService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Order == null)
+                    return BadRequest(new ResponseApiEntity<UpdateOrder>
+                                                                              (entity: new UpdateOrder(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateOrder>(Order);
+                return Ok(new ResponseApiEntity<UpdateOrder>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateOrder>
+                                                                             (entity: new UpdateOrder(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
     }

@@ -266,7 +266,7 @@ namespace Api.Controllers
         }
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("Customers2")]
+        [HttpGet("Customers")]
         public async Task<IActionResult> GetCustomers2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultCustomer>

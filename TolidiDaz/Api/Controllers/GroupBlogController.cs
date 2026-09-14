@@ -155,7 +155,7 @@ namespace Api.Controllers
         }
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("GroupBlogs2")]
+        [HttpGet("GroupBlogs")]
         public async Task<IActionResult> GetGroupBlogs2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();

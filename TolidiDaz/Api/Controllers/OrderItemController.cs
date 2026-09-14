@@ -1,8 +1,4 @@
-﻿using ServicesLibrary.Services.CustomerSrv;
-using ServicesLibrary.Services.ProductSrv;
-using ServicesLibrary.Services.OrderItemSrv;
-using ServicesLibrary.Services.SettingSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -14,6 +10,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.CustomerSrv;
+using ServicesLibrary.Services.OrderItemSrv;
+using ServicesLibrary.Services.ProductSrv;
+using ServicesLibrary.Services.SettingSrv;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace Api.Controllers
@@ -247,20 +248,12 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
 
-    public class OrderItemController : ControllerBase
+    public class OrderItemController(
+        IOrderItemService _OrderItemService,
+        IMapper _mapper
+        ) 
+        : ControllerBase
     {
-        private readonly IOrderItemService _OrderItemService;
-        private readonly IMapper _mapper;
-        public OrderItemController(
-            IOrderItemService OrderItemService,
-            IMapper mapper,
-            UserManager<Account> userManager,
-            ISettingService settingService
-            )
-        {
-            _OrderItemService = OrderItemService;
-            _mapper = mapper;
-        }
         [HttpPost("OrderItems")]
         public async Task<IActionResult> Add([FromBody] AddOrderItem model)
         {
@@ -322,6 +315,59 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("OrderItems/Data")]
+        public async Task<IActionResult> GetOrderItems([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultOrderItem>
+                                                                    (entities: new List<ResultOrderItem>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<OrderItem, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.OrderID.ToString() ?? "").Contains(search);
+                }
+
+                var count = await _OrderItemService.GetCountAllAsync(predicate);
+
+                var OrderItems = await _OrderItemService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedOrderItems = _mapper.Map<ICollection<ResultOrderItem>>(OrderItems);
+
+                return Ok(new ResponseApiEntities<ResultOrderItem>
+                                                                (entities: mappedOrderItems,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultOrderItem>
+                                                                    (entities: new List<ResultOrderItem>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("OrderItems")]
         public async Task<IActionResult> GetOrderItems([FromQuery] PaginationParams @params, int? OrderID)
         {
@@ -362,6 +408,36 @@ namespace Api.Controllers
                                                            statusCode: ResultMessageApi.ErrorCode,
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.GetError));
+
+        }
+
+        [HttpGet("OrderItems/ByGuid/{guid}")]
+        public async Task<IActionResult> GetOrderItemById([FromRoute] string guid)
+        {
+            try
+            {
+                var OrderItem = await _OrderItemService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (OrderItem == null)
+                    return BadRequest(new ResponseApiEntity<UpdateOrderItem>
+                                                                              (entity: new UpdateOrderItem(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateOrderItem>(OrderItem);
+                return Ok(new ResponseApiEntity<UpdateOrderItem>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateOrderItem>
+                                                                             (entity: new UpdateOrderItem(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 

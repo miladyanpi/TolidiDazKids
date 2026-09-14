@@ -1,5 +1,4 @@
-﻿using ServicesLibrary.Services.GroupQuestionSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -10,6 +9,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.GroupQuestionSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -100,9 +101,62 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("GroupQuestions/Data")]
+        public async Task<IActionResult> GetGroupQuestions([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultGroupQuestion>
+                                                                    (entities: new List<ResultGroupQuestion>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<GroupQuestion, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _GroupQuestionService.GetCountAllAsync(predicate);
+
+                var GroupQuestions = await _GroupQuestionService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedGroupQuestions = _mapper.Map<ICollection<ResultGroupQuestion>>(GroupQuestions);
+
+                return Ok(new ResponseApiEntities<ResultGroupQuestion>
+                                                                (entities: mappedGroupQuestions,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultGroupQuestion>
+                                                                    (entities: new List<ResultGroupQuestion>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("GroupQuestions")]
-        public async Task<IActionResult> GetGroupQuestions([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetGroupQuestions2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -198,6 +252,36 @@ namespace Api.Controllers
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: GroupQuestions.Count()));
+
+        }
+
+        [HttpGet("GroupQuestions/ByGuid/{guid}")]
+        public async Task<IActionResult> GetGroupQuestionById([FromRoute] string guid)
+        {
+            try
+            {
+                var GroupQuestion = await _GroupQuestionService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (GroupQuestion == null)
+                    return BadRequest(new ResponseApiEntity<UpdateGroupQuestion>
+                                                                              (entity: new UpdateGroupQuestion(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateGroupQuestion>(GroupQuestion);
+                return Ok(new ResponseApiEntity<UpdateGroupQuestion>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateGroupQuestion>
+                                                                             (entity: new UpdateGroupQuestion(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
         }
 
