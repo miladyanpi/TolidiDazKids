@@ -213,6 +213,34 @@ namespace Api.Controllers
                                                             message: ResultMessageApi.GetOk,
                                                             countAllRecordTable: count));
         }
+        [HttpGet("Abouts/ByGuid/{guid}")]
+        public async Task<IActionResult> GetAboutById([FromRoute] string guid)
+        {
+            try
+            {
+                var About = await _AboutService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (About == null)
+                    return BadRequest(new ResponseApiEntity<UpdateAbout>
+                                                                              (entity: new UpdateAbout(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateAbout>(About);
+                return Ok(new ResponseApiEntity<UpdateAbout>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateAbout>
+                                                                              (entity: new UpdateAbout(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ex.Message));
+            }
 
+        }
     }
 }
