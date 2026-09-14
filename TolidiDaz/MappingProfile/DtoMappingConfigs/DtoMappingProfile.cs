@@ -3279,6 +3279,7 @@ namespace MappingProfile.DtoMappingConfigs
                 JsonPictures = x.JsonPicture,
                 ShowInAbout = x.ShowInAbout,
                 Visible = x.Visible,
+                IdentityCode = x.IdentityCode,
 
                 RegisterTime = x.RegisterTime,
                 EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
@@ -3295,7 +3296,7 @@ namespace MappingProfile.DtoMappingConfigs
                 JsonPicture = x.JsonPictures,
                 ShowInAbout = x.ShowInAbout,
                 Visible = x.Visible,
-
+                IdentityCode=x.IdentityCode,
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,
                 RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
@@ -3313,6 +3314,7 @@ namespace MappingProfile.DtoMappingConfigs
                 Visible = x.Visible,
                 ResultUploadFiles = GetResultUploadFiles(x.JsonPictures),
 
+                IdentityCode = x.IdentityCode,
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,
                 RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),

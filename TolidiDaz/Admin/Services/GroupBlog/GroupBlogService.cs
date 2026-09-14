@@ -24,6 +24,7 @@ namespace Admin.Services.GroupBlog
     {
         public UpdateGroupBlog? updateGroupBlog { get; set; } = new();
         public AddGroupBlog? addGroupBlog { get; set; } = new();
+        public ResultGroupBlog resultGroupBlog { get; set; } = new();
         public List<ResultGroupBlog>? ResultGroupBlogs= new List<ResultGroupBlog>();
         public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")

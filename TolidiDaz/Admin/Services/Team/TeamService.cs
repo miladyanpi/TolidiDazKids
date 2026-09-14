@@ -30,6 +30,7 @@ namespace Admin.Services.Team
     {
         public UpdateTeam? updateTeam { get; set; } = new();
         public AddTeam? addTeam { get; set; } = new();
+        public ResultTeam? resultTeam = new ResultTeam();
         public List<ResultTeam>? ResultTeams = new List<ResultTeam>();
         public string? Guid { get; set; }
         public List<ResultUploadFile> ResultUploadImages { get;  set; } = [];

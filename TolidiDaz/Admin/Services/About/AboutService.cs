@@ -28,43 +28,35 @@ namespace Admin.Services.About
         SweetAlertService Swal
         ) : BaseService, IImageManagementByFtpService
     {
+        public bool IsUpdateStatuse { get; set; } = false;
         public UpdateAbout? updateAbout { get; set; } = new();
         public AddAbout? addAbout { get; set; } = new();
-        public List<ResultAbout>? ResultAbouts = new List<ResultAbout>();
         public ResultAbout? ResultAbout = new ResultAbout();
         public string? Guid { get; set; }
         public List<ResultUploadFile> ResultUploadImages { get;  set; } = [];
-        public async Task GetDataAsync(string? SearchText = "")
-        {
-            try
-            {
-                var resdata = await _RootApiResultAbouts.RunMethodApi($"Abouts/Data", SetPaging(SearchText), method: Method.Post);
-                if (resdata != null && resdata.Status == ResultMessageApi.Success)
-                {
-                    ResultAbouts = resdata.Entities.ToList() ?? [];
-                    SetPerPage(resdata.CountAllRecordTable);
-                    NotifyStateChanged();
-                }
-            }
-            catch (Exception ex) 
-            { 
-            }
-        }
+        
         public async Task GetLastDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultAbouts.RunMethodApi($"Abouts/Data", SetPaging(SearchText), method: Method.Post);
+                var resdata = await RootApiUpdateAbout.RunMethodApi($"Abouts/LastRecord", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultAbouts = resdata.Entities.ToList() ?? [];
-                    SetPerPage(resdata.CountAllRecordTable);
-                    NotifyStateChanged();
+                    updateAbout = resdata.Entity;
+                    Guid = resdata.Entity.IdentityCode.ToString();
+                    IsUpdateStatuse = true;
+                }
+                else
+                {
+                    IsUpdateStatuse = false;
                 }
             }
             catch (Exception ex)
             {
+                IsUpdateStatuse = false;
             }
+            NotifyStateChanged();
+
         }
         public async Task DeleteAsync(int ID)
         {
@@ -84,7 +76,7 @@ namespace Admin.Services.About
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                        await GetDataAsync();
+                        await GetLastDataAsync();
                     }
                     else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                     {

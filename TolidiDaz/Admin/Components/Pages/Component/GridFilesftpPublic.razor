@@ -6,66 +6,53 @@
 
 @if (ResultUploadFiles.Count > 0)
 {
-    <label>@Title</label>
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <!-- حذف padding اضافه برای چسبیدن جدول به لبه‌ها -->
-            <div class="table-responsive border-bottom userlist-table">
-                <table class="table table-hover table-striped align-middle mb-0">
-                    <thead class="table-light">
-                        <!-- ایجاد یک هدر متمایز با رنگ روشن -->
-                        <tr>
-                            <th class="text-center ps-3" style="width: 80px;">
-                                <span>ردیف</span>
-                            </th>
-                         
-                            <th class="text-start">
-                                <span>
-                                    <CustomLabel For="@(() => resultUploadFile.PathFileName)"></CustomLabel>
-                                </span>
-                            </th>
-                            <th class="text-center" style="width: 150px;">
-                                <span>عملیات</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            if (ResultUploadFiles != null)
-                            {
-                                decimal i = (pagingModel.Page - 1) * pagingModel.Take;
-                                foreach (var item in ResultUploadFiles)
-                                {
-                                    string path = @ApiLink.FullPath + @item.PathFileName;
-                                    i++;
-                                    decimal k = i;
-                                    <tr>
-                                        <td class="text-center fw-bold text-muted">@k</td>
-                                        <td class="text-start">
-                                            <img src="@path" alt="تصویر" class="img-thumbnail"
-                                                 style="width: 50px; height:50px; object-fit: cover;"/>
-                                        </td>
-                                      @*  <td class="text-start">
-                                            <button class="btn btn-sm btn-outline-primary px-3" @onclick="@(async () => await DownloadFile(item.PathFileName))">
-                                                <i class="fa fa-download me-1"></i> دانلود
-                                            </button>
-                                        </td>*@
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-light border-0" @onclick="@(async () => await Delete(item.PathFileName))">
-                                                <i class="fa fa-trash text-danger" style="font-size:17px" title="حذف"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-                            }
+    <div class="mb-6">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">تصویر</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-card-dark divide-y divide-gray-200 dark:divide-gray-700">
+                    @if (ResultUploadFiles != null)
+                    {
+                        decimal i = (pagingModel.Page - 1) * pagingModel.Take;
+                        foreach (var item in ResultUploadFiles)
+                        {
+                            string path = @ApiLink.FullPath + @item.PathFileName;
+                            i++;
+                            decimal k = i;
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-16 w-16">
+                                            <img class="h-16 w-16 rounded-md object-contain" src="@path" alt="@item.Title">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                    <button @onclick="@(async () => await Delete(item.PathFileName))"
+                                            class="px-4 py-2 text-sm font-medium text-white rounded-lg
+                                        bg-red-500 hover:bg-red-600
+                                        dark:bg-red-600 dark:hover:bg-red-700
+                                        transition-colors duration-200">
+                                        حذف
+                                    </button>
+
+                                </td>
+                            </tr>
                         }
+                    }
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
 
-}
+
+
+    }
 @code {
     private PagingModel pagingModel { get; set; } = new();
 

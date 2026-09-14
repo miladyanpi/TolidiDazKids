@@ -13,7 +13,7 @@
     </div>
 
     <!--General Abouts-->
-    @if (_AboutService.ResultAbouts.Count == 0)
+    @if (!_AboutService.IsUpdateStatuse)
     {
         <EditForm Model="_AboutService.addAbout" OnValidSubmit="_AboutService.AddAsync" FormName="AddForm">
             <DataAnnotationsValidator />
@@ -40,11 +40,16 @@
     }
     else
     {
+        <div class="d-flex justify-content-between mb-3">
+
+                <button @onclick="@( () => ListFiles(_AboutService.updateAbout.IdentityCode))" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500">تصاویر</button>
+        </div>
         <EditForm Model="_AboutService.updateAbout" OnValidSubmit="_AboutService.UpdateAsync" FormName="AddForm">
             <DataAnnotationsValidator />
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 p-6 border border-gray-200 dark:border-gray-700">
-                <Files guid="_AboutService.Guid" />
-            </div>
+       @*      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 p-6 border border-gray-200 dark:border-gray-700">
+                <Files guid="@_AboutService.Guid" />
+            </div> *@
+          
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 p-6 border border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-semibold mb-6">درباره ما</h3>
                     <div>
@@ -56,7 +61,8 @@
                 <div >
                     <CustomLabel For="@(() => _AboutService.updateAbout.LongDescription)"></CustomLabel>
                     <ValidationMessage For="@(() => _AboutService.updateAbout.LongDescription)" class="validate" />
-                    <InputTextArea rows="10" @bind-Value="_AboutService.updateAbout.LongDescription" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-0" />
+                    <TextEditor @bind-Value="_AboutService.updateAbout.LongDescription" />
+
                 </div>
                 <div class="mt-6 flex justify-end">
                     <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500">ذخیره تغییرات</button>
@@ -73,7 +79,7 @@
     protected override async Task OnInitializedAsync()
     {
         _AboutService.OnChange += HandleStateChange;
-        await _AboutService.GetDataAsync();
+        await _AboutService.GetLastDataAsync();
     }
     private async void HandleStateChange()
     {
@@ -86,7 +92,7 @@
     private async Task CallBackPagingAsync(decimal page)
     {
         _AboutService.pagingModel.Page = page;
-        await _AboutService.GetDataAsync();
+        await _AboutService.GetLastDataAsync();
     }
     private void Edit(Guid? GUID)
     {
