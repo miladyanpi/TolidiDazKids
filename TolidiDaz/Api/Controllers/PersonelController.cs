@@ -1,5 +1,4 @@
-﻿using ServicesLibrary.Services.PersonelSrv;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.Paginagion;
 using Domain;
 using Dto.Enum;
@@ -11,6 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.PersonelSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -139,9 +140,64 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("Personels/Data")]
+        public async Task<IActionResult> GetPersonels([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultPersonel>
+                                                                    (entities: new List<ResultPersonel>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Personel, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Name ?? "").Contains(search)||
+                        (x.LastName ?? "").Contains(search);
+                }
+
+                var count = await _PersonelService.GetCountAllAsync(predicate);
+
+                var Personels = await _PersonelService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedPersonels = _mapper.Map<ICollection<ResultPersonel>>(Personels);
+
+                return Ok(new ResponseApiEntities<ResultPersonel>
+                                                                (entities: mappedPersonels,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultPersonel>
+                                                                    (entities: new List<ResultPersonel>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Personels")]
-        public async Task<IActionResult> GetPersonels([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetPersonels2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -241,6 +297,35 @@ namespace Api.Controllers
 
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("Personels/ByGuid/{guid}")]
+        public async Task<IActionResult> GetPersonelById([FromRoute] string guid)
+        {
+            try
+            {
+                var Personel = await _PersonelService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Personel == null)
+                    return BadRequest(new ResponseApiEntity<UpdatePersonel>
+                                                                              (entity: new UpdatePersonel(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdatePersonel>(Personel);
+                return Ok(new ResponseApiEntity<UpdatePersonel>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdatePersonel>
+                                                                             (entity: new UpdatePersonel(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }

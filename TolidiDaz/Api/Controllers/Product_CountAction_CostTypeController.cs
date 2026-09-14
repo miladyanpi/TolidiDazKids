@@ -7,27 +7,21 @@ using Dto.Models.DtoProduct_CountAction_CostType;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.Product_CountAction_CostTypeSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
     [Route("api/")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class Product_CountAction_CostTypeController : ControllerBase
+    public class Product_CountAction_CostTypeController(
+        IProduct_CountAction_CostTypeService _Product_CountAction_CostTypeService,
+        IMapper _mapper
+        )
+        : ControllerBase
     {
-        private readonly IProduct_CountAction_CostTypeService _Product_CountAction_CostTypeService;
-        private readonly IMapper _mapper;
-        public Product_CountAction_CostTypeController(
-            IProduct_CountAction_CostTypeService Product_CountAction_CostTypeService,
-            IMapper mapper,
-        UserManager<Account> userManager)
-        {
-            _Product_CountAction_CostTypeService = Product_CountAction_CostTypeService;
-            _mapper = mapper;
-        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Product_CountAction_CostTypes")]
         public async Task<IActionResult> Add([FromBody] AddProduct_CountAction_CostType model)
@@ -93,7 +87,6 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.UpdateError));
         }
 
-
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpDelete("Product_CountAction_CostTypes/{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
@@ -113,6 +106,60 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("Product_CountAction_CostTypes/Data")]
+        public async Task<IActionResult> GetProduct_CountAction_CostTypes([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultProduct_CountAction_CostType>
+                                                                    (entities: new List<ResultProduct_CountAction_CostType>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Product_CountAction_CostType, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.CountAction.ToString() ?? "").Contains(search);
+                }
+
+                var count = await _Product_CountAction_CostTypeService.GetCountAllAsync(predicate);
+
+                var Product_CountAction_CostTypes = await _Product_CountAction_CostTypeService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedProduct_CountAction_CostTypes = _mapper.Map<ICollection<ResultProduct_CountAction_CostType>>(Product_CountAction_CostTypes);
+
+                return Ok(new ResponseApiEntities<ResultProduct_CountAction_CostType>
+                                                                (entities: mappedProduct_CountAction_CostTypes,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultProduct_CountAction_CostType>
+                                                                    (entities: new List<ResultProduct_CountAction_CostType>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Product_CountAction_CostTypes")]
         public async Task<IActionResult> GetProduct_CountAction_CostTypes([FromQuery] PaginationParams @params, int? PositionID)
@@ -193,6 +240,35 @@ namespace Api.Controllers
 
         }
 
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("Product_CountAction_CostTypes/ByGuid/{guid}")]
+        public async Task<IActionResult> GetProduct_CountAction_CostTypeById([FromRoute] string guid)
+        {
+            try
+            {
+                var Product_CountAction_CostType = await _Product_CountAction_CostTypeService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Product_CountAction_CostType == null)
+                    return BadRequest(new ResponseApiEntity<UpdateProduct_CountAction_CostType>
+                                                                              (entity: new UpdateProduct_CountAction_CostType(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdateProduct_CountAction_CostType>(Product_CountAction_CostType);
+                return Ok(new ResponseApiEntity<UpdateProduct_CountAction_CostType>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdateProduct_CountAction_CostType>
+                                                                             (entity: new UpdateProduct_CountAction_CostType(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }

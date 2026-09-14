@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.PricingRuleSrv;
+using System.Linq.Expressions;
 using Utility;
 using static Dto.Enum.EnumConstant;
 
@@ -20,8 +21,7 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PricingRuleController(
         IPricingRuleService _PricingRuleService,
-        IMapper _mapper, 
-        UserManager<Account> userManager
+        IMapper _mapper 
         ) 
         : ControllerBase
     {
@@ -132,6 +132,60 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("PricingRules/Data")]
+        public async Task<IActionResult> GetPricingRules([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultPricingRule>
+                                                                    (entities: new List<ResultPricingRule>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<PricingRule, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _PricingRuleService.GetCountAllAsync(predicate);
+
+                var PricingRules = await _PricingRuleService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedPricingRules = _mapper.Map<ICollection<ResultPricingRule>>(PricingRules);
+
+                return Ok(new ResponseApiEntities<ResultPricingRule>
+                                                                (entities: mappedPricingRules,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultPricingRule>
+                                                                    (entities: new List<ResultPricingRule>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("PricingRules")]
         public async Task<IActionResult> GetPricingRules([FromQuery] PaginationParams @params,int ProductID)
@@ -183,6 +237,37 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.GetError));
 
         }
- 
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("PricingRules/ByGuid/{guid}")]
+        public async Task<IActionResult> GetPricingRuleById([FromRoute] string guid)
+        {
+            try
+            {
+                var PricingRule = await _PricingRuleService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (PricingRule == null)
+                    return BadRequest(new ResponseApiEntity<UpdatePricingRule>
+                                                                              (entity: new UpdatePricingRule(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdatePricingRule>(PricingRule);
+                return Ok(new ResponseApiEntity<UpdatePricingRule>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdatePricingRule>
+                                                                             (entity: new UpdatePricingRule(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
+
+        }
+
     }
 }

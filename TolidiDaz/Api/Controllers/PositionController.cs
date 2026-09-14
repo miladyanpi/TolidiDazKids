@@ -7,9 +7,9 @@ using Dto.Models.DtoPosition;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.PositionSrv;
+using System.Linq.Expressions;
 
 namespace Api.Controllers
 {
@@ -20,8 +20,7 @@ namespace Api.Controllers
 
     public class PositionController(
         IPositionService _PositionService,
-        IMapper _mapper,
-        UserManager<Account> userManager
+        IMapper _mapper
         ) 
         : ControllerBase
     {
@@ -98,8 +97,61 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.DeleteError));
         }
+
+        [HttpPost("Positions/Data")]
+        public async Task<IActionResult> GetPositions([FromBody] PaginationParams @params)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultPosition>
+                                                                    (entities: new List<ResultPosition>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                Expression<Func<Position, bool>> predicate = x => true;
+
+                if (!string.IsNullOrWhiteSpace(@params.SearchText))
+                {
+                    var search = @params.SearchText;
+
+                    predicate = x =>
+                        (x.Title ?? "").Contains(search);
+                }
+
+                var count = await _PositionService.GetCountAllAsync(predicate);
+
+                var Positions = await _PositionService
+                                    .GetAllAsync(predicate, page: @params.Page, take: @params.Take);
+
+
+                var mappedPositions = _mapper.Map<ICollection<ResultPosition>>(Positions);
+
+                return Ok(new ResponseApiEntities<ResultPosition>
+                                                                (entities: mappedPositions,
+                                                                status: ResultMessageApi.Success,
+                                                                statusCode: ResultMessageApi.SuccessCode,
+                                                                message: ResultMessageApi.GetOk,
+                                                                countAllRecordTable: count));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntities<ResultPosition>
+                                                                    (entities: new List<ResultPosition>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ex.Message,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+            }
+
+        }
+
         [HttpGet("Positions")]
-        public async Task<IActionResult> GetPositions([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetPositions2([FromQuery] PaginationParams @params)
         {
             if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultPosition>
                                                            (entity: new ResultPosition(),
@@ -173,6 +225,34 @@ namespace Api.Controllers
 
         }
 
+        [HttpGet("Positions/ByGuid/{guid}")]
+        public async Task<IActionResult> GetPositionById([FromRoute] string guid)
+        {
+            try
+            {
+                var Position = await _PositionService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guid);
+                if (Position == null)
+                    return BadRequest(new ResponseApiEntity<UpdatePosition>
+                                                                              (entity: new UpdatePosition(),
+                                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                                              status: ResultMessageApi.Error,
+                                                                              message: ResultMessageApi.GetError));
+                var result = _mapper.Map<UpdatePosition>(Position);
+                return Ok(new ResponseApiEntity<UpdatePosition>
+                                                               (entity: result,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.GetOk));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<UpdatePosition>
+                                                                             (entity: new UpdatePosition(),
+                                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                                             status: ResultMessageApi.Error,
+                                                                             message: ex.Message));
+            }
 
+        }
     }
 }
