@@ -5,8 +5,7 @@ using Dto.DtoPaginagion;
 using Dto.Enum;
 using Dto.Models;
 using Dto.Models.Constant;
-using Dto.Models.DtoStory;
-using Dto.Models.DtoLable;
+using Dto.Models.DtoSlider;
 using Dto.Models.DtoSlider;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
@@ -15,36 +14,50 @@ using Newtonsoft.Json;
 using RestSharp;
 using static Dto.Enum.EnumConstant;
 
-namespace Admin.Services.Story
+namespace Admin.Services.Slider
 {
 
-    public class StoryService(
-        IRootApi<ResponseApiEntities<ResultStory>> _RootApiResultStorys,
-        IRootApi<ResponseApiEntity<ResultStory>> RootApiResultStory,
-        IRootApi<ResponseApiEntity<AddStory>> RootApiAddStory,
-        IRootApi<ResponseApiEntity<UpdateStory>> RootApiUpdateStory,
+    public class SliderService(
+        IRootApi<ResponseApiEntities<ResultSlider>> _RootApiResultSliders,
+        IRootApi<ResponseApiEntity<ResultSlider>> RootApiResultSlider,
+        IRootApi<ResponseApiEntity<AddSlider>> RootApiAddSlider,
+        IRootApi<ResponseApiEntity<UpdateSlider>> RootApiUpdateSlider,
         IRootApi<ResponseApiEntity<UpdateJsonFile>> RootApiUpdateJsonFile,
         IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile,
         IJSRuntime JS,
         SweetAlertService Swal
         ) : BaseService, IImageManagementByFtpService
     {
-        private List<AddJsonLable> AddJsonLables { get; set; } = new List<AddJsonLable>();
-
-        public UpdateStory? updateStory { get; set; } = new();
-        public AddStory? addStory { get; set; } = new();
-        public List<ResultStory>? ResultStorys = new List<ResultStory>();
+        public UpdateSlider? updateSlider { get; set; } = new();
+        public AddSlider? addSlider { get; set; } = new();
+        public ResultSlider? resultSlider = new ResultSlider();
+        public List<ResultSlider>? ResultSliders = new List<ResultSlider>();
         public string? Guid { get; set; }
-        public List<ResultUploadFile> ResultUploadImages { get; set; } = [];
+        public List<ResultUploadFile> ResultUploadImages { get;  set; } = [];
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultStorys.RunMethodApi($"Storys/Data", SetPaging(SearchText), method: Method.Post);
+                var resdata = await _RootApiResultSliders.RunMethodApi($"Sliders/Data", SetPaging(SearchText), method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultStorys = resdata.Entities.ToList() ?? [];
+                    ResultSliders = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
+                    NotifyStateChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        public async Task GetAllDataAsync(string? SearchText = "")
+        {
+            try
+            {
+                var resdata = await _RootApiResultSliders.RunMethodApi($"Sliders/All", null, method: Method.Get);
+                if (resdata != null && resdata.Status == ResultMessageApi.Success)
+                {
+                    ResultSliders = resdata.Entities.ToList() ?? [];
                     NotifyStateChanged();
                 }
             }
@@ -66,7 +79,7 @@ namespace Admin.Services.Story
             {
                 try
                 {
-                    var resdata = await RootApiResultStory.RunMethodApi($"Storys/{ID}", null, method: Method.Delete);
+                    var resdata = await RootApiResultSlider.RunMethodApi($"Sliders/{ID}", null, method: Method.Delete);
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
@@ -102,15 +115,15 @@ namespace Admin.Services.Story
         {
             try
             {
-                var resdata = await RootApiAddStory.RunMethodApi("Storys", addStory, method: Method.Post);
+                var resdata = await RootApiAddSlider.RunMethodApi("Sliders", addSlider, method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                    addStory = new();
+                    addSlider = new();
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
-                    _ = await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = resdata.Message,
@@ -120,7 +133,7 @@ namespace Admin.Services.Story
                 }
                 else
                 {
-                    _ = await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ResultMessageApi.ErrorDisconnectApi,
@@ -137,14 +150,14 @@ namespace Admin.Services.Story
         {
             try
             {
-                var resdataEdit = await RootApiUpdateStory.RunMethodApi("Storys", updateStory, method: Method.Patch);
+                var resdataEdit = await RootApiUpdateSlider.RunMethodApi("Sliders", updateSlider, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
                 }
                 else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
                 {
-                    _ = await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = resdataEdit.Message,
@@ -154,7 +167,7 @@ namespace Admin.Services.Story
                 }
                 else
                 {
-                    _ = await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ResultMessageApi.ErrorDisconnectApi,
@@ -171,12 +184,12 @@ namespace Admin.Services.Story
         {
             try
             {
-                var resdataEdit = await RootApiUpdateStory.RunMethodApi($"Storys/ByGuid/{Guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateSlider.RunMethodApi($"Sliders/ByGuid/{Guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    updateStory = resdataEdit.Entity;
-                    if (updateStory.JsonPicture != null)
-                        ResultUploadImages = JsonConvert.DeserializeObject<List<ResultUploadFile>>(updateStory.JsonPicture);
+                    updateSlider = resdataEdit.Entity;
+                    if (updateSlider.JsonPicture != null)
+                        ResultUploadImages = JsonConvert.DeserializeObject<List<ResultUploadFile>>(updateSlider.JsonPicture);
                     else
                         ResultUploadImages = new List<ResultUploadFile>();
                         NotifyStateChanged();
@@ -195,12 +208,11 @@ namespace Admin.Services.Story
                 {
                     UpdateJsonFile updateJsonFile = new UpdateJsonFile
                     {
-                        ID = updateStory.ID,
+                        ID = updateSlider.ID,
                         JsonPicture = JsonConvert.SerializeObject(ResultUploadImages),
                         EnumJsonImageFileVideo = EnumJsonImageFileVideo.Image
-
                     };
-                    _ = await RootApiUpdateJsonFile.RunMethodApi("Storys/UpdateJsonFile", updateJsonFile, method: Method.Patch);
+                    _ = await RootApiUpdateJsonFile.RunMethodApi("Sliders/UpdateJsonFile", updateJsonFile, method: Method.Patch);
                     NotifyStateChanged();
                 }
             }
@@ -214,19 +226,16 @@ namespace Admin.Services.Story
             {
                 UpdateJsonFile updateJsonFile = new UpdateJsonFile
                 {
-                    ID = updateStory.ID,
+                    ID = updateSlider.ID,
                     JsonPicture = JsonConvert.SerializeObject(resultUploadImages),
                     EnumJsonImageFileVideo = EnumJsonImageFileVideo.Image
                 };
-                _ = await RootApiUpdateJsonFile.RunMethodApi("Storys/UpdateJsonFile", updateJsonFile, method: Method.Patch);
+                _ = await RootApiUpdateJsonFile.RunMethodApi("Sliders/UpdateJsonFile", updateJsonFile, method: Method.Patch);
+                NotifyStateChanged();
             }
             catch (Exception ex)
             {
             }
-        }
-        public void SetDataLable(List<AddJsonLable> addJsonLables)
-        {
-            AddJsonLables = addJsonLables;
         }
     }
 }
