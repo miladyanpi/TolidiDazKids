@@ -1,14 +1,14 @@
 ﻿@page "/InsertCategory"
+@using Admin.Services.Category
 @using Dto.Models.DtoCategory
 @using Dto.Models.DtoUploadFile
-@using System.Net.Http.Headers
-@using Newtonsoft.Json
 @inject SweetAlertService Swal
 @inject NavigationManager NavManager
 @inject IToastMessage JS
 @inject IRootApi<ResponseApiEntity<AddCategory>> RootApiAddCategory
 @inject IRootApi<ResponseApiEntities<ResultCategory>> RootApiResultCategorys
 @inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+@inject CategoryService _CategoryService
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
 
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
@@ -29,7 +29,7 @@
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="addCategory" OnValidSubmit="Add" FormName="AddForm">
+    <EditForm Model="addCategory" OnValidSubmit="AddAsync" FormName="AddForm">
         <DataAnnotationsValidator />
 
         <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -58,7 +58,7 @@
 
                         <CustomLabel ForId="category-parent" For="@(() => addCategory.ParentID1)"></CustomLabel>
                         <ValidationMessage For="@(() => addCategory.ParentID1)" class="validate" />
-                        <InputSelect @bind-Value="addCategory.ParentID1" @bind-Value:after="@(async ()=>await GetCategoryParent2())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <InputSelect @bind-Value="addCategory.ParentID1" @bind-Value:after="@(async () => await GetCategoryParent2Async())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <option value="0">بدون والد (دسته اصلی)</option>
                             @foreach (var item in ResultCategorys1)
                             {
@@ -137,12 +137,12 @@
         ResultCategorys1 = resdata.Entities.ToList();
     }
 
-    private async Task GetCategoryParent2()
+    private async Task GetCategoryParent2Async()
     {
         var resdata = await RootApiResultCategorys.RunMethodApi($"Categorys/ParentID?ParentID={addCategory.ParentID1}", null, method: Method.Get);
         ResultCategorys2 = resdata.Entities.ToList();
     }
-    private async Task Add()
+    private async Task AddAsync()
     {
 
 

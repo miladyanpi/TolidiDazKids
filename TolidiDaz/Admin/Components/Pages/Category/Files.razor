@@ -1,10 +1,11 @@
 ﻿@page "/CategoryFiles"
+@using Admin.Services.Category
 @using Dto.Models.DtoCategory
-@using static Dto.Enum.EnumConstant
 @inject SweetAlertService Swal
 @inject ILocalStorageService localStorageService
 @inject NavigationManager NavManager
 @inject IRootApi<ResponseApiEntity<UpdateCategory>> RootApiUpdateCategory
+@inject CategoryService _CategoryService
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
 
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
@@ -38,23 +39,23 @@
         NavManager.NavigateTo("/Category");
     }
 
-    private async Task AddToListImages(List<ResultUploadFile> resultUploadFiles)
-    {
-        ResultUploadImages.AddRange(resultUploadFiles);
-        if (ResultUploadImages != null)
-        {
-            UpdateJsonFile updateJsonFile = new UpdateJsonFile
-            {
-                ID = updateCategory.ID,
-                JsonPicture = JsonConvert.SerializeObject(ResultUploadImages),
-                EnumJsonImageFileVideo = EnumJsonImageFileVideo.Image
+    // private async Task AddToListImages(List<ResultUploadFile> resultUploadFiles)
+    // {
+    //     ResultUploadImages.AddRange(resultUploadFiles);
+    //     if (ResultUploadImages != null)
+    //     {
+    //         UpdateJsonFile updateJsonFile = new UpdateJsonFile
+    //         {
+    //             ID = updateCategory.ID,
+    //             JsonPicture = JsonConvert.SerializeObject(ResultUploadImages),
+    //             EnumJsonImageFileVideo = EnumJsonImageFileVideo.Image
 
-            };
-            var Result = await RootApiUpdateCategory.RunMethodApi("Categorys/UpdateJsonFile", updateJsonFile, method: Method.Patch);
-        }
+    //         };
+    //         var Result = await RootApiUpdateCategory.RunMethodApi("Categorys/UpdateJsonFile", updateJsonFile, method: Method.Patch);
+    //     }
 
 
-    }
+    // }
     protected async override Task OnInitializedAsync()
     {
         resdataEdit = await RootApiUpdateCategory.RunMethodApi($"Categorys/{ID}", null, method: Method.Get);
@@ -73,16 +74,16 @@
     //     resdataEdit.Entity.JsonPicture = JsonConvert.SerializeObject(resultUploadImages);
     //     var Result = await RootApiUpdateCategory.RunMethodApi("Categorys", resdataEdit.Entity, method: Method.Patch);
     // }
-    private async Task DeleteImage(List<ResultUploadFile> resultUploadImages)
-    {
-        UpdateJsonFile updateJsonFile = new UpdateJsonFile
-        {
-            ID = updateCategory.ID,
-            JsonPicture = JsonConvert.SerializeObject(resultUploadImages),
-            EnumJsonImageFileVideo = EnumJsonImageFileVideo.Image
+    // private async Task DeleteImage(List<ResultUploadFile> resultUploadImages)
+    // {
+    //     UpdateJsonFile updateJsonFile = new UpdateJsonFile
+    //     {
+    //         ID = updateCategory.ID,
+    //         JsonPicture = JsonConvert.SerializeObject(resultUploadImages),
+    //         EnumJsonImageFileVideo = EnumJsonImageFileVideo.Image
 
-        };
-        var Result = await RootApiUpdateCategory.RunMethodApi("Categorys/UpdateJsonFile", updateJsonFile, method: Method.Patch);
-    }
+    //     };
+    //     var Result = await RootApiUpdateCategory.RunMethodApi("Categorys/UpdateJsonFile", updateJsonFile, method: Method.Patch);
+    // }
 }
   

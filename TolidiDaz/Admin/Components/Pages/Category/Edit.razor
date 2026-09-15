@@ -1,15 +1,17 @@
 ﻿@page "/UpdateCategory"
+@using Admin.Services.Category
 @using Dto.Models.DtoCategory
 @using Dto.Models.DtoUploadFile
-@using System.Net.Http.Headers
-@using Newtonsoft.Json
 @inject SweetAlertService Swal
-@inject NavigationManager NavManager
 @inject IToastMessage JS
+@inject NavigationManager NavManager
 @inject IRootApi<ResponseApiEntity<UpdateCategory>> RootApiUpdateCategory
 @inject IRootApi<ResponseApiEntities<ResultCategory>> RootApiResultCategorys
 @inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
+@inject CategoryService _CategoryService
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+
+
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
     <!-- header page -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
@@ -28,7 +30,7 @@
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="updateCategory" OnValidSubmit="Update" FormName="UpdateForm">
+    <EditForm Model="updateCategory" OnValidSubmit="UpdateAsync" FormName="UpdateForm">
         <DataAnnotationsValidator />
 
         <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -58,7 +60,7 @@
 
                         <CustomLabel ForId="category-parent" For="@(() => updateCategory.ParentID1)"></CustomLabel>
                         <ValidationMessage For="@(() => updateCategory.ParentID1)" class="validate" />
-                        <InputSelect @bind-Value="updateCategory.ParentID1" @bind-Value:after="@(async ()=>await GetCategoryParent2())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <InputSelect @bind-Value="updateCategory.ParentID1" @bind-Value:after="@(async ()=>await GetCategoryParent2Async())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <option value="0">بدون والد (دسته اصلی)</option>
                             @foreach (var item in ResultCategorys1)
                             {
@@ -135,7 +137,7 @@
         ResultCategorys1 = resdata.Entities.ToList();
     }
 
-    private async Task GetCategoryParent2()
+    private async Task GetCategoryParent2Async()
     {
         var resdata = await RootApiResultCategorys.RunMethodApi($"Categorys/ParentID?ParentID={updateCategory.ParentID1}", null, method: Method.Get);
         ResultCategorys2 = resdata.Entities.ToList();
@@ -152,11 +154,11 @@
     protected override async Task OnParametersSetAsync()
     {
 
-        await GetData();
+        await GetUpdateDataAsync();
 
     }
 
-    private async Task Update()
+    private async Task UpdateAsync()
     {
         if (updateCategory.ParentID1 > 0 && updateCategory.ParentID2 > 0)
             updateCategory.ParentID = updateCategory.ParentID2;
@@ -181,13 +183,13 @@
         }
 
     }
-    public async Task GetData()
-    {
-        var resdataEdit = await RootApiUpdateCategory.RunMethodApi($"Categorys/{ID}", null, method: Method.Get);
-        updateCategory = resdataEdit.Entity;
-        updateCategory.ParentID1 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID > 0 ? updateCategory.ParentResultCategory.ParentID : updateCategory.ParentResultCategory.ID;
-        await GetCategoryParent2();
+   public async Task GetUpdateDataAsync()
+   {
+       var resdataEdit = await RootApiUpdateCategory.RunMethodApi($"Categorys/{ID}", null, method: Method.Get);
+       updateCategory = resdataEdit.Entity;
+       updateCategory.ParentID1 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID > 0 ? updateCategory.ParentResultCategory.ParentID : updateCategory.ParentResultCategory.ID;
+       await GetCategoryParent2Async();
 
-    }
+   }
 }
 
