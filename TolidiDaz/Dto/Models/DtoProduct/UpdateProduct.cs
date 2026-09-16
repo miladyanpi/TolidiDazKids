@@ -1,5 +1,6 @@
 ﻿using Dto.Attributes;
 using Dto.Models.Base;
+using Dto.Models.DtoCategory;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using static Dto.Enum.EnumConstant;
@@ -39,6 +40,7 @@ namespace  Dto.Models.DtoProduct
         public string? Description { get; set; }
         [DisplayName("تصویر")]
         public string? JsonPicture { get; set; }
+        public ResultCategory? ResultCategory { get; set; }
 
     }
 }

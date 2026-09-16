@@ -30,7 +30,6 @@
                     <div>
                         <CustomLabel ForId="category-name" For="@(() => _CategoryService.updateCategory.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => _CategoryService.updateCategory.Title)" class="validate" />
-                        @* <label for="category-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام دسته‌بندی*</label> *@
                         <InputText id="category-name" @bind-Value="_CategoryService.updateCategory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
 
@@ -124,11 +123,10 @@
     {
         await InvokeAsync(StateHasChanged);
     }
-    protected override async Task OnParametersSetAsync()
+  
+    public void Dispose()
     {
-       
-
+        _CategoryService.OnChange -= HandleStateChange;
     }
-
 }
 

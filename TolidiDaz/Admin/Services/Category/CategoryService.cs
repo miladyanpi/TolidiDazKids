@@ -24,7 +24,8 @@ namespace Admin.Services.Category
     {
         public UpdateCategory? updateCategory { get; set; } = new();
         public AddCategory? addCategory { get; set; } = new() { 
-        Visible=true
+        Visible=true,
+        
         };
         public ResultCategory resultCategory { get; set; } = new();
         public List<ResultCategory>? ResultCategorys = new List<ResultCategory>();
@@ -58,6 +59,10 @@ namespace Admin.Services.Category
                     ResultCategorys1 = resdata.Entities.ToList();
                     NotifyStateChanged();
                 }
+                else
+                {
+                    ResultCategorys1 = new();
+                }
             }
             catch (Exception ex)
             {
@@ -72,6 +77,10 @@ namespace Admin.Services.Category
                 NotifyStateChanged();
 
             }
+            else
+            {
+                ResultCategorys2 = new();
+            }
         }
         public void GetCategoryParent3InAdd()
         {
@@ -82,6 +91,10 @@ namespace Admin.Services.Category
                 NotifyStateChanged();
 
             }
+            else
+            {
+                ResultCategorys3 = new();
+            }
         }
         public void GetCategoryParent2InUpdate()
         {
@@ -91,6 +104,11 @@ namespace Admin.Services.Category
                 ResultCategorys2 = q.ResultCategorys;
                 updateCategory.ParentID2 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID > 0 ? updateCategory.ParentResultCategory.ID : 0;
 
+            }
+            else
+            {
+                ResultCategorys2 = new();
+                updateCategory.ParentID2 = null;
             }
         }
         public async Task DeleteAsync(int ID)

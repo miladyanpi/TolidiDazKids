@@ -1,10 +1,6 @@
-﻿using Admin.Services;
-using Admin.Services.BaseShareService;
-using Admin.Services.Category;
+﻿using Admin.Services.BaseShareService;
 using CurrieTechnologies.Razor.SweetAlert2;
-using Dto.DtoPaginagion;
 using Dto.Enum;
-using Dto.Models;
 using Dto.Models.Constant;
 using Dto.Models.DtoProductFeature;
 using Dto.Models.DtoProductFeatureValue;
@@ -12,7 +8,6 @@ using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace Admin.Services.ProductFeature
 {
@@ -53,10 +48,11 @@ namespace Admin.Services.ProductFeature
             {
             }
         }
-        public async Task GetAllDataAsync()
+        public async Task<List<AddProductFeatureValue>> GetAllDataAsync()
         {
             try
             {
+                AddProductFeatureValues.Clear();
                 var resdata = await _RootApiResultProductFeatures.RunMethodApi($"ProductFeatures/All/{CategoryID}", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
@@ -76,6 +72,8 @@ namespace Admin.Services.ProductFeature
             catch (Exception ex)
             {
             }
+            return AddProductFeatureValues;
+
         }
        
         public async Task DeleteAsync(int ID)
@@ -166,6 +164,16 @@ namespace Admin.Services.ProductFeature
         {
             try
             {
+                if (updateProductFeature.CategoryID is null ||updateProductFeature.CategoryID==0)
+                {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = "دسته بندی سطح 2 را انتخاب کنید",
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
+                }
                 var resdataEdit = await RootApiUpdateProductFeature.RunMethodApi("ProductFeatures", updateProductFeature, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
