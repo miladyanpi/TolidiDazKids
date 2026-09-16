@@ -1,18 +1,17 @@
-﻿using Admin.Components.Pages.Component;
-using Admin.Services;
+﻿using Admin.Services;
 using Admin.Services.BaseShareService;
 using CurrieTechnologies.Razor.SweetAlert2;
+using Dto.DtoPaginagion;
 using Dto.Enum;
+using Dto.Models;
 using Dto.Models.Constant;
 using Dto.Models.DtoCity;
 using Dto.Models.DtoProvince;
-using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace AdminPanel.Services.City
+namespace Admin.Services.City
 {
 
     public class CityService(
@@ -21,15 +20,13 @@ namespace AdminPanel.Services.City
         IRootApi<ResponseApiEntity<AddCity>> RootApiAddCity,
         IRootApi<ResponseApiEntity<UpdateCity>> RootApiUpdateCity,
         IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces,
-        IRootApi<ResponseApiEntities<ResultCity>> RootApiGet,
-        IRootApi<ResponseApiEntity<ResultCity>> RootApiDelete,
-        IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFiles,
         IJSRuntime JS,
         SweetAlertService Swal
         ) :BaseService
     {
         public UpdateCity? updateCity { get; set; } = new();
         public AddCity? addCity { get; set; } = new();
+        public ResultCity resultCity { get; set; } = new();
         public List<ResultCity>? ResultCitys= new List<ResultCity>();
         public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
@@ -41,6 +38,21 @@ namespace AdminPanel.Services.City
                 {
                     ResultCitys = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
+                    NotifyStateChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        public async Task GetAllDataAsync(string? SearchText = "")
+        {
+            try
+            {
+                var resdata = await _RootApiResultCitys.RunMethodApi($"Citys/All", null, method: Method.Get);
+                if (resdata != null && resdata.Status == ResultMessageApi.Success)
+                {
+                    ResultCitys = resdata.Entities.ToList();
                     NotifyStateChanged();
                 }
             }
