@@ -1,12 +1,10 @@
 ﻿@page "/InsertCity"
+@using AdminPanel.Services.City
 @using Dto.Models.DtoCity
 @using Dto.Models.DtoProvince
-
-@inject SweetAlertService Swal
 @inject NavigationManager NavManager
-@inject IToastMessage JS
-@inject IRootApi<ResponseApiEntity<AddCity>> RootApiAddCity
 @inject IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces
+@inject CityService _CityService
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
 
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
@@ -27,8 +25,9 @@
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="addCity" OnValidSubmit="Add" FormName="AddForm">
+    <EditForm Model="addCity" OnValidSubmit="_CityService.AddAsync" FormName="AddForm">
         <DataAnnotationsValidator />
+
         <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
             <div class="px-6 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
@@ -39,35 +38,25 @@
             <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Category Info -->
                 <div class="space-y-4">
-
                     <div>
-
                         <CustomLabel ForId="City-parent" For="@(() => addCity.ProvinceID)"></CustomLabel>
                         <ValidationMessage For="@(() => addCity.ProvinceID)" class="validate" />
-                        <InputSelect @bind-Value="addCity.ProvinceID"  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <InputSelect @bind-Value="addCity.ProvinceID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             @foreach (var item in ResultProvinces)
                             {
                                 <option value="@item.ID">@item.Title</option>
                             }
                         </InputSelect>
-
                     </div>
                     <div>
                         <CustomLabel ForId="City-name" For="@(() => addCity.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => addCity.Title)" class="validate" />
                         <InputText id="City-name" @bind-Value="addCity.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
-              
-                    
-                 
-
                 </div>
-
 
                 <!-- Settings -->
                 <div class="space-y-4">
-                   
-                  
                     <div class="mb-4">
                         <CustomLabel For="@(() => addCity.Visible)"></CustomLabel>
 
@@ -76,21 +65,21 @@
                         </InputRadioGroup>
                         <ValidationMessage For="@(() => addCity.Visible)" class="validate" />
                     </div>
-
                 </div>
             </div>
+
             <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
                 <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
                     ذخیره
                 </button>
-
             </div>
-        </div>
 
+        </div>
     </EditForm>
 </main>
+
 @code {
-    private AddCity? addCity { get; set; } = new() { Visible = true};
+    private AddCity? addCity { get; set; } = new() { Visible = true };
     private List<ResultProvince>? ResultProvinces { get; set; } = new();
     protected async override Task OnInitializedAsync()
     {
@@ -98,35 +87,6 @@
         ResultProvinces = resdata.Entities.ToList();
         if (ResultProvinces.Count > 0)
             addCity.ProvinceID = ResultProvinces[0].ID;
-    }
-
-    private async Task Add()
-    {
-
-        var resdata = await RootApiAddCity.RunMethodApi("Citys", addCity, method: Method.Post);
-
-        if (resdata.Status == ResultMessageApi.Success)
-        {
-
-            await JS.CallAlertToast(resdata.Message);
-            addCity = new AddCity
-            {
-                Visible=true
-            };
-          
-        }
-        else
-        {
-            var result2 = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Title = "پیام",
-                Text = resdata.Message,
-                Icon = resdata.Status,
-                ShowConfirmButton = true,
-            });
-        }
-
-
     }
     private void GoBack()
     {

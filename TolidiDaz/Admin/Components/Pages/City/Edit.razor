@@ -1,15 +1,10 @@
 ﻿@page "/UpdateCity"
-@using Dto.Models.DtoAccount
+@using AdminPanel.Services.City
 @using Dto.Models.DtoCity
-@using Dto.Models.DtoUploadFile
-@using System.Net.Http.Headers
-@using Newtonsoft.Json
-@inject SweetAlertService Swal
 @inject NavigationManager NavManager
-@inject IToastMessage JS
-@inject IRootApi<ResponseApiEntity<UpdateCity>> RootApiUpdateCity
-
+@inject CityService _CityService
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
     <!-- header page -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
@@ -28,7 +23,7 @@
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="updateCity" OnValidSubmit="Update" FormName="UpdateForm">
+    <EditForm Model="updateCity" OnValidSubmit="_CityService.UpdateAsync" FormName="UpdateForm">
         <DataAnnotationsValidator />
         <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
             <div class="px-6 border-b border-gray-200 dark:border-gray-700">
@@ -74,46 +69,16 @@
     </EditForm>
 </main>
 @code {
-    private UpdateCity? updateCity { get; set; } = new() { Visible = true };
+     private UpdateCity? updateCity { get; set; } = new() { Visible = true };
     [SupplyParameterFromQuery]
     public int ID { get; set; }
     protected async override Task OnInitializedAsync()
     {
-        await GetData();
-
-    }
-    private async Task Update()
-    {
-        var resdata = await RootApiUpdateCity.RunMethodApi("Citys", updateCity, method: Method.Patch);
-        if (resdata.Status == ResultMessageApi.Success)
-        {
-            await JS.CallAlertToast(resdata.Message);
-            
-        }
-        else
-        {
-            var result2 = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Title = "پیام",
-                Text = resdata.Message,
-                Icon = resdata.Status,
-                ShowConfirmButton = true,
-            });
-        }
-
-
-    }
-    public async Task GetData()
-    {
-        var resdataEdit = await RootApiUpdateCity.RunMethodApi($"Citys/{ID}", null, method: Method.Get);
-        updateCity = resdataEdit.Entity;
-
-
+        await _CityService.GetUpdateDataAsync();
     }
     private void GoBack()
     {
         NavManager.NavigateTo("/City");
     }
-  
 }
 
