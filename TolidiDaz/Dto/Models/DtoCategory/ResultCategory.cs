@@ -20,7 +20,7 @@ namespace  Dto.Models.DtoCategory
         public string? JsonPicture { get; set; }
         [DisplayName("ترتیب")]
         public int Order { get; set; }
-        [DisplayName("تعداد")]
+        [DisplayName("تعداد زیردسته")]
         public int Count { get; set; }
         public  List<ResultUploadFile>? ResultUploadFiles { get; set; }
         public List<ResultCategory>? ResultCategorys { get; set; }=new List<ResultCategory>();  

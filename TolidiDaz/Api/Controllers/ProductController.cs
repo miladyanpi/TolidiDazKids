@@ -7,6 +7,7 @@ using Dto.Models.DtoPagination;
 using Dto.Models.DtoProduct;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
+using LinqKit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -154,7 +155,7 @@ namespace Api.Controllers
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("Products/Data")]
-        public async Task<IActionResult> GetProducts([FromBody] PaginationParams @params)
+        public async Task<IActionResult> GetProducts([FromBody] PaginationParams @params,int? CategoryID=null)
         {
             try
             {
@@ -167,6 +168,8 @@ namespace Api.Controllers
                                                                    ));
 
                 Expression<Func<Product, bool>> predicate = x => true;
+                if(CategoryID != null)
+                    predicate= predicate.And(s=>s.CategoryID== CategoryID);
 
                 if (!string.IsNullOrWhiteSpace(@params.SearchText))
                 {
@@ -207,7 +210,7 @@ namespace Api.Controllers
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Products")]
-        public async Task<IActionResult> GetProducts([FromQuery] PaginationParams @params, int? CategoryID = null)
+        public async Task<IActionResult> GetProducts2([FromQuery] PaginationParams @params, int? CategoryID = null)
         {
 
             if (!ModelState.IsValid) return BadRequest();

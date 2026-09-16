@@ -29,6 +29,7 @@ using Dto.Models.DtoProduct;
 using Dto.Models.DtoProduct_CountAction_CostType;
 using Dto.Models.DtoProductComment;
 using Dto.Models.DtoProductFeature;
+using Dto.Models.DtoProductFeatureValue;
 using Dto.Models.DtoProvince;
 using Dto.Models.DtoQuestion;
 using Dto.Models.DtoRawProduct;
@@ -176,6 +177,7 @@ namespace MappingProfile.DtoMappingConfigs
                     Description = x.Parent.Description,
                     Count = x.Parent.Categories.Count(),
                     IdentityCode = x.Parent.IdentityCode,
+
                 } : new ResultCategory(),
                 EditTime = x.EditTime,
 

@@ -16,7 +16,6 @@ namespace Api.Controllers
     public class AuthenticationController(
         IAuthenticationManager _authenticationManager,
         UserManager<Account> _userManager,
-        //UserManager<Account> _userManager,
         IRefreshTokenEntityService _refreshTokenEntity
         ) 
         : ControllerBase
@@ -24,66 +23,78 @@ namespace Api.Controllers
         [HttpPost("auth/Login")]
         public async Task<IActionResult> Login([FromBody] LoginAccount credentials)
         {
-            if (!ModelState.IsValid) return  BadRequest(new ResponseApiEntity<ResultLoginAccount>
-                                                         (entity: new ResultLoginAccount(),
-                                                         statusCode: ResultMessageApi.ErrorCode,
-                                                         status: ResultMessageApi.Error,
-                                                         message: ResultMessageApi.LoginError));
-
-            var Result = await _authenticationManager.ValidateCredentials(credentials);
-            if (Result==null)
-            return BadRequest(new ResponseApiEntity<ResultLoginAccount>
-                                                         (entity: new ResultLoginAccount(),
-                                                         statusCode: ResultMessageApi.ErrorCode,
-                                                         status: ResultMessageApi.Error,
-                                                         message: ResultMessageApi.LoginError));
-
-
-            var Token = await _authenticationManager.CreateToken(Result,isRefreshToken: false);
-            var RefreshToken = await _authenticationManager.CreateToken(Result, isRefreshToken:true);
-            var deviceId = Guid.NewGuid().ToString();
-            ResultLoginAccount resultLoginAccount = new ResultLoginAccount
+            try
             {
-                Token = Token,
-                RefreshToken=RefreshToken,
-                DeviceID= deviceId,
-                TokenExpired = DateTimeOffset.UtcNow.AddHours(2).ToUnixTimeSeconds(),
-            };
-            var newRefreshEntity = new RefreshTokenEntity
-            {
-                Token = RefreshToken,
-                UserId = Result.Id,
-                IsRevoked= false,
-                DeviceId= deviceId,
-                ExpiryDate = DateTime.UtcNow.AddDays(1),
-                CreatedAt = DateTime.UtcNow,
-                RemoteIpAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(DateFunctions.GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(DateFunctions.GetNewDate()),
-            };
 
-            var users = await _refreshTokenEntity.GetAllAsync(s => s.UserId== Result.Id);
-            foreach(var item in  users)
-            {
-                if(item.ExpiryDate < DateTime.UtcNow )
+
+                if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultLoginAccount>
+                                                             (entity: new ResultLoginAccount(),
+                                                             statusCode: ResultMessageApi.ErrorCode,
+                                                             status: ResultMessageApi.Error,
+                                                             message: ResultMessageApi.LoginError));
+
+                var Result = await _authenticationManager.ValidateCredentials(credentials);
+                if (Result == null)
+                    return BadRequest(new ResponseApiEntity<ResultLoginAccount>
+                                                                 (entity: new ResultLoginAccount(),
+                                                                 statusCode: ResultMessageApi.ErrorCode,
+                                                                 status: ResultMessageApi.Error,
+                                                                 message: ResultMessageApi.LoginError));
+
+
+                var Token = await _authenticationManager.CreateToken(Result, isRefreshToken: false);
+                var RefreshToken = await _authenticationManager.CreateToken(Result, isRefreshToken: true);
+                var deviceId = Guid.NewGuid().ToString();
+                ResultLoginAccount resultLoginAccount = new ResultLoginAccount
                 {
-                    await _refreshTokenEntity.DeleteAsync(item.ID);
-                }
-                else
+                    Token = Token,
+                    RefreshToken = RefreshToken,
+                    DeviceID = deviceId,
+                    TokenExpired = DateTimeOffset.UtcNow.AddHours(2).ToUnixTimeSeconds(),
+                };
+                var newRefreshEntity = new RefreshTokenEntity
                 {
-                    item.IsRevoked = true;
-                    await _refreshTokenEntity.UpdateAsync(item);
+                    Token = RefreshToken,
+                    UserId = Result.Id,
+                    IsRevoked = false,
+                    DeviceId = deviceId,
+                    ExpiryDate = DateTime.UtcNow.AddDays(1),
+                    CreatedAt = DateTime.UtcNow,
+                    RemoteIpAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString(),
+                    RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+                    EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+                    RegisterDate = DateFunctions.ConvertDateStringToInt(DateFunctions.GetNewDate()),
+                    EditDate = DateFunctions.ConvertDateStringToInt(DateFunctions.GetNewDate()),
+                };
+
+                var users = await _refreshTokenEntity.GetAllAsync(s => s.UserId == Result.Id);
+                foreach (var item in users)
+                {
+                    if (item.ExpiryDate < DateTime.UtcNow)
+                    {
+                        await _refreshTokenEntity.DeleteAsync(item.ID);
+                    }
+                    else
+                    {
+                        item.IsRevoked = true;
+                        await _refreshTokenEntity.UpdateAsync(item);
+                    }
                 }
+                await _refreshTokenEntity.AddAsync(newRefreshEntity);
+                return Ok(new ResponseApiEntity<ResultLoginAccount>
+                                                            (entity: resultLoginAccount,
+                                                            statusCode: ResultMessageApi.SuccessCode,
+                                                            status: ResultMessageApi.Success,
+                                                            message: ResultMessageApi.LoginOk));
             }
-            await _refreshTokenEntity.AddAsync(newRefreshEntity);
-            return Ok(new ResponseApiEntity<ResultLoginAccount>
-                                                        (entity: resultLoginAccount,
-                                                        statusCode: ResultMessageApi.SuccessCode,
-                                                        status: ResultMessageApi.Success,
-                                                        message: ResultMessageApi.LoginOk));
-
+            catch(Exception ex)
+            {
+                return BadRequest(new ResponseApiEntity<ResultLoginAccount>
+                                                                (entity: new ResultLoginAccount(),
+                                                                statusCode: ResultMessageApi.ErrorCode,
+                                                                status: ResultMessageApi.Error,
+                                                                message: "هنگام ورود خطایی رخ داده، مجددا سعی کنید"));
+            }
 
         }
         [HttpGet("SecurityStamp/{SecurityStamp}")]

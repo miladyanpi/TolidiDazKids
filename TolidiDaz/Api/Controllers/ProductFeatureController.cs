@@ -5,6 +5,7 @@ using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoProductFeature;
 using Dto.Models.ResponseApi;
+using LinqKit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,11 @@ namespace Api.Controllers
                                                            statusCode: ResultMessageApi.ErrorCode,
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.AddError));
-
+            if (model.CategoryID is null || model.CategoryID==0) return BadRequest(new ResponseApiEntity<AddProductFeature>
+                                                          (entity: null,
+                                                          statusCode: ResultMessageApi.ErrorCode,
+                                                          status: ResultMessageApi.Error,
+                                                          message: "دسته بندی را انتخاب کنید"));
             var story = _mapper.Map<AddProductFeature, ProductFeature>(model);
             int id = await _ProductFeatureService.AddAsync(story);
 
@@ -101,7 +106,7 @@ namespace Api.Controllers
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("ProductFeatures/Data")]
-        public async Task<IActionResult> GetProductFeatures([FromBody] PaginationParams @params)
+        public async Task<IActionResult> GetProductFeatures([FromBody] PaginationParams @params,int? CategoryID=null)
         {
             try
             {
@@ -115,6 +120,7 @@ namespace Api.Controllers
 
                 Expression<Func<ProductFeature, bool>> predicate = x => true;
 
+                predicate= predicate.And(s=>s.CategoryID== CategoryID);
                 if (!string.IsNullOrWhiteSpace(@params.SearchText))
                 {
                     var search = @params.SearchText;
@@ -154,7 +160,7 @@ namespace Api.Controllers
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("ProductFeatures")]
-        public async Task<IActionResult> GetProductFeatures([FromQuery] PaginationParams @params,int? CategoryID=null)
+        public async Task<IActionResult> GetProductFeatures2([FromQuery] PaginationParams @params,int? CategoryID=null)
         {
             if (!ModelState.IsValid) return BadRequest();
 

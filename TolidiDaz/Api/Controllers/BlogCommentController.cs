@@ -5,6 +5,7 @@ using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoBlogComment;
 using Dto.Models.ResponseApi;
+using LinqKit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -109,7 +110,7 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.DeleteError));
         }
         [HttpPost("BlogComments/Data")]
-        public async Task<IActionResult> GetBlogComments([FromBody] PaginationParams @params)
+        public async Task<IActionResult> GetBlogComments([FromBody] PaginationParams @params,string? guidBlog)
         {
             try
             {
@@ -120,9 +121,11 @@ namespace Api.Controllers
                                                                     message: ResultMessageApi.GetError,
                                                                     countAllRecordTable: 0
                                                                    ));
+                var blog = await _BlogService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == guidBlog);
 
-                Expression<Func<BlogComment, bool>> predicate = x => true;
-
+                Expression <Func<BlogComment, bool>> predicate = x => true;
+                if (blog != null)
+                    predicate = predicate.And(x => (x.BlogID==blog.ID));
                 if (!string.IsNullOrWhiteSpace(@params.SearchText))
                 {
                     var search = @params.SearchText;

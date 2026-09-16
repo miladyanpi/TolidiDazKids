@@ -9,8 +9,13 @@ using Admin.Services.GroupBlog;
 using Admin.Services.Personel;
 using Admin.Services.Position;
 using Admin.Services.PricingRule;
+using Admin.Services.Product;
 using Admin.Services.Product_CountAction_CostType;
 using Admin.Services.ProductFeature;
+using Admin.Services.ProductFeatureValue;
+
+
+//using Admin.Services.ProductFeature;
 using Admin.Services.RawProductStore_Product;
 using Admin.Services.Search;
 using Admin.Services.Team;
@@ -46,6 +51,8 @@ builder.Services.AddScoped<AboutService>();
 builder.Services.AddScoped<GroupBlogService>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<BlogCommentService>();
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ProductFeatureValueService>();
 builder.Services.AddScoped<TeamService>();
 
 builder.Services.AddScoped(typeof(IRootApi<>), typeof(RootApi<>));

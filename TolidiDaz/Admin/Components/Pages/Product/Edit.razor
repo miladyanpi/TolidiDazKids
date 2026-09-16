@@ -1,4 +1,4 @@
-﻿@page "/UpdateProduct"
+﻿@* @page "/UpdateProduct"
 @using Admin.Services.Category
 @using Dto.Models.DtoCategory
 @using Dto.Models.DtoProduct
@@ -159,38 +159,8 @@
                 </div>
             </div>
 
-            <!-- Right column - Publish and attributes -->
             <div class="space-y-6">
-                <!-- Publish card -->
-                @*   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">انتشار</h3>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">وضعیت انتشار</label>
-                            <select class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                <option>منتشر شده</option>
-                                <option>پیش‌نویس</option>
-                                <option>در انتظار بررسی</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="publish-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">تاریخ انتشار</label>
-                            <input type="datetime-local" id="publish-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        </div>
-
-                        <div class="pt-4">
-                            <button class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                </svg>
-                                ذخیره و انتشار محصول
-                            </button>
-                        </div>
-                    </div>
-                </div>
- *@
+        
                 <!-- Attributes card -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
                     <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">ویژگی‌های محصول</h3>
@@ -207,10 +177,6 @@
                                     <ValidationMessage For="@(() => UpdateProductFeatureValues[k].Value)" class="validate" />
                                     <InputText id="product-sku" @bind-Value="UpdateProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                                 </div>
-                                @*  <div>
-                                <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@item.ResultProductFeature.Title</label>
-                                <input type="number" id="product-weight" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="@item.ResultProductFeature.Title">
-                            </div> *@
                             }
 
 
@@ -228,10 +194,7 @@
                                     <ValidationMessage For="@(() => AddProductFeatureValues[k].Value)" class="validate" />
                                     <InputText id="product-sku" @bind-Value="AddProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                                 </div>
-                                @*  <div>
-                                <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@item.ResultProductFeature.Title</label>
-                                <input type="number" id="product-weight" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="@item.ResultProductFeature.Title">
-                            </div> *@
+                             
                             }
 
 
@@ -240,35 +203,6 @@
 
                 </div>
 
-                <!-- Shipping card -->
-                @*       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">حمل و نقل</h3>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">نحوه ارسال</label>
-                            <div class="space-y-2">
-                                <div class="flex items-center">
-                                    <input id="shipping-standard" name="shipping-method" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
-                                    <label for="shipping-standard" class="mr-2 block text-sm text-gray-900 dark:text-gray-300">ارسال عادی</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="shipping-express" name="shipping-method" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
-                                    <label for="shipping-express" class="mr-2 block text-sm text-gray-900 dark:text-gray-300">ارسال سریع</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="shipping-free" name="shipping-method" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
-                                    <label for="shipping-free" class="mr-2 block text-sm text-gray-900 dark:text-gray-300">ارسال رایگان</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="shipping-cost" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">هزینه ارسال (تومان)</label>
-                            <input type="number" id="shipping-cost" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="هزینه ارسال">
-                        </div>
-                    </div>
-                </div> *@
             </div>
         </div>
     </EditForm>
@@ -427,3 +361,4 @@
     }
 }
 
+ *@

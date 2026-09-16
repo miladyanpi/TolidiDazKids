@@ -1,4 +1,4 @@
-﻿@page "/InsertProduct_CountAction_CostType"
+﻿@* @page "/InsertProduct_CountAction_CostType"
 @using Admin.Services.Category
 @using Dto.Models.DtoProduct_CountAction_CostType
 @using static Dto.Enum.EnumConstant
@@ -94,13 +94,7 @@
                 </div>
                 <!-- Settings -->
                 <div class="space-y-4">
-               @*      <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">وضعیت*</label>
-                        <InputRadioGroup @bind-Value="addProduct_CountAction_CostType.Visible" Name="status">
-                            <InsertUpdateVisible />
-                        </InputRadioGroup>
-                        <ValidationMessage For="@(() => addProduct_CountAction_CostType.Visible)" class="validate" />
-                    </div> *@
+          
                     <div>
                         <CustomLabel ForId="Product_CountAction_CostType-Description" For="@(() => addProduct_CountAction_CostType.Description)"></CustomLabel>
                         <ValidationMessage For="@(() => addProduct_CountAction_CostType.Description)" class="validate" />
@@ -162,3 +156,4 @@
     }
 }
 
+ *@
