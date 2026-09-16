@@ -47,7 +47,7 @@ namespace Admin.Services.Product
                 }
                 else
                 {
-                     resdata = await _RootApiResultProducts.RunMethodApi($"Products/Data&CategoryID={CategoryID}", SetPaging(SearchText), method: Method.Post);
+                     resdata = await _RootApiResultProducts.RunMethodApi($"Products/Data?CategoryID={CategoryID}", SetPaging(SearchText), method: Method.Post);
 
                 }
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)

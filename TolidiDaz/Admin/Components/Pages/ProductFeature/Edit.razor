@@ -1,4 +1,4 @@
-﻿@page "/UpdateProductFeature"
+﻿@page "/UpdateProductFeature/{guid}"
 @using Admin.Services.Category
 @using Admin.Services.ProductFeature
 @inject NavigationManager NavManager
@@ -84,14 +84,25 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        _ProductFeatureService.OnChange += HandleStateChange;
+        _CategoryService.OnChange += HandleStateChange;
+        await _CategoryService.GetAllDataAsync();
         bool isValid = Guid.TryParse(guid, out Guid gid);
         if (isValid)
         {
             _ProductFeatureService.guid = guid;
             await _ProductFeatureService.GetUpdateDataAsync();
         }
-
+    }
+    private async void HandleStateChange()
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
+    public void Dispose()
+    {
+        _ProductFeatureService.OnChange -= HandleStateChange;
+        _CategoryService.OnChange -= HandleStateChange;
+    }
     
 }

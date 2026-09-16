@@ -2200,6 +2200,7 @@ namespace MappingProfile.DtoMappingConfigs
                 CategoryID = x.CategoryID,
                 Title = x.Title,
                 Visible = x.Visible,
+                IdentityCode = x.IdentityCode,
 
                 RegisterTime = x.RegisterTime,
                 EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
@@ -2214,6 +2215,7 @@ namespace MappingProfile.DtoMappingConfigs
                 CategoryID = x.CategoryID,
 
                 Visible = x.Visible,
+                IdentityCode = x.IdentityCode,
 
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,
@@ -2228,6 +2230,7 @@ namespace MappingProfile.DtoMappingConfigs
                 Title = x.Title,
                 Visible = x.Visible,
 
+                IdentityCode = x.IdentityCode,
 
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,
@@ -2267,7 +2270,7 @@ namespace MappingProfile.DtoMappingConfigs
                 ProductID = x.ProductID,
                 Value = x.Value,
                 Visible = x.Visible,
-
+                IdentityCode= x.IdentityCode,
                 RegisterTime = x.RegisterTime,
                 EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
                 RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
@@ -2281,6 +2284,7 @@ namespace MappingProfile.DtoMappingConfigs
                 ProductID = x.ProductID,
                 Value = x.Value,
                 Visible = x.Visible,
+                IdentityCode = x.IdentityCode,
 
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,
@@ -2303,6 +2307,7 @@ namespace MappingProfile.DtoMappingConfigs
                 ProductID = x.ProductID,
                 Value = x.Value,
                 Visible = x.Visible,
+                IdentityCode = x.IdentityCode,
 
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,

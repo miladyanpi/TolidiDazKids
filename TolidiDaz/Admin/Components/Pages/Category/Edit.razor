@@ -124,11 +124,10 @@
     {
         await InvokeAsync(StateHasChanged);
     }
-    protected override async Task OnParametersSetAsync()
+  
+    public void Dispose()
     {
-       
-
+        _CategoryService.OnChange -= HandleStateChange;
     }
-
 }
 

@@ -1,10 +1,6 @@
-﻿using Admin.Services;
-using Admin.Services.BaseShareService;
-using Admin.Services.Category;
+﻿using Admin.Services.BaseShareService;
 using CurrieTechnologies.Razor.SweetAlert2;
-using Dto.DtoPaginagion;
 using Dto.Enum;
-using Dto.Models;
 using Dto.Models.Constant;
 using Dto.Models.DtoProductFeature;
 using Dto.Models.DtoProductFeatureValue;
@@ -12,7 +8,6 @@ using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace Admin.Services.ProductFeature
 {
@@ -57,6 +52,7 @@ namespace Admin.Services.ProductFeature
         {
             try
             {
+                AddProductFeatureValues.Clear();
                 var resdata = await _RootApiResultProductFeatures.RunMethodApi($"ProductFeatures/All/{CategoryID}", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
