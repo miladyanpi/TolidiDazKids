@@ -162,6 +162,16 @@ namespace Admin.Services.ProductFeature
         {
             try
             {
+                if (updateProductFeature.CategoryID is null ||updateProductFeature.CategoryID==0)
+                {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = "دسته بندی سطح 2 را انتخاب کنید",
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
+                }
                 var resdataEdit = await RootApiUpdateProductFeature.RunMethodApi("ProductFeatures", updateProductFeature, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {

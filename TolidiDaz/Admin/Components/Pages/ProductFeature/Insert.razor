@@ -94,6 +94,14 @@
                 _ProductFeatureService.addProductFeature.CategoryID = _CategoryService.ResultCategorys2[0].ID;
 
             }
+            else
+            {
+                _ProductFeatureService.addProductFeature.CategoryID = null;
+            }
+        }
+        else
+        {
+            _CategoryService.addCategory.ParentID1 = null;
         }
     }
     private async void HandleStateChange()

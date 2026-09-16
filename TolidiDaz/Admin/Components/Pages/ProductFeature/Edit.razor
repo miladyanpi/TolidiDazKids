@@ -30,8 +30,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
 
-                            <CustomLabel ForId="ProductFeature-category1" For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
-                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( ()=>  _CategoryService.GetCategoryParent2InAdd())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <CustomLabel ForId="ProductFeature-category1" For="@(() => _CategoryService.updateCategory.ParentID1)"></CustomLabel>
+                            <InputSelect @bind-Value="_CategoryService.updateCategory.ParentID1" @bind-Value:after="@( () => GetCategoryParent2InUpdate())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _CategoryService.ResultCategorys1)
                                 {
                                     <option value="@item.ID">@item.Title</option>
@@ -41,8 +41,8 @@
                         </div>
                         <div>
 
-                            <CustomLabel ForId="ProductFeature-category2" For="@(() => _CategoryService.addCategory.ParentID2)"></CustomLabel>
-                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID2"  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <CustomLabel ForId="ProductFeature-category2" For="@(() => _ProductFeatureService.updateProductFeature.CategoryID)"></CustomLabel>
+                            <InputSelect @bind-Value="_ProductFeatureService.updateProductFeature.CategoryID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _CategoryService.ResultCategorys2)
                                 {
                                     <option value="@item.ID">@item.Title</option>
@@ -87,6 +87,7 @@
         _ProductFeatureService.OnChange += HandleStateChange;
         _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
+
         bool isValid = Guid.TryParse(guid, out Guid gid);
         if (isValid)
         {
@@ -104,5 +105,18 @@
         _ProductFeatureService.OnChange -= HandleStateChange;
         _CategoryService.OnChange -= HandleStateChange;
     }
-    
+
+
+    private async Task GetCategoryParent2InUpdate()
+    {
+        _CategoryService.GetCategoryParent2InUpdate();
+        if (_CategoryService.ResultCategorys2.Count>0)
+        {
+            _ProductFeatureService.updateProductFeature.CategoryID = _CategoryService.ResultCategorys2[0].ID;
+        }
+        else
+        {
+            _ProductFeatureService.updateProductFeature.CategoryID = null;
+        }
+    }
 }

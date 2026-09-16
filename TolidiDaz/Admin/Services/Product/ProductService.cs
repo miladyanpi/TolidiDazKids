@@ -12,6 +12,8 @@ using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
 using System.ComponentModel;
+using static Dto.Enum.EnumConstant;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Admin.Services.Product
 {
@@ -21,6 +23,8 @@ namespace Admin.Services.Product
         IRootApi<ResponseApiEntity<ResultProduct>> RootApiResultProduct,
         IRootApi<ResponseApiEntity<AddProduct>> RootApiAddProduct,
         IRootApi<ResponseApiEntity<UpdateProduct>> RootApiUpdateProduct,
+        IRootApi<ResponseApiEntities<AddProductFeatureValue>> RootApiAddProductFeatureValue,
+
         IJSRuntime JS,
         SweetAlertService Swal
         ) :BaseService
@@ -30,7 +34,11 @@ namespace Admin.Services.Product
         public int? CategoryID { get; set; }
 
         public UpdateProduct? updateProduct { get; set; } = new();
-        public AddProduct? addProduct { get; set; } = new();
+        public AddProduct? addProduct { get; set; } = new()
+        {
+            Visible = true,
+            ProductExistStatus= ProductExistStatus.Existent,
+        };
         public ResultProduct resultProduct { get; set; } = new();
         public List<ResultProduct>? ResultProducts= new List<ResultProduct>();
 
@@ -162,7 +170,17 @@ namespace Admin.Services.Product
                 var resdata = await RootApiAddProduct.RunMethodApi("Products", addProduct, method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
+                    //for (int i = 0; i < AddProductFeatureValues.Count; i++)
+                    //{
+                    //    AddProductFeatureValues[i].ProductID = resdata.ID;
+                    //}
+                    //if (AddProductFeatureValues.Count > 0)
+                    //{
+                    //    var resdataProductFeatureValues = await RootApiAddProductFeatureValue.RunMethodApi("ProductFeatureValues/List", AddProductFeatureValues, method: Method.Post);
+                    //    AddProductFeatureValues.Clear();
+                    //}
+
+                    //await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
                     addProduct = new AddProduct
                     {
                         Visible = true,

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.ProductFeatureSrv;
+using ServicesLibrary.Services.ProductFeatureValueSrv;
 using System.Linq.Expressions;
 
 namespace Api.Controllers
@@ -19,6 +20,7 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProductFeatureController(
         IProductFeatureService _ProductFeatureService,
+        IProductFeatureValueService _ProductFeatureValueService,
         IMapper _mapper
         )
         : ControllerBase
@@ -88,6 +90,13 @@ namespace Api.Controllers
         [HttpDelete("ProductFeatures/{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            var q = await _ProductFeatureValueService.GetFirstOrDefaultAsync(s=>s.ProductFeatureID==id);
+            if(q is not null)
+                return BadRequest(new ResponseApiEntity<ResultProductFeature>
+                                                          (entity: new ResultProductFeature(),
+                                                          statusCode: ResultMessageApi.ErrorCode,
+                                                          status: ResultMessageApi.Error,
+                                                          message: ResultMessageApi.NotAllowDeleteError));
 
             var del = await _ProductFeatureService.DeleteAsync(id);
             if (del > 0)

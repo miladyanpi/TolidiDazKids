@@ -212,8 +212,19 @@
                     _ProductService.CategoryID = _CategoryService.ResultCategorys3[0].ID;
 
                 }
-
+                else
+                {
+                    _ProductService.CategoryID = null;
+                }
             }
+            else
+            {
+                _CategoryService.addCategory.ParentID2 = null;
+            }
+        }
+        else
+        {
+            _CategoryService.addCategory.ParentID1 = null;
         }
 
         await _ProductFeatureService.GetAllDataAsync();
