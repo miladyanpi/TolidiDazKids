@@ -48,7 +48,7 @@ namespace Admin.Services.ProductFeature
             {
             }
         }
-        public async Task GetAllDataAsync()
+        public async Task<List<AddProductFeatureValue>> GetAllDataAsync()
         {
             try
             {
@@ -72,6 +72,8 @@ namespace Admin.Services.ProductFeature
             catch (Exception ex)
             {
             }
+            return AddProductFeatureValues;
+
         }
        
         public async Task DeleteAsync(int ID)

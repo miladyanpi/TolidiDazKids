@@ -6,6 +6,10 @@ namespace  Dto.Models.DtoSlider
 {
     public class AddSlider:BaseModel
     {
+        public AddSlider()
+        {
+            Visible = true;
+        }
         [DisplayName("عنوان")]
         [Required(ErrorMessage = "| الزامی است")]
         public string? Title { get; set; }

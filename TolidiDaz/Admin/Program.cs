@@ -18,6 +18,7 @@ using Admin.Services.ProductFeatureValue;
 //using Admin.Services.ProductFeature;
 using Admin.Services.RawProductStore_Product;
 using Admin.Services.Search;
+using Admin.Services.Slider;
 using Admin.Services.Team;
 using Admin.Services.Token;
 using Blazored.LocalStorage;
@@ -50,10 +51,12 @@ builder.Services.AddScoped<SearchService>();
 builder.Services.AddScoped<AboutService>();
 builder.Services.AddScoped<GroupBlogService>();
 builder.Services.AddScoped<BlogService>();
+builder.Services.AddScoped<SliderService>();
 builder.Services.AddScoped<BlogCommentService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductFeatureValueService>();
 builder.Services.AddScoped<TeamService>();
+builder.Services.AddScoped<DisableService>();
 
 builder.Services.AddScoped(typeof(IRootApi<>), typeof(RootApi<>));
 builder.Services.AddScoped<IToastMessage, ToastMessage>();
@@ -64,7 +67,6 @@ builder.Services.AddScoped<AuthenticationStateProvider, AccountAuthentication>()
 
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, BlazorAuthorizationMiddlewareResultHandler>();
 
-builder.Services.AddTransient<DisableService>();
 
 builder.Services.AddAuthorization();
 var app = builder.Build();

@@ -294,6 +294,13 @@ namespace MappingProfile.DtoMappingConfigs
                 RegisterTime = x.RegisterTime,
                 EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
                 EditTime = x.EditTime,
+                ResultCategory=x.Category!=null?new ResultCategory
+                {
+                    ID=x.Category.ID,
+                    Title=x.Category.Title,
+                    ParentID=x.Category.ParentID,
+                }:new ResultCategory()
+
 
             });
             CreateMap<Product, ResultProduct>().ConvertUsing(x => new ResultProduct
