@@ -8,6 +8,7 @@ using Dto.Models.DtoCategory;
 using Dto.Models.DtoProduct;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.ResponseApi;
+using LinqKit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -131,7 +132,7 @@ namespace Api.Controllers
                                                                    ));
 
                 Expression<Func<Category, bool>> predicate = x => true;
-
+                predicate = predicate.And(s => s.ParentID == null);
                 if (!string.IsNullOrWhiteSpace(@params.SearchText))
                 {
                     var search = @params.SearchText;
@@ -256,14 +257,8 @@ namespace Api.Controllers
                                                             message: ResultMessageApi.BadRequestError,
                                                             countAllRecordTable: 0));
 
-            var count = await _CategoryService
-                           .GetCountAllAsync(s =>
-                           s.Title.Contains(@params.SearchText));
-
             var Categorys = await _CategoryService
-                                 .GetAllAsync(s =>
-                                 s.Title.Contains(@params.SearchText)
-                                 , page: @params.Page, take: @params.Take);
+                                 .GetAllAsync(s=>s.ParentID==null);
 
             var mappedCategorys = _mapper.Map<ICollection<ResultCategory>>(Categorys);
 
@@ -272,7 +267,7 @@ namespace Api.Controllers
                                                             status: ResultMessageApi.Success,
                                                             statusCode: ResultMessageApi.SuccessCode,
                                                             message: ResultMessageApi.GetOk,
-                                                            countAllRecordTable: count));
+                                                            countAllRecordTable: Categorys.Count()));
         }
         [HttpGet("Categorys/ParentID")]
         public async Task<IActionResult> GetCategorysByParentID([FromQuery] int? ParentID = null)

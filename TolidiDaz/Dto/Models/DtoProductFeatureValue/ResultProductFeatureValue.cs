@@ -1,11 +1,12 @@
 ﻿using Dto.Models.Base;
 using Dto.Models.DtoCategory;
 using Dto.Models.DtoProduct;
+using Dto.Models.DtoProductFeature;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using static Dto.Enum.EnumConstant;
 
-namespace  Dto.Models.DtoProductFeature
+namespace  Dto.Models.DtoProductFeatureValue
 {
     public class ResultProductFeatureValue : BaseModel
     {

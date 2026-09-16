@@ -157,13 +157,20 @@
 </main>
 @code {
     [Parameter]
-    public string? guid { get; set; }
+    public string? guid { get; set; } = null;
     protected override async Task OnInitializedAsync()
     {
         _BlogCommentService.OnChange += HandleStateChange;
         _BlogService.OnChange += HandleStateChange;
-        await _BlogCommentService.GetDataAsync();
-        await _BlogService.GetUpdateDataAsync();
+        bool isValid = Guid.TryParse(guid, out Guid gid);
+        if (isValid)
+        {
+         
+            var q1= _BlogCommentService.GetDataAsync();
+            var q2= _BlogService.GetUpdateDataAsync();
+            await Task.WhenAll(q1, q2);
+        }
+       
 
     }
     private async void HandleStateChange()

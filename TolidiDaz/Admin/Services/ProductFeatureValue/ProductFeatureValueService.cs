@@ -5,41 +5,36 @@ using Dto.DtoPaginagion;
 using Dto.Enum;
 using Dto.Models;
 using Dto.Models.Constant;
-using Dto.Models.DtoCategory;
+using Dto.Models.DtoProductFeatureValue;
 using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
 
-namespace Admin.Services.Category
+namespace Admin.Services.ProductFeatureValue
 {
 
-    public class CategoryService(
-        IRootApi<ResponseApiEntities<ResultCategory>> _RootApiResultCategorys,
-        IRootApi<ResponseApiEntity<ResultCategory>> RootApiResultCategory,
-        IRootApi<ResponseApiEntity<AddCategory>> RootApiAddCategory,
-        IRootApi<ResponseApiEntity<UpdateCategory>> RootApiUpdateCategory,
+    public class ProductFeatureValueService(
+        IRootApi<ResponseApiEntities<ResultProductFeatureValue>> _RootApiResultProductFeatureValues,
+        IRootApi<ResponseApiEntity<ResultProductFeatureValue>> RootApiResultProductFeatureValue,
+        IRootApi<ResponseApiEntity<AddProductFeatureValue>> RootApiAddProductFeatureValue,
+        IRootApi<ResponseApiEntity<UpdateProductFeatureValue>> RootApiUpdateProductFeatureValue,
         IJSRuntime JS,
         SweetAlertService Swal
         ) : BaseService
     {
-        public UpdateCategory? updateCategory { get; set; } = new();
-        public AddCategory? addCategory { get; set; } = new() { 
-        Visible=true
-        };
-        public ResultCategory resultCategory { get; set; } = new();
-        public List<ResultCategory>? ResultCategorys = new List<ResultCategory>();
-        public List<ResultCategory>? ResultCategorys1 = new List<ResultCategory>();
-        public List<ResultCategory>? ResultCategorys2 { get; set; } = new List<ResultCategory>();
-        public List<ResultCategory>? ResultCategorys3 { get; set; } = new List<ResultCategory>();
-        public string? Guid { get; set; }
+        public UpdateProductFeatureValue? updateProductFeatureValue { get; set; } = new();
+        public AddProductFeatureValue? addProductFeatureValue { get; set; } = new();
+        public ResultProductFeatureValue resultProductFeatureValue { get; set; } = new();
+        public List<ResultProductFeatureValue>? ResultProductFeatureValues = new List<ResultProductFeatureValue>();
+        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultCategorys.RunMethodApi($"Categorys/Data", SetPaging(SearchText), method: Method.Post);
+                var resdata = await _RootApiResultProductFeatureValues.RunMethodApi($"ProductFeatureValues/Data", SetPaging(SearchText), method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultCategorys = resdata.Entities.ToList() ?? [];
+                    ResultProductFeatureValues = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
                     NotifyStateChanged();
                 }
@@ -48,49 +43,19 @@ namespace Admin.Services.Category
             {
             }
         }
-        public async Task GetAllDataAsync()
+        public async Task GetAllDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultCategorys.RunMethodApi($"Categorys/All", null, method: Method.Get);
+                var resdata = await _RootApiResultProductFeatureValues.RunMethodApi($"ProductFeatureValues/All", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultCategorys1 = resdata.Entities.ToList();
+                    ResultProductFeatureValues = resdata.Entities.ToList();
                     NotifyStateChanged();
                 }
             }
             catch (Exception ex)
             {
-            }
-        }
-        public void GetCategoryParent2InAdd()
-        {
-            var q = ResultCategorys1.Where(s => s.ID == addCategory.ParentID1).FirstOrDefault();
-            if (q != null)
-            {
-                ResultCategorys2 = q.ResultCategorys;
-                NotifyStateChanged();
-
-            }
-        }
-        public void GetCategoryParent3InAdd()
-        {
-            var q = ResultCategorys2.Where(s => s.ID == addCategory.ParentID2).FirstOrDefault();
-            if (q != null)
-            {
-                ResultCategorys3 = q.ResultCategorys;
-                NotifyStateChanged();
-
-            }
-        }
-        public void GetCategoryParent2InUpdate()
-        {
-            var q = ResultCategorys1.Where(s => s.ID == updateCategory.ParentID1).FirstOrDefault();
-            if (q != null)
-            {
-                ResultCategorys2 = q.ResultCategorys;
-                updateCategory.ParentID2 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID > 0 ? updateCategory.ParentResultCategory.ID : 0;
-
             }
         }
         public async Task DeleteAsync(int ID)
@@ -107,7 +72,7 @@ namespace Admin.Services.Category
             {
                 try
                 {
-                    var resdata = await RootApiResultCategory.RunMethodApi($"Categorys/{ID}", null, method: Method.Delete);
+                    var resdata = await RootApiResultProductFeatureValue.RunMethodApi($"ProductFeatureValues/{ID}", null, method: Method.Delete);
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
@@ -143,11 +108,11 @@ namespace Admin.Services.Category
         {
             try
             {
-                var resdata = await RootApiAddCategory.RunMethodApi("Categorys", addCategory, method: Method.Post);
+                var resdata = await RootApiAddProductFeatureValue.RunMethodApi("ProductFeatureValues", addProductFeatureValue, method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                    addCategory = new() { Visible=true};
+                    addProductFeatureValue = new();
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
@@ -178,11 +143,7 @@ namespace Admin.Services.Category
         {
             try
             {
-                if (updateCategory.ParentID1 > 0 && updateCategory.ParentID2 > 0)
-                    updateCategory.ParentID = updateCategory.ParentID2;
-                else
-                    updateCategory.ParentID = updateCategory.ParentID1;
-                var resdataEdit = await RootApiUpdateCategory.RunMethodApi("Categorys", updateCategory, method: Method.Patch);
+                var resdataEdit = await RootApiUpdateProductFeatureValue.RunMethodApi("ProductFeatureValues", updateProductFeatureValue, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
@@ -216,12 +177,10 @@ namespace Admin.Services.Category
         {
             try
             {
-                var resdataEdit = await RootApiUpdateCategory.RunMethodApi($"Categorys/ByGuid/{Guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateProductFeatureValue.RunMethodApi($"ProductFeatureValues/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    updateCategory = resdataEdit.Entity;
-                    updateCategory.ParentID1 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID > 0 ? updateCategory.ParentResultCategory.ParentID : updateCategory.ParentResultCategory.ID;
-                    GetCategoryParent2InUpdate();
+                    updateProductFeatureValue = resdataEdit.Entity;
                     NotifyStateChanged();
                 }
             }

@@ -1,45 +1,58 @@
 ﻿using Admin.Services;
 using Admin.Services.BaseShareService;
+using Admin.Services.Category;
 using CurrieTechnologies.Razor.SweetAlert2;
 using Dto.DtoPaginagion;
 using Dto.Enum;
 using Dto.Models;
 using Dto.Models.Constant;
-using Dto.Models.DtoCategory;
+using Dto.Models.DtoProduct;
+using Dto.Models.DtoProductFeatureValue;
 using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
+using System.ComponentModel;
 
-namespace Admin.Services.Category
+namespace Admin.Services.Product
 {
 
-    public class CategoryService(
-        IRootApi<ResponseApiEntities<ResultCategory>> _RootApiResultCategorys,
-        IRootApi<ResponseApiEntity<ResultCategory>> RootApiResultCategory,
-        IRootApi<ResponseApiEntity<AddCategory>> RootApiAddCategory,
-        IRootApi<ResponseApiEntity<UpdateCategory>> RootApiUpdateCategory,
+    public class ProductService(
+        IRootApi<ResponseApiEntities<ResultProduct>> _RootApiResultProducts,
+        IRootApi<ResponseApiEntity<ResultProduct>> RootApiResultProduct,
+        IRootApi<ResponseApiEntity<AddProduct>> RootApiAddProduct,
+        IRootApi<ResponseApiEntity<UpdateProduct>> RootApiUpdateProduct,
         IJSRuntime JS,
         SweetAlertService Swal
-        ) : BaseService
+        ) :BaseService
     {
-        public UpdateCategory? updateCategory { get; set; } = new();
-        public AddCategory? addCategory { get; set; } = new() { 
-        Visible=true
-        };
-        public ResultCategory resultCategory { get; set; } = new();
-        public List<ResultCategory>? ResultCategorys = new List<ResultCategory>();
-        public List<ResultCategory>? ResultCategorys1 = new List<ResultCategory>();
-        public List<ResultCategory>? ResultCategorys2 { get; set; } = new List<ResultCategory>();
-        public List<ResultCategory>? ResultCategorys3 { get; set; } = new List<ResultCategory>();
-        public string? Guid { get; set; }
+        public bool SearchAllFlag  { get; set; } = false;
+        [DisplayName("دسته بندی سطح 3")]
+        public int? CategoryID { get; set; }
+
+        public UpdateProduct? updateProduct { get; set; } = new();
+        public AddProduct? addProduct { get; set; } = new();
+        public ResultProduct resultProduct { get; set; } = new();
+        public List<ResultProduct>? ResultProducts= new List<ResultProduct>();
+
+        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultCategorys.RunMethodApi($"Categorys/Data", SetPaging(SearchText), method: Method.Post);
+                ResponseApiEntities<ResultProduct> resdata;
+                if (SearchAllFlag)
+                {
+                     resdata = await _RootApiResultProducts.RunMethodApi($"Products/Data", SetPaging(SearchText), method: Method.Post);
+
+                }
+                else
+                {
+                     resdata = await _RootApiResultProducts.RunMethodApi($"Products/Data&CategoryID={CategoryID}", SetPaging(SearchText), method: Method.Post);
+
+                }
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultCategorys = resdata.Entities.ToList() ?? [];
+                    ResultProducts = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
                     NotifyStateChanged();
                 }
@@ -48,51 +61,7 @@ namespace Admin.Services.Category
             {
             }
         }
-        public async Task GetAllDataAsync()
-        {
-            try
-            {
-                var resdata = await _RootApiResultCategorys.RunMethodApi($"Categorys/All", null, method: Method.Get);
-                if (resdata != null && resdata.Status == ResultMessageApi.Success)
-                {
-                    ResultCategorys1 = resdata.Entities.ToList();
-                    NotifyStateChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-        }
-        public void GetCategoryParent2InAdd()
-        {
-            var q = ResultCategorys1.Where(s => s.ID == addCategory.ParentID1).FirstOrDefault();
-            if (q != null)
-            {
-                ResultCategorys2 = q.ResultCategorys;
-                NotifyStateChanged();
-
-            }
-        }
-        public void GetCategoryParent3InAdd()
-        {
-            var q = ResultCategorys2.Where(s => s.ID == addCategory.ParentID2).FirstOrDefault();
-            if (q != null)
-            {
-                ResultCategorys3 = q.ResultCategorys;
-                NotifyStateChanged();
-
-            }
-        }
-        public void GetCategoryParent2InUpdate()
-        {
-            var q = ResultCategorys1.Where(s => s.ID == updateCategory.ParentID1).FirstOrDefault();
-            if (q != null)
-            {
-                ResultCategorys2 = q.ResultCategorys;
-                updateCategory.ParentID2 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID > 0 ? updateCategory.ParentResultCategory.ID : 0;
-
-            }
-        }
+       
         public async Task DeleteAsync(int ID)
         {
             var result1 = await Swal.FireAsync(new SweetAlertOptions
@@ -107,7 +76,7 @@ namespace Admin.Services.Category
             {
                 try
                 {
-                    var resdata = await RootApiResultCategory.RunMethodApi($"Categorys/{ID}", null, method: Method.Delete);
+                    var resdata = await RootApiResultProduct.RunMethodApi($"Products/{ID}", null, method: Method.Delete);
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
@@ -143,11 +112,62 @@ namespace Admin.Services.Category
         {
             try
             {
-                var resdata = await RootApiAddCategory.RunMethodApi("Categorys", addCategory, method: Method.Post);
+                addProduct.CategoryID =CategoryID;
+                if (addProduct.CategoryID == null)
+                {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = "دسته بندی سطح 3 را انتخاب کنید",
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
+                    return;
+                }
+                if (addProduct.Discount > addProduct.Price)
+                {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = "تخفیف نمیتونه بیشتر از قیمت اصلی باشه",
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
+                    return;
+                }
+                if (addProduct.Price == 0)
+                {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = "قیمت اصلی نمیتونه صفر باشه",
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
+                    return;
+
+                }
+                if (addProduct.Count <= 0)
+                {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = "تعداد نمیتونه صفر باشه",
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
+                    return;
+
+                }
+                var resdata = await RootApiAddProduct.RunMethodApi("Products", addProduct, method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                    addCategory = new() { Visible=true};
+                    addProduct = new AddProduct
+                    {
+                        Visible = true,
+                        ProductExistStatus = EnumConstant.ProductExistStatus.Existent,
+                    };
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
@@ -178,11 +198,7 @@ namespace Admin.Services.Category
         {
             try
             {
-                if (updateCategory.ParentID1 > 0 && updateCategory.ParentID2 > 0)
-                    updateCategory.ParentID = updateCategory.ParentID2;
-                else
-                    updateCategory.ParentID = updateCategory.ParentID1;
-                var resdataEdit = await RootApiUpdateCategory.RunMethodApi("Categorys", updateCategory, method: Method.Patch);
+                var resdataEdit = await RootApiUpdateProduct.RunMethodApi("Products", updateProduct, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
@@ -216,12 +232,10 @@ namespace Admin.Services.Category
         {
             try
             {
-                var resdataEdit = await RootApiUpdateCategory.RunMethodApi($"Categorys/ByGuid/{Guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateProduct.RunMethodApi($"Products/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    updateCategory = resdataEdit.Entity;
-                    updateCategory.ParentID1 = updateCategory.ParentResultCategory != null && updateCategory.ParentResultCategory.ParentID > 0 ? updateCategory.ParentResultCategory.ParentID : updateCategory.ParentResultCategory.ID;
-                    GetCategoryParent2InUpdate();
+                    updateProduct = resdataEdit.Entity;
                     NotifyStateChanged();
                 }
             }

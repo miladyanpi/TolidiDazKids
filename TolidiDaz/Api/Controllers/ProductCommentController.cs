@@ -247,42 +247,42 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.GetError));
 
         }
-        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-        [HttpGet("ProductComments/ByGuid/{guid}")]
-        public async Task<IActionResult> GetProductCommentByGuid([FromRoute] string guid)
-        {
-            bool isValid = Guid.TryParse(guid, out Guid gid);
-            if (!isValid)
-                return BadRequest(new ResponseApiEntity<ResultProductComment>
-                                                            (entity: new ResultProductComment(),
-                                                            statusCode: ResultMessageApi.ErrorCode,
-                                                            status: ResultMessageApi.Error,
-                                                            message: ResultMessageApi.GetError));
+        //[Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        //[HttpGet("ProductComments/ByGuid/{guid}")]
+        //public async Task<IActionResult> GetProductCommentByGuid([FromRoute] string guid)
+        //{
+        //    bool isValid = Guid.TryParse(guid, out Guid gid);
+        //    if (!isValid)
+        //        return BadRequest(new ResponseApiEntity<ResultProductComment>
+        //                                                    (entity: new ResultProductComment(),
+        //                                                    statusCode: ResultMessageApi.ErrorCode,
+        //                                                    status: ResultMessageApi.Error,
+        //                                                    message: ResultMessageApi.GetError));
 
 
-            var data = await _ProductCommentService.FirstOrDefaultAsync(s => s.IdentityCode == gid);
-            if (data == null)
-                return BadRequest(new ResponseApiEntity<ResultProductComment>
-                                                           (entity: new ResultProductComment(),
-                                                           statusCode: ResultMessageApi.ErrorCode,
-                                                           status: ResultMessageApi.Error,
-                                                           message: ResultMessageApi.GetError));
+        //    var data = await _ProductCommentService.FirstOrDefaultAsync(s => s.IdentityCode == gid);
+        //    if (data == null)
+        //        return BadRequest(new ResponseApiEntity<ResultProductComment>
+        //                                                   (entity: new ResultProductComment(),
+        //                                                   statusCode: ResultMessageApi.ErrorCode,
+        //                                                   status: ResultMessageApi.Error,
+        //                                                   message: ResultMessageApi.GetError));
 
-            var result = _mapper.Map<ResultProductComment>(data);
-            if (result != null)
-                return Ok(new ResponseApiEntity<ResultProductComment>
-                                                               (entity: result,
-                                                               statusCode: ResultMessageApi.SuccessCode,
-                                                               status: ResultMessageApi.Success,
-                                                               message: ResultMessageApi.GetOk));
-            else
-                return BadRequest(new ResponseApiEntity<ResultProductComment>
-                                                           (entity: new ResultProductComment(),
-                                                           statusCode: ResultMessageApi.ErrorCode,
-                                                           status: ResultMessageApi.Error,
-                                                           message: ResultMessageApi.GetError));
+        //    var result = _mapper.Map<ResultProductComment>(data);
+        //    if (result != null)
+        //        return Ok(new ResponseApiEntity<ResultProductComment>
+        //                                                       (entity: result,
+        //                                                       statusCode: ResultMessageApi.SuccessCode,
+        //                                                       status: ResultMessageApi.Success,
+        //                                                       message: ResultMessageApi.GetOk));
+        //    else
+        //        return BadRequest(new ResponseApiEntity<ResultProductComment>
+        //                                                   (entity: new ResultProductComment(),
+        //                                                   statusCode: ResultMessageApi.ErrorCode,
+        //                                                   status: ResultMessageApi.Error,
+        //                                                   message: ResultMessageApi.GetError));
 
-        }
+        //}
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("ProductComments")]
         public async Task<IActionResult> GetProductComments([FromQuery] PaginationParams @params, int? ProductID)

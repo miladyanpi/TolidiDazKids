@@ -1,21 +1,11 @@
 ﻿@page "/UpdateProductFeature"
 @using Admin.Services.Category
-@using Dto.Models.DtoCategory
-@using Dto.Models.DtoProductFeature
-@using Dto.Models.DtoUploadFile
-@using System.Net.Http.Headers
-@using Microsoft.AspNetCore.Authorization
-@using Newtonsoft.Json
-@inject SweetAlertService Swal
+@using Admin.Services.ProductFeature
 @inject NavigationManager NavManager
-@inject IToastMessage JS
-@inject IRootApi<ResponseApiEntity<UpdateProductFeature>> RootApiUpdateProductFeature
-@inject IRootApi<ResponseApiEntity<UpdateCategory>> RootApiUpdateCategory
-@inject IRootApi<ResponseApiEntities<ResultProductFeature>> RootApiResultProductFeatures
-@inject IRootApi<ResponseApiEntities<ResultUploadFile>> RootApiResultUploadFile
-@inject IRootApi<ResponseApiEntities<ResultCategory>> RootApiResultCategorys
+@inject ProductFeatureService _ProductFeatureService
+@inject CategoryService _CategoryService
+<AccessAdminRoles />
 
-@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
     <!-- header page -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
@@ -23,18 +13,11 @@
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">ویرایش مشخصات ویژگی</h2>
             <p class="text-gray-600 dark:text-gray-400">اطلاعات مشخصات ویژگی را ویرایش نمایید</p>
         </div>
-        <div class="mt-4 md:mt-0">
-            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                </svg>
-                بازگشت
-            </button>
-        </div>
+        <BackButton UrlPage="ProductFeature" />
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="updateProductFeature" OnValidSubmit="Update" FormName="AddForm">
+    <EditForm Model="_ProductFeatureService.updateProductFeature" OnValidSubmit="_ProductFeatureService.UpdateAsync" FormName="AddForm">
         <DataAnnotationsValidator />
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -48,7 +31,7 @@
                         <div>
 
                             <CustomLabel ForId="ProductFeature-category1" For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
-                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( ()=>  _CategoryService.GetCategoryParent1(_CategoryService.addCategory.ParentID1))" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( ()=>  _CategoryService.GetCategoryParent2InAdd())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _CategoryService.ResultCategorys1)
                                 {
                                     <option value="@item.ID">@item.Title</option>
@@ -59,7 +42,7 @@
                         <div>
 
                             <CustomLabel ForId="ProductFeature-category2" For="@(() => _CategoryService.addCategory.ParentID2)"></CustomLabel>
-                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID2" @bind-Value:after="@( ()=> _CategoryService.GetCategoryParent2(_CategoryService.addCategory.ParentID2))" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID2"  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _CategoryService.ResultCategorys2)
                                 {
                                     <option value="@item.ID">@item.Title</option>
@@ -67,26 +50,16 @@
                             </InputSelect>
                         </div>
                         <div>
-
-                            <CustomLabel ForId="ProductFeature-category3" For="@(() => _CategoryService.CategoryID)"></CustomLabel>
-                            <InputSelect @bind-Value="_CategoryService.CategoryID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                @foreach (var item in _CategoryService.ResultCategorys3)
-                                {
-                                    <option value="@item.ID">@item.Title</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <div>
-                            <CustomLabel ForId="ProductFeature-name" For="@(() => updateProductFeature.Title)"></CustomLabel>
-                            <ValidationMessage For="@(() => updateProductFeature.Title)" class="validate" />
-                            <InputText id="ProductFeature-name" @bind-Value="updateProductFeature.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <CustomLabel ForId="ProductFeature-name" For="@(() => _ProductFeatureService.updateProductFeature.Title)"></CustomLabel>
+                            <ValidationMessage For="@(() => _ProductFeatureService.updateProductFeature.Title)" class="validate" />
+                            <InputText id="ProductFeature-name" @bind-Value="_ProductFeatureService.updateProductFeature.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                         <div >
-                            <CustomLabel ForId="Visible-stock" For="@(() => updateProductFeature.Visible)"></CustomLabel>
-                            <InputRadioGroup @bind-Value="updateProductFeature.Visible" Name="status">
+                            <CustomLabel ForId="Visible-stock" For="@(() => _ProductFeatureService.updateProductFeature.Visible)"></CustomLabel>
+                            <InputRadioGroup @bind-Value="_ProductFeatureService.updateProductFeature.Visible" Name="status">
                                 <InsertUpdateVisible />
                             </InputRadioGroup>
-                            <ValidationMessage For="@(() => updateProductFeature.Visible)" class="validate" />
+                            <ValidationMessage For="@(() => _ProductFeatureService.updateProductFeature.Visible)" class="validate" />
                         </div>
                     </div>
                 </div>
@@ -103,56 +76,22 @@
         </div>
     </EditForm>
 </main>
+
 @code {
-    @inject CategoryService _CategoryService
-    private AddCategory? addCategory { get; set; } = new() { Visible = true };
-    private UpdateProductFeature? updateProductFeature { get; set; } = new() { Visible = true };
-    public List<ResultCategory>? ResultCategorys1 { get; set; } = new List<ResultCategory>();
-    public List<ResultCategory>? ResultCategorys2 { get; set; } = new List<ResultCategory>();
-    public List<ResultCategory>? ResultCategorys3 { get; set; } = new List<ResultCategory>();
-    public List<ResultUploadFile> ResultUploadImages { get; set; } = new List<ResultUploadFile>();
-    [SupplyParameterFromQuery]
-    public int ID { get; set; }
-    MultipartFormDataContent content;
-    protected async override Task OnInitializedAsync()
-    {
-        await _CategoryService.GetInitialData();
-        await GetData();
-    }
-  
 
-    private async Task Update()
-    {
-        updateProductFeature.CategoryID = _CategoryService.CategoryID;
+    [Parameter]
+    public string? guid { get; set; }
 
-        var resdata = await RootApiUpdateProductFeature.RunMethodApi("ProductFeatures", updateProductFeature, method: Method.Patch);
-        if (resdata.Status == ResultMessageApi.Success)
+    protected override async Task OnParametersSetAsync()
+    {
+        bool isValid = Guid.TryParse(guid, out Guid gid);
+        if (isValid)
         {
-            await JS.CallAlertToast(resdata.Message);
-        }
-        else
-        {
-            var result2 = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Title = "پیام",
-                Text = resdata.Message,
-                Icon = resdata.Status,
-                ShowConfirmButton = true,
-            });
+            _ProductFeatureService.guid = guid;
+            await _ProductFeatureService.GetUpdateDataAsync();
         }
 
-
     }
-    public async Task GetData()
-    {
-        var resdataEdit = await RootApiUpdateProductFeature.RunMethodApi($"ProductFeatures/{ID}", null, method: Method.Get);
-        updateProductFeature = resdataEdit.Entity;
 
-
-    }
-    private void GoBack()
-    {
-        NavManager.NavigateTo("/ProductFeature");
-    }
+    
 }
-
