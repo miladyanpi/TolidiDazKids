@@ -50,6 +50,7 @@ using ServicesLibrary.Services.StorageSrv;
 using ServicesLibrary.Services.StorySrv;
 using ServicesLibrary.Services.TeamSrv;
 using ServicesLibrary.Services.TicketSrv;
+using ServicesLibrary.Services.TraitSrv;
 using ServicesLibrary.Services.ViewCounter;
 using ServicesLibrary.Services.WalletSrv;
 using ServicesLibrary.Services.WalletTransactionSrv;
@@ -121,6 +122,7 @@ namespace ServicesLibrary.Services
             service.AddTransient<IDepartmentService, DepartmentService>();
             service.AddTransient<ITicketService, TicketService>();
             service.AddTransient<IBlogCommentService, BlogCommentService>();
+            service.AddTransient<ITraitService, TraitService>();
             service.AddSingleton<IViewCounterService, InMemoryViewCounterService>();
             service.AddScoped<SyncProductViewsJob>();
 
