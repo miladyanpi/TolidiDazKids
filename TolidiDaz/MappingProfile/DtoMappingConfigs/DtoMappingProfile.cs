@@ -45,6 +45,7 @@ using Dto.Models.DtoStory;
 using Dto.Models.DtoTeam;
 using Dto.Models.DtoTicket;
 using Dto.Models.DtoTrait;
+using Dto.Models.DtoTraitValue;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.DtoWallet;
 using Dto.Models.DtoWalletTransaction;
@@ -3566,6 +3567,25 @@ namespace MappingProfile.DtoMappingConfigs
 
 
             CreateMap<Trait, ResultTrait>()
+                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+            #endregion
+            #region TraitValue
+            CreateMap<AddTraitValue, TraitValue>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+            CreateMap<UpdateTraitValue, TraitValue>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<TraitValue, UpdateTraitValue>()
+                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+
+            CreateMap<TraitValue, ResultTraitValue>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
