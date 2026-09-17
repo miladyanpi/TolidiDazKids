@@ -258,7 +258,6 @@ namespace Api.Controllers
 
         }
 
-        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("GroupBlogs/ByGuid/{guid}")]
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         public async Task<IActionResult> GetGroupBlogById([FromRoute] string guid)

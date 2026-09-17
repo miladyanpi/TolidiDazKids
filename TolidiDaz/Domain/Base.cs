@@ -13,11 +13,6 @@ namespace Domain
         }
 
         public int ID { get; set; }
-        /// <summary>
-        /// این ممکن است در جداولی که فایل ذخیره می شود در فایل تیبل ذخیره شود
-        /// به عنوان
-        /// streamcode
-        /// </summary>
         public Guid? IdentityCode { get; set; }
         public int RegisterDate { get; set; }
         public TimeSpan RegisterTime { get; set; }

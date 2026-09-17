@@ -1,7 +1,9 @@
 ﻿@page "/UpdateCity/{guid}"
 @using Admin.Services.City
+@using Admin.Services.Province
 @inject NavigationManager NavManager
 @inject CityService _CityService
+@inject ProvinceService _ProvinceService
 <AccessAdminRoles />
 
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
@@ -13,67 +15,113 @@
         </div>
         <BackButton UrlPage="City" />
     </div>
+    @if (isLoading)
+    {
+        <!-- اسکلتون یا پیام لودینگ تمیز تا مانع کرش شدن فرم قبل از رسیدن دیتا بشه -->
+        <div class="flex items-center justify-center p-12 bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700">
+            <span class="text-gray-500 dark:text-gray-400 font-medium">در حال دریافت اطلاعات شهر...</span>
+        </div>
+    }
+    else if (_CityService.updateCity == null)
+    {
+        <div class="p-6 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800 text-center font-medium">
+            اطلاعات شهر مورد نظر یافت نشد یا شناسه نامعتبر است.
+        </div>
+    }
+    else
+    {
+        <!-- Add category form -->
+        <EditForm Model="_CityService.updateCity" OnValidSubmit="HandleSubmit" FormName="UpdateForm">
+            <DataAnnotationsValidator />
+            <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                        فرم شهر
+                    </h3>
+                </div>
 
-    <!-- Add category form -->
-    <EditForm Model="_CityService.updateCity" OnValidSubmit="_CityService.UpdateAsync" FormName="UpdateForm">
-        <DataAnnotationsValidator />
-        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
-            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
-                    فرم شهر
-                </h3>
-            </div>
-
-            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- City Info -->
-                <div class="space-y-4">
-                    <div>
-                        <CustomLabel ForId="category-parent" For="@(() => _CityService.updateCity.ProvinceID)"></CustomLabel>
-                        <ValidationMessage For="@(() => _CityService.updateCity.ProvinceID)" class="validate" />
-                        <InputSelect @bind-Value=" _CityService.updateCity.ProvinceID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            @foreach (var item in _CityService.ResultCitys)
-                            {
-                                <option value="@item.ID">@item.Title</option>
-                            }
-                        </InputSelect>
+                <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- City Info -->
+                    <div class="space-y-4">
+                        <div>
+                            <CustomLabel ForId="category-parent" For="@(() => _CityService.updateCity.ProvinceID)"></CustomLabel>
+                            <ValidationMessage For="@(() => _CityService.updateCity.ProvinceID)" class="validate" />
+                            <InputSelect @bind-Value=" _CityService.updateCity.ProvinceID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _ProvinceService.ResultProvinces)
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <CustomLabel ForId="City-Title" For="@(() => _CityService.updateCity.Title)"></CustomLabel>
+                            <ValidationMessage For="@(() => _CityService.updateCity.Title)" class="validate" />
+                            <InputText id="City-Title" @bind-Value="_CityService.updateCity.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
                     </div>
-                    <div>
-                        <CustomLabel ForId="City-Title" For="@(() => _CityService.updateCity.Title)"></CustomLabel>
-                        <ValidationMessage For="@(() => _CityService.updateCity.Title)" class="validate" />
-                        <InputText id="City-Title" @bind-Value="_CityService.updateCity.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    <!-- Settings -->
+                    <div class="mb-4">
+                        <CustomLabel ForId="Visible-stock" For="@(() => _CityService.updateCity.Visible)"></CustomLabel>
+                        <InputRadioGroup @bind-Value="_CityService.updateCity.Visible" Name="status">
+                            <InsertUpdateVisible />
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => _CityService.updateCity.Visible)" class="validate" />
                     </div>
                 </div>
-                <!-- Settings -->
-                <div class="mb-4">
-                    <CustomLabel ForId="Visible-stock" For="@(() => _CityService.updateCity.Visible)"></CustomLabel>
-                    <InputRadioGroup @bind-Value="_CityService.updateCity.Visible" Name="status">
-                        <InsertUpdateVisible />
-                    </InputRadioGroup>
-                    <ValidationMessage For="@(() => _CityService.updateCity.Visible)" class="validate" />
-                </div>
             </div>
-        </div>
-        <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
-            <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                ذخیره
-            </button>
-
-        </div>
-</EditForm>
+            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                <button type="submit" disabled="@isSubmitting" class="px-5 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2">
+                    @if (isSubmitting)
+                    {
+                        <span>در حال ذخیره...</span>
+                    }
+                    else
+                    {
+                        <span>ذخیره</span>
+                    }
+                </button>
+            </div>
+        </EditForm>
+    }
 </main>
 
 @code {
 
     [Parameter]
     public string? guid { get; set; }
-
+    private bool isLoading = true;
+    private bool isSubmitting = false;
     protected override async Task OnParametersSetAsync()
     {
         bool isValid = Guid.TryParse(guid, out Guid gid);
         if (isValid)
         {
-            _CityService.guid = guid;
-            await _CityService.GetUpdateDataAsync();
+            isLoading = true;
+            // اطمینان از پر بودن لیست استان‌ها در صورت رفرش مستقیم صفحه
+            if (_ProvinceService.ResultProvinces == null || !_ProvinceService.ResultProvinces.Any())
+            {
+                await _ProvinceService.GetAllDataAsync();
+            }
+            await _CityService.GetUpdateDataAsync(guid);
+            isLoading = false;
+        }
+        else
+        {
+            // شناسه نامعتبر بود کاربر رو برگردون به لیست شهرها
+            NavManager.NavigateTo("/City");
+        }
+    }
+    private async Task HandleSubmit()
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        try
+        {
+            await _CityService.UpdateAsync();
+        }
+        finally
+        {
+            isSubmitting = false;
         }
     }
 }

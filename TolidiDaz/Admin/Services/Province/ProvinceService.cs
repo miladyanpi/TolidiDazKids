@@ -5,38 +5,36 @@ using Dto.DtoPaginagion;
 using Dto.Enum;
 using Dto.Models;
 using Dto.Models.Constant;
-using Dto.Models.DtoCity;
 using Dto.Models.DtoProvince;
 using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
 
-namespace Admin.Services.City
+namespace Admin.Services.Province
 {
 
-    public class CityService(
-        IRootApi<ResponseApiEntities<ResultCity>> _RootApiResultCitys,
-        IRootApi<ResponseApiEntity<ResultCity>> RootApiResultCity,
-        IRootApi<ResponseApiEntity<AddCity>> RootApiAddCity,
-        IRootApi<ResponseApiEntity<UpdateCity>> RootApiUpdateCity,
-        IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces,
+    public class ProvinceService(
+        IRootApi<ResponseApiEntities<ResultProvince>> _RootApiResultProvinces,
+        IRootApi<ResponseApiEntity<ResultProvince>> RootApiResultProvince,
+        IRootApi<ResponseApiEntity<AddProvince>> RootApiAddProvince,
+        IRootApi<ResponseApiEntity<UpdateProvince>> RootApiUpdateProvince,
         IJSRuntime JS,
         SweetAlertService Swal
         ) :BaseService
     {
-        public UpdateCity? updateCity { get; set; } = new();
-        public AddCity? addCity { get; set; } = new();
-        public ResultCity resultCity { get; set; } = new();
-        public List<ResultCity>? ResultCitys= new List<ResultCity>();
+        public UpdateProvince? updateProvince { get; set; } = new();
+        public AddProvince? addProvince { get; set; } = new();
+        public ResultProvince resultProvince { get; set; } = new();
+        public List<ResultProvince>? ResultProvinces= new List<ResultProvince>();
         public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultCitys.RunMethodApi($"Citys/Data", SetPaging(SearchText), method: Method.Post);
+                var resdata = await _RootApiResultProvinces.RunMethodApi($"Provinces/Data", SetPaging(SearchText), method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultCitys = resdata.Entities.ToList() ?? [];
+                    ResultProvinces = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
                     NotifyStateChanged();
                 }
@@ -45,14 +43,14 @@ namespace Admin.Services.City
             {
             }
         }
-        public async Task GetAllDataAsync(string? SearchText = "")
+        public async Task GetAllDataAsync()
         {
             try
             {
-                var resdata = await _RootApiResultCitys.RunMethodApi($"Citys/All", null, method: Method.Get);
+                var resdata = await _RootApiResultProvinces.RunMethodApi($"Provinces/All", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultCitys = resdata.Entities.ToList();
+                    ResultProvinces = resdata.Entities.ToList();
                     NotifyStateChanged();
                 }
             }
@@ -74,7 +72,7 @@ namespace Admin.Services.City
             {
                 try
                 {
-                    var resdata = await RootApiResultCity.RunMethodApi($"Citys/{ID}", null, method: Method.Delete);
+                    var resdata = await RootApiResultProvince.RunMethodApi($"Provinces/{ID}", null, method: Method.Delete);
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
@@ -103,13 +101,6 @@ namespace Admin.Services.City
                 }
                 catch (Exception ex)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "پیام",
-                        Text = ex.ToString(),
-                        Icon = ResultMessageApi.Error,
-                        ShowConfirmButton = true,
-                    });
                 }
             }
         }
@@ -117,11 +108,11 @@ namespace Admin.Services.City
         {
             try
             {
-                var resdata = await RootApiAddCity.RunMethodApi("Citys", addCity, method: Method.Post);
+                var resdata = await RootApiAddProvince.RunMethodApi("Provinces", addProvince, method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                    addCity = new();
+                    addProvince = new();
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
@@ -146,21 +137,13 @@ namespace Admin.Services.City
             }
             catch (Exception ex)
             {
-                var result2 = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "پیام",
-                    Text = ex.ToString(),
-                    Icon = ResultMessageApi.Error,
-                    ShowConfirmButton = true,
-                });
             }
-           
         }
         public async Task UpdateAsync()
         {
             try
             {
-                var resdataEdit = await RootApiUpdateCity.RunMethodApi("Citys", updateCity, method: Method.Patch);
+                var resdataEdit = await RootApiUpdateProvince.RunMethodApi("Provinces", updateProvince, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
@@ -188,35 +171,21 @@ namespace Admin.Services.City
             }
             catch (Exception ex)
             {
-                var result2 = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "پیام",
-                    Text = ex.ToString(),
-                    Icon = ResultMessageApi.Error,
-                    ShowConfirmButton = true,
-                });
             }
         }
-        public async Task GetUpdateDataAsync(string guid)
+        public async Task GetUpdateDataAsync()
         {
             try
             {
-                var resdataEdit = await RootApiUpdateCity.RunMethodApi($"Citys/ByGuid/{guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateProvince.RunMethodApi($"Provinces/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    updateCity = resdataEdit.Entity;
+                    updateProvince = resdataEdit.Entity;
                     NotifyStateChanged();
                 }
             }
             catch (Exception ex)
             {
-                var result2 = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "پیام",
-                    Text = ex.ToString(),
-                    Icon = ResultMessageApi.Error,
-                    ShowConfirmButton = true,
-                });
             }
         }
     }
