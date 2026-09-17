@@ -5,38 +5,39 @@ using Dto.DtoPaginagion;
 using Dto.Enum;
 using Dto.Models;
 using Dto.Models.Constant;
-using Dto.Models.DtoCity;
-using Dto.Models.DtoProvince;
+using Dto.Models.DtoGroupQuestion;
+using Dto.Models.DtoQuestion;
 using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
 
-namespace Admin.Services.City
+namespace Admin.Services.Question
 {
 
-    public class CityService(
-        IRootApi<ResponseApiEntities<ResultCity>> _RootApiResultCitys,
-        IRootApi<ResponseApiEntity<ResultCity>> RootApiResultCity,
-        IRootApi<ResponseApiEntity<AddCity>> RootApiAddCity,
-        IRootApi<ResponseApiEntity<UpdateCity>> RootApiUpdateCity,
-        IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces,
+    public class QuestionService(
+        IRootApi<ResponseApiEntities<ResultGroupQuestion>> _RootApiResultGroupQuestions,
+        IRootApi<ResponseApiEntities<ResultQuestion>> _RootApiResultQuestions,
+        IRootApi<ResponseApiEntity<ResultQuestion>> RootApiResultQuestion,
+        IRootApi<ResponseApiEntity<AddQuestion>> RootApiAddQuestion,
+        IRootApi<ResponseApiEntity<UpdateQuestion>> RootApiUpdateQuestion,
         IJSRuntime JS,
         SweetAlertService Swal
         ) :BaseService
     {
-        public UpdateCity? updateCity { get; set; } = new();
-        public AddCity? addCity { get; set; } = new();
-        public ResultCity resultCity { get; set; } = new();
-        public List<ResultCity>? ResultCitys= new List<ResultCity>();
+        public UpdateQuestion? updateQuestion { get; set; } = new();
+        public AddQuestion? addQuestion { get; set; } = new();
+        public ResultQuestion resultQuestion { get; set; } = new();
+        public List<ResultQuestion>? ResultQuestions= new List<ResultQuestion>();
+        public List<ResultGroupQuestion>? ResultGroupQuestions = new List<ResultGroupQuestion>();
         public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultCitys.RunMethodApi($"Citys/Data", SetPaging(SearchText), method: Method.Post);
+                var resdata = await _RootApiResultQuestions.RunMethodApi($"Questions/Data", SetPaging(SearchText), method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultCitys = resdata.Entities.ToList() ?? [];
+                    ResultQuestions = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
                     NotifyStateChanged();
                 }
@@ -49,10 +50,10 @@ namespace Admin.Services.City
         {
             try
             {
-                var resdata = await _RootApiResultCitys.RunMethodApi($"Citys/All", null, method: Method.Get);
+                var resdata = await _RootApiResultQuestions.RunMethodApi($"Questions/All", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultCitys = resdata.Entities.ToList();
+                    ResultQuestions = resdata.Entities.ToList();
                     NotifyStateChanged();
                 }
             }
@@ -74,7 +75,7 @@ namespace Admin.Services.City
             {
                 try
                 {
-                    var resdata = await RootApiResultCity.RunMethodApi($"Citys/{ID}", null, method: Method.Delete);
+                    var resdata = await RootApiResultQuestion.RunMethodApi($"Questions/{ID}", null, method: Method.Delete);
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
@@ -110,11 +111,11 @@ namespace Admin.Services.City
         {
             try
             {
-                var resdata = await RootApiAddCity.RunMethodApi("Citys", addCity, method: Method.Post);
+                var resdata = await RootApiAddQuestion.RunMethodApi("Questions", addQuestion, method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                    addCity = new();
+                    addQuestion = new();
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
@@ -145,7 +146,7 @@ namespace Admin.Services.City
         {
             try
             {
-                var resdataEdit = await RootApiUpdateCity.RunMethodApi("Citys", updateCity, method: Method.Patch);
+                var resdataEdit = await RootApiUpdateQuestion.RunMethodApi("Questions", updateQuestion, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
@@ -179,11 +180,18 @@ namespace Admin.Services.City
         {
             try
             {
-                var resdataEdit = await RootApiUpdateCity.RunMethodApi($"Citys/ByGuid/{guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateQuestion.RunMethodApi($"Questions/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    updateCity = resdataEdit.Entity;
+                    updateQuestion = resdataEdit.Entity;
                     NotifyStateChanged();
+                }
+                var resdata = await _RootApiResultGroupQuestions.RunMethodApi($"GroupQuestions/All", null, method: Method.Get);
+                if (resdata != null && resdata.Status == ResultMessageApi.Success)
+                {
+                    ResultGroupQuestions = resdata.Entities.ToList();
+                    if (updateQuestion.GroupQuestionID == null)
+                        updateQuestion.GroupQuestionID = ResultGroupQuestions.Count > 0 ? ResultGroupQuestions[0].ID : null;
                 }
             }
             catch (Exception ex)

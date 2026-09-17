@@ -12,7 +12,5 @@
         #region RelationShip
         public virtual GroupQuestion? GroupQuestion { get; set; }
         #endregion
-
-
     }
 }

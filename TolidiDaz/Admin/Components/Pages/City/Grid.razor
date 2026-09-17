@@ -1,19 +1,15 @@
 ﻿@page "/City"
-@using AdminPanel.Services.City
-@using Dto.Models.DtoCity
-@using Dto.Models.DtoProvince
-@inject NavigationManager NavManager
-@inject IRootApi<ResponseApiEntities<ResultCity>> RootApiGet
-@inject IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces
+@using Admin.Services.City
 @inject CityService _CityService
-@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+<AccessAdminRoles />
+
 
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
     <!-- header page -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">مدیریت شهر ها</h2>
-            <p class="text-gray-600 dark:text-gray-400">لیست تمام شهر ها</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">مدیریت شهر</h2>
+            <p class="text-gray-600 dark:text-gray-400">لیست تمام شهر</p>
         </div>
         <div class="mt-4 md:mt-0">
             <a href="/InsertCity" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
@@ -29,43 +25,36 @@
     <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
         <div class="px-6 pb-2 border-b border-gray-200 flex-wrap dark:border-gray-700 flex items-center justify-between">
             <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
-                لیست شهر ها
+                لیست شهر 
             </h3>
             <Search OnClickcallBack="@_CityService.GetDataAsync" PlaceHolder="جستجو..." />
         </div>
-        <div class="px-6 pb-2 border-b border-gray-200 flex-wrap dark:border-gray-700 flex items-center justify-between">
 
-            <CustomLabel ForId="category-parent" For="@(() => resultCity.ProvinceID)"></CustomLabel>
-            <InputSelect @bind-Value="resultCity.ProvinceID" @bind-Value:after="@(async () => await _CityService.GetDataAsync())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <option value="0">همه</option>
-                @foreach (var item in ResultProvinces)
-                {
-                    <option value="@item.ID">@item.Title</option>
-                }
-            </InputSelect>
-
-        </div>
         <!-- Users table -->
         <div class="overflow-x-auto">
             <table class="w-full text-right">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultCity.Title)"></CustomLabel></th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultCity.ResultProvince.Title)"></CustomLabel></th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            <CustomLabel For="@(() => resultCity.Visible)"></CustomLabel>
+                            <CustomLabel For="@(() => _CityService.resultCity.Title)"></CustomLabel>
                         </th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
+                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => _CityService.resultCity.ResultProvince)"></CustomLabel>
+                        </th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <CustomLabel For="@(() => _CityService.resultCity.Visible)"></CustomLabel>
+                        </th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider text-left">
+                            عملیات
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                    <!-- User 1 -->
                     @{
-                        decimal i = (pagingModel.Page - 1) * pagingModel.Take;
-
+                        decimal i = (_CityService.pagingModel.Page - 1) * _CityService.pagingModel.Take;
                     }
-                    @foreach (var item in ResultCitys)
+                    @foreach (var item in _CityService.ResultCitys)
                     {
                         i++;
                         decimal k = i;
@@ -73,12 +62,12 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Title</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.ResultProvince.Title</td>
-
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <Visible Value="@item.Visible" />
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button @onclick="@(() => GoToUpdate(item.ID))" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ml-4">
+                            <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                             
+                                <button @onclick="@(() => Edit(item.IdentityCode))" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ml-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                     </svg>
@@ -92,61 +81,39 @@
                         </tr>
                     }
                 </tbody>
+
             </table>
         </div>
 
         <!-- Pagination -->
-        <Pagination pagingModel="pagingModel" OnClickcallBack="@CallBackPagingAsync" />
+        <Pagination pagingModel="_CityService.pagingModel" OnClickcallBack="@CallBackPagingAsync" />
     </div>
 </main>
 
 
 @code {
-    public EnumComponentName.ComponentNameType ComponentNameType { get; set; } = EnumComponentName.ComponentNameType.Insert;
 
-    private PagingModel pagingModel { get; set; } = new();
-    private ResultCity resultCity { get; set; } = new();
-    private List<ResultCity>? ResultCitys { get; set; } = new List<ResultCity>();
-    private List<ResultProvince>? ResultProvinces { get; set; } = new List<ResultProvince>();
-    public int ID { get; set; } = 0;
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        pagingModel.Page = 1;
-        pagingModel.Take = BaseCode.GetCountShowRecord();
-        var resdata = await RootApiResultProvinces.RunMethodApi($"Provinces/Public/All", null, method: Method.Get);
-        ResultProvinces = resdata.Entities.ToList();
+        _CityService.OnChange += HandleStateChange;
         await _CityService.GetDataAsync();
     }
-
+    private async void HandleStateChange()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+    public void Dispose()
+    {
+        _CityService.OnChange -= HandleStateChange;
+    }
     private async Task CallBackPagingAsync(decimal page)
     {
-        pagingModel.Page = page;
+        _CityService.pagingModel.Page = page;
         await _CityService.GetDataAsync();
     }
-
-    private async Task GetDataAsync(string? SearchText = "")
+    private void Edit(Guid? GUID)
     {
-        resultCity.ProvinceID = resultCity.ProvinceID == 0 ? null : resultCity.ProvinceID;
-        var Search = BaseCode.GetSearchText(SearchText);
-        var resdata = await RootApiGet.RunMethodApi($"Citys?Page={pagingModel.Page}&Take={pagingModel.Take}{Search}&ProvinceID={resultCity.ProvinceID}", null, method: Method.Get);
-        decimal Count = resdata.CountAllRecordTable;
-        ResultCitys = resdata.Entities.ToList();
-        pagingModel.CountPage = Math.Ceiling(Count / pagingModel.Take);
-        pagingModel.CountPagePer10 = Math.Ceiling(pagingModel.CountPage / 10);
-        resultCity.ProvinceID = resultCity.ProvinceID == null ? 0 : resultCity.ProvinceID;
+        NavManager.NavigateTo($"/UpdateCity/{GUID}");
     }
-    private void GoToInsert()
-    {
-        NavManager.NavigateTo("/InsertCity", forceLoad: true);
-    }
-    private void GoToUpdate(int id)
-    {
-        var parameter = new Dictionary<string, object>
-        {
-            {"ID", id.ToString()},
-        };
-        NavManager.NavigateTo(NavManager.GetUriWithQueryParameters("/UpdateCity", parameter!));
-    }
-
 }
