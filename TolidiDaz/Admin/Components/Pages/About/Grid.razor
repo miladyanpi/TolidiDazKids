@@ -78,16 +78,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        _AboutService.OnChange += HandleStateChange;
         await _AboutService.GetLastDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _AboutService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {

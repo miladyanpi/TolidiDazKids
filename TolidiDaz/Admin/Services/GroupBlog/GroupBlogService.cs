@@ -26,7 +26,6 @@ namespace Admin.Services.GroupBlog
         public AddGroupBlog? addGroupBlog { get; set; } = new();
         public ResultGroupBlog resultGroupBlog { get; set; } = new();
         public List<ResultGroupBlog>? ResultGroupBlogs= new List<ResultGroupBlog>();
-        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
@@ -41,6 +40,13 @@ namespace Admin.Services.GroupBlog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task GetAllDataAsync(string? SearchText = "")
@@ -56,6 +62,13 @@ namespace Admin.Services.GroupBlog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task DeleteAsync(int ID)
@@ -101,6 +114,13 @@ namespace Admin.Services.GroupBlog
                 }
                 catch (Exception ex)
                 {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -137,6 +157,13 @@ namespace Admin.Services.GroupBlog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task UpdateAsync()
@@ -171,9 +198,16 @@ namespace Admin.Services.GroupBlog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
@@ -186,6 +220,13 @@ namespace Admin.Services.GroupBlog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
     }

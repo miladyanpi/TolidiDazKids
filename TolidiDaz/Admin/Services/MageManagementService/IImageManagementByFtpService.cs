@@ -6,12 +6,11 @@ namespace Admin.Services.MageManagementService
 {
     public interface IImageManagementByFtpService
     {
-        string? Guid { get; set; }
         event Action? OnChange;
         List<ResultUploadFile> ResultUploadImages { get; }
         Task AddToListImagesAsync(List<ResultUploadFile> resultUploadFiles);
         Task DeleteImage(List<ResultUploadFile> resultUploadImages);
-        Task GetUpdateDataAsync();
+        Task GetUpdateDataAsync(string guid);
     }
 
 }

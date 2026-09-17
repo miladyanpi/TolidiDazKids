@@ -32,7 +32,6 @@ namespace Admin.Services.Category
         public List<ResultCategory>? ResultCategorys1 = new List<ResultCategory>();
         public List<ResultCategory>? ResultCategorys2 { get; set; } = new List<ResultCategory>();
         public List<ResultCategory>? ResultCategorys3 { get; set; } = new List<ResultCategory>();
-        public string? Guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
@@ -47,6 +46,13 @@ namespace Admin.Services.Category
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task GetAllDataAsync()
@@ -66,6 +72,13 @@ namespace Admin.Services.Category
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public void GetCategoryParent2InAdd()
@@ -154,6 +167,13 @@ namespace Admin.Services.Category
                 }
                 catch (Exception ex)
                 {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -190,6 +210,13 @@ namespace Admin.Services.Category
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task UpdateAsync()
@@ -228,13 +255,20 @@ namespace Admin.Services.Category
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
-                var resdataEdit = await RootApiUpdateCategory.RunMethodApi($"Categorys/ByGuid/{Guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateCategory.RunMethodApi($"Categorys/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     updateCategory = resdataEdit.Entity;
@@ -245,6 +279,13 @@ namespace Admin.Services.Category
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿@page "/UpdateTeam/{guid}"
 @using Admin.Services.Team
-@inject NavigationManager NavManager
+
 @inject TeamService _TeamService
 <AccessAdminRoles />
 
@@ -95,11 +95,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _TeamService.Guid = guid;
-            await _TeamService.GetUpdateDataAsync();
+            await _TeamService.GetUpdateDataAsync(guid);
         }
 
     }

@@ -1,7 +1,7 @@
 ﻿@page "/UpdateCity/{guid}"
 @using Admin.Services.City
 @using Admin.Services.Province
-@inject NavigationManager NavManager
+
 @inject CityService _CityService
 @inject ProvinceService _ProvinceService
 <AccessAdminRoles />
@@ -17,16 +17,12 @@
     </div>
     @if (isLoading)
     {
-        <!-- اسکلتون یا پیام لودینگ تمیز تا مانع کرش شدن فرم قبل از رسیدن دیتا بشه -->
-        <div class="flex items-center justify-center p-12 bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700">
-            <span class="text-gray-500 dark:text-gray-400 font-medium">در حال دریافت اطلاعات شهر...</span>
-        </div>
+       <FetchingData/>
+
     }
     else if (_CityService.updateCity == null)
     {
-        <div class="p-6 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800 text-center font-medium">
-            اطلاعات شهر مورد نظر یافت نشد یا شناسه نامعتبر است.
-        </div>
+       <DataNotFound/>
     }
     else
     {
@@ -91,17 +87,16 @@
     public string? guid { get; set; }
     private bool isLoading = true;
     private bool isSubmitting = false;
+    protected override async Task OnInitializedAsync()
+    {
+        await _ProvinceService.GetAllDataAsync();
+    }
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
             isLoading = true;
-            // اطمینان از پر بودن لیست استان‌ها در صورت رفرش مستقیم صفحه
-            if (_ProvinceService.ResultProvinces == null || !_ProvinceService.ResultProvinces.Any())
-            {
-                await _ProvinceService.GetAllDataAsync();
-            }
             await _CityService.GetUpdateDataAsync(guid);
             isLoading = false;
         }
@@ -114,9 +109,9 @@
     private async Task HandleSubmit()
     {
         if (isSubmitting) return;
-        isSubmitting = true;
         try
         {
+            isSubmitting = true;
             await _CityService.UpdateAsync();
         }
         finally

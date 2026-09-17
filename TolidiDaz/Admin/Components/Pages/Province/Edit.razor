@@ -1,6 +1,6 @@
 ﻿@page "/UpdateProvince/{guid}"
 @using Admin.Services.Province
-@inject NavigationManager NavManager
+
 @inject ProvinceService _ProvinceService
 <AccessAdminRoles />
 
@@ -67,11 +67,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _ProvinceService.guid = guid;
-            await _ProvinceService.GetUpdateDataAsync();
+            await _ProvinceService.GetUpdateDataAsync(guid);
         }
 
     }

@@ -48,7 +48,6 @@ namespace Admin.Services.Product
         public List<UpdateProductFeatureValue> UpdateProductFeatureValues { get; set; } = new List<UpdateProductFeatureValue>();
         public List<ResultProductFeature> ResultProductFeatures { get; set; } = new List<ResultProductFeature>();
 
-        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
@@ -73,6 +72,13 @@ namespace Admin.Services.Product
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
        
@@ -98,7 +104,7 @@ namespace Admin.Services.Product
                     }
                     else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                     {
-                        _ = await Swal.FireAsync(new SweetAlertOptions
+                         await Swal.FireAsync(new SweetAlertOptions
                         {
                             Title = "پیام",
                             Text = resdata.Message,
@@ -108,7 +114,7 @@ namespace Admin.Services.Product
                     }
                     else
                     {
-                        _ = await Swal.FireAsync(new SweetAlertOptions
+                         await Swal.FireAsync(new SweetAlertOptions
                         {
                             Title = "پیام",
                             Text = ResultMessageApi.ErrorDisconnectApi,
@@ -119,6 +125,13 @@ namespace Admin.Services.Product
                 }
                 catch (Exception ex)
                 {
+                    await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -129,7 +142,7 @@ namespace Admin.Services.Product
                 addProduct.CategoryID =CategoryID;
                 if (addProduct.CategoryID == null)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = "دسته بندی سطح 3 را انتخاب کنید",
@@ -140,7 +153,7 @@ namespace Admin.Services.Product
                 }
                 if (addProduct.Discount > addProduct.Price)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = "تخفیف نمیتونه بیشتر از قیمت اصلی باشه",
@@ -151,7 +164,7 @@ namespace Admin.Services.Product
                 }
                 if (addProduct.Price == 0)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = "قیمت اصلی نمیتونه صفر باشه",
@@ -163,7 +176,7 @@ namespace Admin.Services.Product
                 }
                 if (addProduct.Count <= 0)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = "تعداد نمیتونه صفر باشه",
@@ -195,7 +208,7 @@ namespace Admin.Services.Product
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = resdata.Message,
@@ -205,7 +218,7 @@ namespace Admin.Services.Product
                 }
                 else
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ResultMessageApi.ErrorDisconnectApi,
@@ -216,10 +229,10 @@ namespace Admin.Services.Product
             }
             catch (Exception ex)
             {
-                 await Swal.FireAsync(new SweetAlertOptions
+                await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
-                    Text = ResultMessageApi.ErrorDisconnectApi,
+                    Text = ex.ToString(),
                     Icon = ResultMessageApi.Error,
                     ShowConfirmButton = true,
                 });
@@ -232,7 +245,7 @@ namespace Admin.Services.Product
                 //updateProduct.CategoryID = _CategoryService.CategoryID;
                 if (updateProduct.CategoryID == null)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                   await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = "دسته بندی سطح 3 را انتخاب کنید",
@@ -243,7 +256,7 @@ namespace Admin.Services.Product
                 }
                 if (updateProduct.Discount > updateProduct.Price)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = "تخفیف نمیتونه بیشتر از قیمت اصلی باشه",
@@ -254,7 +267,7 @@ namespace Admin.Services.Product
                 }
                 if (updateProduct.Price == 0)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = "قیمت اصلی نمیتونه صفر باشه",
@@ -293,7 +306,7 @@ namespace Admin.Services.Product
                 }
                 else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = resdataEdit.Message,
@@ -314,16 +327,16 @@ namespace Admin.Services.Product
             }
             catch (Exception ex)
             {
-               await Swal.FireAsync(new SweetAlertOptions
+                 await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
-                    Text = ResultMessageApi.ErrorDisconnectApi,
+                    Text = ex.ToString(),
                     Icon = ResultMessageApi.Error,
                     ShowConfirmButton = true,
                 });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
@@ -379,7 +392,7 @@ namespace Admin.Services.Product
                 await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
-                    Text = ResultMessageApi.ErrorDisconnectApi,
+                    Text = ex.ToString(),
                     Icon = ResultMessageApi.Error,
                     ShowConfirmButton = true,
                 });

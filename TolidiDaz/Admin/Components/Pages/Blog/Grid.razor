@@ -2,7 +2,7 @@
 @using Admin.Services.Blog
 @using Admin.Services.GroupBlog
 @using Dto.Models.DtoBlog
-@inject NavigationManager NavManager
+
 @inject BlogService _BlogService
 @inject GroupBlogService _GroupBlogService
 <AccessAdminRoles />
@@ -150,17 +150,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _BlogService.OnChange += HandleStateChange;
         await _BlogService.GetDataAsync();
     }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _BlogService.OnChange -= HandleStateChange;
-    }
+   
     private async Task CallBackPagingAsync(decimal page)
     {
         _BlogService.pagingModel.Page = page;

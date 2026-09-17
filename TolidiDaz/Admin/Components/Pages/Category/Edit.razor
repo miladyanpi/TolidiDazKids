@@ -1,6 +1,6 @@
 ﻿@page "/UpdateCategory/{guid}"
 @using Admin.Services.Category
-@inject NavigationManager NavManager
+
 @inject CategoryService _CategoryService
 
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
@@ -112,11 +112,10 @@
         _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
        
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _CategoryService.Guid = guid;
-            await _CategoryService.GetUpdateDataAsync();
+            await _CategoryService.GetUpdateDataAsync(guid);
         }
     }
     private async void HandleStateChange()

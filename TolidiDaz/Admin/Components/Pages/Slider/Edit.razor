@@ -1,6 +1,6 @@
 ﻿@page "/UpdateSlider/{guid}"
 @using Admin.Services.Slider
-@inject NavigationManager NavManager
+
 @inject SliderService _SliderService
 <AccessAdminRoles />
 
@@ -71,11 +71,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _SliderService.Guid = guid;
-            await _SliderService.GetUpdateDataAsync();
+            await _SliderService.GetUpdateDataAsync(guid);
         }
 
     }

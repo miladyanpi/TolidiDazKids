@@ -1,7 +1,7 @@
 ﻿@page "/UpdateProductFeature/{guid}"
 @using Admin.Services.Category
 @using Admin.Services.ProductFeature
-@inject NavigationManager NavManager
+
 @inject ProductFeatureService _ProductFeatureService
 @inject CategoryService _CategoryService
 <AccessAdminRoles />
@@ -88,11 +88,10 @@
         _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
 
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _ProductFeatureService.guid = guid;
-            await _ProductFeatureService.GetUpdateDataAsync();
+            await _ProductFeatureService.GetUpdateDataAsync(guid);
         }
     }
     private async void HandleStateChange()

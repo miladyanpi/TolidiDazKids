@@ -1,6 +1,6 @@
 ﻿@page "/UpdateProductVariant/{guid}"
 @using Admin.Services.ProductVariant
-@inject NavigationManager NavManager
+
 @inject ProductVariantService _ProductVariantService
 <AccessAdminRoles />
 
@@ -74,11 +74,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _ProductVariantService.guid = guid;
-            await _ProductVariantService.GetUpdateDataAsync();
+            await _ProductVariantService.GetUpdateDataAsync(guid);
         }
     }
 }

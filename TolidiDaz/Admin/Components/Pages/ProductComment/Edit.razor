@@ -3,7 +3,7 @@
 @using Dto.Models.DtoLable
 @using Newtonsoft.Json
 @inject SweetAlertService Swal
-@inject NavigationManager NavManager
+
 @inject IToastMessage JS
 @inject IRootApi<ResponseApiEntity<ResultProductComment>> RootApiresultProductComment
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]

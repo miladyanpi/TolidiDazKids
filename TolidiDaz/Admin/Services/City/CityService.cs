@@ -28,7 +28,6 @@ namespace Admin.Services.City
         public AddCity? addCity { get; set; } = new();
         public ResultCity resultCity { get; set; } = new();
         public List<ResultCity>? ResultCitys= new List<ResultCity>();
-        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try

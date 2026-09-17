@@ -3,7 +3,7 @@
 @using static Dto.Enum.EnumConstant
 @inject SweetAlertService Swal
 @inject ILocalStorageService localStorageService
-@inject NavigationManager NavManager
+
 @inject IRootApi<ResponseApiEntity<UpdateProduct>> RootApiUpdateProduct
 @inject IRootApi<ResponseApiEntity<UpdateJsonFile>> RootApiUpdateJsonFile
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]

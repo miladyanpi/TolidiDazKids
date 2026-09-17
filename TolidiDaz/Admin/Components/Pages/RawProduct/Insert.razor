@@ -2,7 +2,7 @@
 @using Dto.Models.DtoRawProduct
 
 @inject SweetAlertService Swal
-@inject NavigationManager NavManager
+
 @inject IToastMessage JS
 @inject IRootApi<ResponseApiEntity<AddRawProduct>> RootApiAddRawProduct
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]

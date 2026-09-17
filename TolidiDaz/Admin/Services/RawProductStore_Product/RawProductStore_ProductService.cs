@@ -1,6 +1,8 @@
 ﻿using Admin.Base;
 using Admin.Services;
 using Admin.Services.BaseShareService;
+using CurrieTechnologies.Razor.SweetAlert2;
+using Dto.Models.Constant;
 using Dto.Models.DtoRawProductStore_Product;
 using Dto.Models.ResponseApi;
 using RestSharp;
@@ -8,7 +10,7 @@ using RestSharp;
 namespace Admin.Services.RawProductStore_Product
 {
     public class RawProductStore_ProductService(
-        IRootApi<ResponseApiEntities<ResultRawProductStore_Product>> _RootApiRawProductStore_Product) : BaseService
+        IRootApi<ResponseApiEntities<ResultRawProductStore_Product>> _RootApiRawProductStore_Product, SweetAlertService Swal) : BaseService
     {
 
         public List<ResultRawProductStore_Product>? ResultRawProductStore_Products { get; set; } = new List<ResultRawProductStore_Product>();
@@ -17,16 +19,30 @@ namespace Admin.Services.RawProductStore_Product
         
         public async Task GetData(int? RawProductStoreID)
         {
-            var resdata = await _RootApiRawProductStore_Product.RunMethodApi($"RawProductStore_Products/ByRawProductStoreID?RawProductStoreID={RawProductStoreID}", null, method: Method.Get);
-            if (resdata != null)
+            try
             {
-                ResultRawProductStore_Products = resdata.Entities.ToList();
+                var resdata = await _RootApiRawProductStore_Product.RunMethodApi($"RawProductStore_Products/ByRawProductStoreID?RawProductStoreID={RawProductStoreID}", null, method: Method.Get);
+                if (resdata != null)
+                {
+                    ResultRawProductStore_Products = resdata.Entities.ToList();
+                }
+                else
+                {
+                    ResultRawProductStore_Products = new();
+                }
+                NotifyStateChanged();
             }
-            else
+            catch (Exception ex)
             {
-                ResultRawProductStore_Products = new();
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
-            NotifyStateChanged();
+          
 
         }
 

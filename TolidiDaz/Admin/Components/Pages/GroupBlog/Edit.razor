@@ -1,6 +1,6 @@
 ﻿@page "/UpdateGroupBlog/{guid}"
 @using Admin.Services.GroupBlog
-@inject NavigationManager NavManager
+
 @inject GroupBlogService _GroupBlogService
 <AccessAdminRoles />
 
@@ -65,11 +65,10 @@
    
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _GroupBlogService.guid = guid;
-            await _GroupBlogService.GetUpdateDataAsync();
+            await _GroupBlogService.GetUpdateDataAsync(guid);
         }
 
     }
