@@ -35,6 +35,7 @@ using ServicesLibrary.Services.ProductCommentSrv;
 using ServicesLibrary.Services.ProductFeatureSrv;
 using ServicesLibrary.Services.ProductFeatureValueSrv;
 using ServicesLibrary.Services.ProductSrv;
+using ServicesLibrary.Services.ProductVariantSrv;
 using ServicesLibrary.Services.ProvinceSrv;
 using ServicesLibrary.Services.QuestionSrv;
 using ServicesLibrary.Services.RawProductSrv;
@@ -125,6 +126,7 @@ namespace ServicesLibrary.Services
             service.AddTransient<IBlogCommentService, BlogCommentService>();
             service.AddTransient<ITraitService, TraitService>();
             service.AddTransient<ITraitValueService, TraitValueService>();
+            service.AddTransient<IProductVariantService, ProductVariantService>();
             service.AddSingleton<IViewCounterService, InMemoryViewCounterService>();
             service.AddScoped<SyncProductViewsJob>();
 
