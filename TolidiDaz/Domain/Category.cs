@@ -18,6 +18,7 @@ namespace Domain
         public virtual Category? Parent { get; set; }
         public virtual ICollection<Product>? Products { get; set; }
         public virtual ICollection<ProductFeature>? ProductFeatures { get; set; }
+        public virtual ICollection<CategoryTrait>? CategoryTraits { get; set; }
         #endregion
     }
 }

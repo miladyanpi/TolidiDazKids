@@ -58,6 +58,13 @@ namespace DAL.Context
         public DbSet<Question>? Question { get; set; }
         public DbSet<Ticket>? Ticket { get; set; }
 
+        public DbSet<Trait>? Trait { get; set; }
+        public DbSet<TraitValue>? TraitValue { get; set; }
+        public DbSet<ProductVariant>? ProductVariant { get; set; }
+        public DbSet<ProductVariantValue>? ProductVariantValue { get; set; }
+        public DbSet<CategoryTrait>? CategoryTrait { get; set; }
+
+
         #endregion
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -104,6 +111,11 @@ namespace DAL.Context
             builder.ApplyConfiguration(new ProductCommentMap());
             builder.ApplyConfiguration(new BlogCommentMap());
             builder.ApplyConfiguration(new TicketMap());
+
+            builder.ApplyConfiguration(new TraitValueMap());
+            builder.ApplyConfiguration(new ProductVariantMap());
+            builder.ApplyConfiguration(new ProductVariantValueMap());
+            builder.ApplyConfiguration(new CategoryTraitMap());
         }
         public override int SaveChanges()
         {

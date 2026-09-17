@@ -1102,7 +1102,7 @@ namespace MappingProfile.DtoMappingConfigs
                 Visible = x.Visible,
                 Description = x.Description,
 
-
+                IdentityCode = x.IdentityCode,
                 RegisterTime = x.RegisterTime,
                 EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
                 RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
@@ -1118,6 +1118,7 @@ namespace MappingProfile.DtoMappingConfigs
                 Visible = x.Visible,
                 Description = x.Description,
 
+                IdentityCode = x.IdentityCode,
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,
                 RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
@@ -1133,7 +1134,7 @@ namespace MappingProfile.DtoMappingConfigs
                 Visible = x.Visible,
                 Description = x.Description,
 
-
+                IdentityCode = x.IdentityCode,
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,
                 RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
@@ -1487,7 +1488,7 @@ namespace MappingProfile.DtoMappingConfigs
                 JsonVideo = x.JsonVideo,
                 Visible = x.Visible,
                 Description = x.Description,
-
+                IdentityCode= x.IdentityCode,
                 RegisterTime = x.RegisterTime,
                 EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
                 RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
@@ -1503,6 +1504,7 @@ namespace MappingProfile.DtoMappingConfigs
                 JsonVideo = x.JsonVideo,
                 Visible = x.Visible,
                 Description = x.Description,
+                IdentityCode = x.IdentityCode,
 
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,
@@ -1520,6 +1522,7 @@ namespace MappingProfile.DtoMappingConfigs
                 Visible = x.Visible,
                 Description = x.Description,
 
+                IdentityCode = x.IdentityCode,
 
                 RegisterTime = x.RegisterTime,
                 EditTime = x.EditTime,

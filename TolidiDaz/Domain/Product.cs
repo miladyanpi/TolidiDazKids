@@ -25,6 +25,7 @@
         public virtual ICollection<RawProductStore_Product>? RawProductStore_Products { get; set; }
         public virtual ICollection<FavoritUserProduct>? FavoritUserProducts { get; set; }
         public virtual ICollection<ProductComment>? ProductComments { get; set; }
+        public virtual ICollection<ProductVariant>? ProductVariants { get; set; } 
 
         #endregion
     }

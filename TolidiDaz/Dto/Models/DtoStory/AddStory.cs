@@ -6,6 +6,10 @@ namespace  Dto.Models.DtoStory
 {
     public class AddStory:BaseModel
     {
+        public AddStory()
+        {
+            Visible = true;
+        }
         [DisplayName("عنوان")]
         [Required(ErrorMessage = "| الزامی است")]
         public string? Title { get; set; }

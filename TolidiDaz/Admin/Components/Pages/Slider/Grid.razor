@@ -49,11 +49,26 @@
                     }
                     @foreach (var item in _SliderService.ResultSliders)
                     {
-
+                        var ResultUploadImages = !string.IsNullOrEmpty(@item.JsonPicture) ? JsonConvert.DeserializeObject<List<ResultUploadFile>>(@item.JsonPicture) : new List<ResultUploadFile>();
                         i++;
                         decimal k = i;
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
+                                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    @if (ResultUploadImages.Count > 0)
+                                    {
+                                        var path = @ApiLink.FullPath + @ResultUploadImages[0].PathFileName;
+
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img class="h-10 w-10 rounded-md object-cover" src="@path" alt="@item.Title">
+                                        </div>
+                                    }
+                                    <div class="mr-4">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">@item.Title</div>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Title</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Url</td>
                             @* <td class="px-6 py-4">
