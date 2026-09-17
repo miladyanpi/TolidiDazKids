@@ -1,158 +1,92 @@
-﻿@page "/UpdateQuestion"
-@using Dto.Models.DtoAccount
-@using Dto.Models.DtoQuestion
-@using Dto.Models.DtoQuestion
-@using Dto.Models.DtoGroupQuestion
-@using Dto.Models.DtoLable
-@using Dto.Models.DtoUploadFile
-@using System.Net.Http.Headers
-@using Newtonsoft.Json
-@inject SweetAlertService Swal
+﻿@page "/UpdateQuestion/{guid}"
+@using Admin.Services.Question
 @inject NavigationManager NavManager
-@inject IToastMessage JS
-@inject IRootApi<ResponseApiEntity<UpdateQuestion>> RootApiUpdateQuestion
-@inject IRootApi<ResponseApiEntities<ResultGroupQuestion>> RootApiResultGroupQuestions
-@attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
+@inject QuestionService _QuestionService
+<AccessAdminRoles />
 
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
     <!-- header page -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">ویرایش اطلاعات بلاگ</h2>
-            <p class="text-gray-600 dark:text-gray-400">اطلاعات بلاگ را ویرایش نمایید</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">ویرایش اطلاعات بلیط ویژه</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات بلیط را ویرایش نمایید</p>
         </div>
-        <div class="mt-4 md:mt-0">
-            <button @onclick="GoBack" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                </svg>
-                بازگشت
-            </button>
-        </div>
+        <BackButton UrlPage="Question" />
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="updateQuestion" OnValidSubmit="Update" FormName="UpdateForm">
+    <EditForm Model="_QuestionService.updateQuestion" OnValidSubmit="_QuestionService.UpdateAsync" FormName="UpdateForm">
         <DataAnnotationsValidator />
         <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
             <div class="px-6 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
-                    فرم بلاگ
+                    فرم بلیط
                 </h3>
             </div>
 
             <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Question Info -->
                 <div class="space-y-4">
-
                     <div>
-                        <CustomLabel ForId="category-parent" For="@(() => updateQuestion.GroupQuestionID)"></CustomLabel>
-                        <ValidationMessage For="@(() => updateQuestion.GroupQuestionID)" class="validate" />
-                        <InputSelect @bind-Value="updateQuestion.GroupQuestionID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            @foreach (var item in ResultGroupQuestions)
+                        <CustomLabel ForId="category-parent" For="@(() => _QuestionService.updateQuestion.GroupQuestionID)"></CustomLabel>
+                        <ValidationMessage For="@(() => _QuestionService.updateQuestion.GroupQuestionID)" class="validate" />
+                        <InputSelect @bind-Value=" _QuestionService.updateQuestion.GroupQuestionID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @foreach (var item in _QuestionService.ResultQuestions)
                             {
                                 <option value="@item.ID">@item.Title</option>
                             }
                         </InputSelect>
                     </div>
-                    
                     <div>
-                        <CustomLabel ForId="Question-Title" For="@(() => updateQuestion.Title)"></CustomLabel>
-                        <ValidationMessage For="@(() => updateQuestion.Title)" class="validate" />
-                        <InputText id="Question-Title" @bind-Value="updateQuestion.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <CustomLabel ForId="Question-Title" For="@(() => _QuestionService.updateQuestion.Title)"></CustomLabel>
+                        <ValidationMessage For="@(() => _QuestionService.updateQuestion.Title)" class="validate" />
+                        <InputText id="Question-Title" @bind-Value="_QuestionService.updateQuestion.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
-                    
-                    <div>
-                        <CustomLabel ForId="Question-StudyDuration" For="@(() => updateQuestion.SubTitle)"></CustomLabel>
-                        <ValidationMessage For="@(() => updateQuestion.SubTitle)" class="validate" />
-                        <InputText id="Question-StudyDuration" @bind-Value="updateQuestion.SubTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                     <div>
+                        <CustomLabel ForId="Question-Title" For="@(() => _QuestionService.updateQuestion.SubTitle)"></CustomLabel>
+                        <ValidationMessage For="@(() => _QuestionService.updateQuestion.SubTitle)" class="validate" />
+                        <InputText id="Question-Title" @bind-Value="_QuestionService.updateQuestion.SubTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                 </div>
-
-
                 <!-- Settings -->
                 <div class="space-y-4">
-
-                    <div>
-                        <CustomLabel ForId="Question-description" For="@(() => updateQuestion.Description)"></CustomLabel>
-                        @* <InputTextArea @bind-Value="updateQuestion.Description" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" /> *@
-                        <TextEditor @bind-Value="updateQuestion.Description" />
-                    </div>
-                    <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => updateQuestion.Visible)"></CustomLabel>
-                        <InputRadioGroup @bind-Value="updateQuestion.Visible" Name="status">
-                            <InsertUpdateVisible />
-                        </InputRadioGroup>
-                        <ValidationMessage For="@(() => updateQuestion.Visible)" class="validate" />
-                    </div>
-
+                    <CustomLabel ForId="Question-description" For="@(() => _QuestionService.updateQuestion.Description)"></CustomLabel>
+                    @* <InputTextArea @bind-Value="updateQuestion.Description" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" /> *@
+                    <TextEditor @bind-Value="_QuestionService.updateQuestion.Description" />
+                </div>
+                <div class="mb-4">
+                    <CustomLabel ForId="Visible-stock" For="@(() => _QuestionService.updateQuestion.Visible)"></CustomLabel>
+                    <InputRadioGroup @bind-Value="_QuestionService.updateQuestion.Visible" Name="status">
+                        <InsertUpdateVisible />
+                    </InputRadioGroup>
+                    <ValidationMessage For="@(() => _QuestionService.updateQuestion.Visible)" class="validate" />
                 </div>
             </div>
-            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
-                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                    ذخیره
-                </button>
-
-            </div>
         </div>
+        <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+            <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                ذخیره
+            </button>
 
-    </EditForm>
+        </div>
+</EditForm>
 </main>
+
 @code {
 
-    private UpdateQuestion? updateQuestion { get; set; } = new() { Visible = true };
-    private List<ResultGroupQuestion>? ResultGroupQuestions { get; set; } = new List<ResultGroupQuestion>();
+    [Parameter]
+    public string? guid { get; set; }
 
-    [SupplyParameterFromQuery]
-    public int ID { get; set; }
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        await GetData();
-
-    }
-    private async Task Update()
-    {
-        var resdata = await RootApiUpdateQuestion.RunMethodApi("Questions", updateQuestion, method: Method.Patch);
-        if (resdata.Status == ResultMessageApi.Success)
+        bool isValid = Guid.TryParse(guid, out Guid gid);
+        if (isValid)
         {
-            await JS.CallAlertToast(resdata.Message);
-        }
-        else
-        {
-            var result2 = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Title = "پیام",
-                Text = resdata.Message,
-                Icon = resdata.Status,
-                ShowConfirmButton = true,
-            });
+            _QuestionService.guid = guid;
+            await _QuestionService.GetUpdateDataAsync();
         }
 
-
     }
-    public async Task GetData()
-    {
-        var resdataEdit = await RootApiUpdateQuestion.RunMethodApi($"Questions/{ID}", null, method: Method.Get);
-        if (resdataEdit != null && resdataEdit.Status==ResultMessageApi.Success)
-        {
-            updateQuestion = resdataEdit.Entity;
 
-        }
-
-        var resdata = await RootApiResultGroupQuestions.RunMethodApi($"GroupQuestions/All", null, method: Method.Get);
-        if (resdata != null && resdata.Status==ResultMessageApi.Success)
-        {
-            ResultGroupQuestions = resdata.Entities.ToList();
-            if (updateQuestion.GroupQuestionID == null)
-                updateQuestion.GroupQuestionID = ResultGroupQuestions.Count > 0 ? ResultGroupQuestions[0].ID : null;
-        }
-
-
-    }
-    private void GoBack()
-    {
-        NavManager.NavigateTo("/Question");
-    }
-  
+    
 }
-
