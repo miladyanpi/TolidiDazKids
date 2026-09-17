@@ -1,5 +1,13 @@
 ﻿namespace Domain
 {
+    /// <summary>
+    /// قیمت محصولات مختلف
+    /// Id	ProductId	     SkuCode	             Price	       Count
+    //  501	   100	         SET-A1115-NAVY-L	     899,000	       5
+    //  502	   100	         SET-A1115-NAVY-XL	     899,000	       2
+    //  503	   100	         SET-A1115-CREAM-L	     920,000	       0
+    //  504	   100	         SET-A1115-CREAM-XL	     950,000	       8
+    /// </summary>
     public class ProductVariant:Base
     {
         public int ProductID { get; set; }

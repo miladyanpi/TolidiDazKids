@@ -4,7 +4,6 @@ namespace Domain
 {
     /// <summary>
     /// ویژگی 
-    /// صفت
     /// Feature
     ///  مثلا: "سایز"، "رنگ"، "وزن"
     /// </summary>
