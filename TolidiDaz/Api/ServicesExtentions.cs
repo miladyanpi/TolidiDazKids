@@ -35,6 +35,7 @@ using ServicesLibrary.Services.ProductCommentSrv;
 using ServicesLibrary.Services.ProductFeatureSrv;
 using ServicesLibrary.Services.ProductFeatureValueSrv;
 using ServicesLibrary.Services.ProductSrv;
+using ServicesLibrary.Services.ProductVariantSrv;
 using ServicesLibrary.Services.ProvinceSrv;
 using ServicesLibrary.Services.QuestionSrv;
 using ServicesLibrary.Services.RawProductSrv;
@@ -51,6 +52,7 @@ using ServicesLibrary.Services.StorySrv;
 using ServicesLibrary.Services.TeamSrv;
 using ServicesLibrary.Services.TicketSrv;
 using ServicesLibrary.Services.TraitSrv;
+using ServicesLibrary.Services.TraitValueSrv;
 using ServicesLibrary.Services.ViewCounter;
 using ServicesLibrary.Services.WalletSrv;
 using ServicesLibrary.Services.WalletTransactionSrv;
@@ -123,6 +125,8 @@ namespace ServicesLibrary.Services
             service.AddTransient<ITicketService, TicketService>();
             service.AddTransient<IBlogCommentService, BlogCommentService>();
             service.AddTransient<ITraitService, TraitService>();
+            service.AddTransient<ITraitValueService, TraitValueService>();
+            service.AddTransient<IProductVariantService, ProductVariantService>();
             service.AddSingleton<IViewCounterService, InMemoryViewCounterService>();
             service.AddScoped<SyncProductViewsJob>();
 
