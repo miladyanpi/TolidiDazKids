@@ -28,6 +28,7 @@ namespace Admin.Services.Category
         
         };
         public ResultCategory resultCategory { get; set; } = new();
+
         public List<ResultCategory>? ResultCategorys = new List<ResultCategory>();
         public List<ResultCategory>? ResultCategorys1 = new List<ResultCategory>();
         public List<ResultCategory>? ResultCategorys2 { get; set; } = new List<ResultCategory>();
@@ -63,12 +64,13 @@ namespace Admin.Services.Category
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     ResultCategorys1 = resdata.Entities.ToList();
-                    NotifyStateChanged();
                 }
                 else
                 {
                     ResultCategorys1 = new();
                 }
+                NotifyStateChanged();
+
             }
             catch (Exception ex)
             {
@@ -81,19 +83,90 @@ namespace Admin.Services.Category
                 });
             }
         }
+        public async Task GetAllDataAsync2()
+        {
+            try
+            {
+                var resdata = await _RootApiResultCategorys.RunMethodApi("Categorys/All", null, method: Method.Get);
+
+                if (resdata?.Status == ResultMessageApi.Success && resdata.Entities is not null)
+                {
+                    // ۱. دریافت دسته‌های سطح اول
+                    ResultCategorys1 = resdata.Entities.ToList();
+
+                    // ۲. فلت کردن سریع و ایمن دسته‌های سطح دوم با LINQ و جلوگیری از Null
+                    ResultCategorys2 = ResultCategorys1
+                        .Where(c => c.ResultCategorys is not null)
+                        .SelectMany(c => c.ResultCategorys)
+                        .ToList();
+                }
+                else
+                {
+                    // ریست کردن هر دو لیست در صورت عدم موفقیت API
+                    ResultCategorys1 = new();
+                    ResultCategorys2 = new();
+                }
+            }
+            catch (Exception ex)
+            {
+                // در صورت بروز خطا هم لیست‌ها ایمن خالی می‌مانند
+                ResultCategorys1 = new();
+                ResultCategorys2 = new();
+
+                // TODO: اگر ILogger داری ex رو اینجا لاگ کن
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "خطا در دریافت اطلاعات",
+                    Text = "متأسفانه در برقراری ارتباط با سرور خطایی رخ داده است.",
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                    ConfirmButtonText = "متوجه شدم"
+                });
+            }
+            finally
+            {
+                // با خیال راحت وضعیت کامپوننت را در هر حالتی به‌روزرسانی می‌کنیم
+                NotifyStateChanged();
+            }
+        }
+
         public void GetCategoryParent2InAdd()
         {
             var q = ResultCategorys1.Where(s => s.ID == addCategory.ParentID1).FirstOrDefault();
             if (q != null)
             {
                 ResultCategorys2 = q.ResultCategorys;
-                NotifyStateChanged();
 
             }
             else
             {
                 ResultCategorys2 = new();
             }
+            NotifyStateChanged();
+
+        }
+        public async Task GetCategoryParent2InAdd2()
+        {
+            ResultCategorys2.Clear();
+            if (addCategory.ParentID1==0|| addCategory.ParentID1==null)
+            {
+                await GetAllDataAsync2();
+            }
+            else
+            {
+                var q = ResultCategorys1.Where(s => s.ID == addCategory.ParentID1).FirstOrDefault();
+                if (q != null)
+                {
+                    ResultCategorys2 = q.ResultCategorys;
+                
+
+                }
+                else
+                {
+                    ResultCategorys2 = new();
+                }
+            }
+            NotifyStateChanged();
         }
         public void GetCategoryParent3InAdd()
         {
@@ -101,13 +174,14 @@ namespace Admin.Services.Category
             if (q != null)
             {
                 ResultCategorys3 = q.ResultCategorys;
-                NotifyStateChanged();
 
             }
             else
             {
                 ResultCategorys3 = new();
             }
+            NotifyStateChanged();
+
         }
         public void GetCategoryParent2InUpdate()
         {
@@ -123,6 +197,8 @@ namespace Admin.Services.Category
                 ResultCategorys2 = new();
                 updateCategory.ParentID2 = null;
             }
+            NotifyStateChanged();
+
         }
         public async Task DeleteAsync(int ID)
         {

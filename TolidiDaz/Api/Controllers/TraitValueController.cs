@@ -5,9 +5,11 @@ using Dto.Enum;
 using Dto.Models.Constant;
 using Dto.Models.DtoTraitValue;
 using Dto.Models.ResponseApi;
+using LinqKit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.TraitSrv;
 using ServicesLibrary.Services.TraitValueSrv;
 using System.Linq.Expressions;
 
@@ -17,6 +19,7 @@ namespace Api.Controllers
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TraitValueController(
+        ITraitService _TraitService,
         ITraitValueService _TraitValueService,
         IMapper _mapper
         )
@@ -99,7 +102,7 @@ namespace Api.Controllers
         }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPost("TraitValues/Data")]
-        public async Task<IActionResult> GetTraitValues([FromBody] PaginationParams @params)
+        public async Task<IActionResult> GetTraitValues([FromBody] PaginationParams @params,string guid)
         {
             try
             {
@@ -110,9 +113,28 @@ namespace Api.Controllers
                                                                     message: ResultMessageApi.GetError,
                                                                     countAllRecordTable: 0
                                                                    ));
+                bool isValid = Guid.TryParse(guid, out Guid gid);
+                if (!isValid)
+                    return BadRequest(new ResponseApiEntities<ResultTraitValue>
+                                                                    (entities: new List<ResultTraitValue>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
+
+                var q = await _TraitService.FirstOrDefaultAsync(s => s.IdentityCode == gid);
+                if (q is null)
+                    return BadRequest(new ResponseApiEntities<ResultTraitValue>
+                                                                    (entities: new List<ResultTraitValue>(),
+                                                                    statusCode: ResultMessageApi.ErrorCode,
+                                                                    status: ResultMessageApi.Error,
+                                                                    message: ResultMessageApi.GetError,
+                                                                    countAllRecordTable: 0
+                                                                   ));
 
                 Expression<Func<TraitValue, bool>> predicate = x => true;
-
+                predicate = predicate.And(s => s.TraitID == q.ID);
                 if (!string.IsNullOrWhiteSpace(@params.SearchText))
                 {
                     var search = @params.SearchText;

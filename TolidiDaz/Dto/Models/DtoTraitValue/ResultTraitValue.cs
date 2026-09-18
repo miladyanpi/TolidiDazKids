@@ -17,6 +17,7 @@ namespace  Dto.Models.DtoTraitValue
         public string? Value { get; set; }
         [DisplayName("نمایش کد رنگ")]
         public string? DisplayColorHex { get; set; }
+        [DisplayName("نوع ویژگی")]
         public ResultTrait? ResultTrait { get; set; } = new();
     }
 }

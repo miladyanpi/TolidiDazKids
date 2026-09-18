@@ -1,0 +1,109 @@
+﻿@page "/CategoryTrait"
+@using Admin.Services.Category
+@using Admin.Services.CategoryTrait
+@using Admin.Services.Trait
+@using Dto.Models.DtoCategoryTrait
+@inject CategoryService _CategoryService
+@inject TraitService _TraitService
+@inject CategoryTraitService _CategoryTraitService
+@inject NavigationManager NavManager
+<div class="container">
+    <!-- هدر -->
+    <header>
+        <div class="header-title">
+            <h2>
+                <span class="icon-box"><i class="fa-solid fa-table-cells"></i></span>
+                ماتریس تخصیص ویژگی‌ها
+            </h2>
+            <p>برای هر زیردسته، ویژگی‌های قابل انتخاب را تعیین کنید.</p>
+        </div>
+
+    </header>
+
+    <!-- نوار ابزار -->
+    <div class="toolbar">
+        <div class="filter-group">
+            <label for="parentCategorySelect"><strong>انتخاب دسته والد (سطح ۱):</strong></label>
+            <!-- المان‌های Select به صورت استاتیک در HTML قرار گرفتند -->
+            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( async () => await _CategoryService.GetCategoryParent2InAdd2())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option value="0">-- نمایش همه دسته‌ها --</option>
+
+                @foreach (var item in _CategoryService.ResultCategorys1)
+                {
+                    <option value="@item.ID">@item.Title</option>
+                }
+            </InputSelect>
+            <span class="text-muted" id="recordCount" style="font-size: 12px; color: #666;"></span>
+        </div>
+
+        <button id="saveBtn" class="btn btn-primary" onclick="saveMatrix()">
+            <i class="fa-solid fa-save"></i>
+            ذخیره تغییرات
+        </button>
+    </div>
+
+    <!-- جدول -->
+    <div class="table-wrapper">
+        <table id="matrixTable">
+            <thead>
+                <tr id="tableHeaderRow">
+                    <th>زیردسته (سطح ۲)</th>
+                    <!-- ستون‌های ویژگی به صورت استاتیک در HTML قرار گرفتند -->
+                    @foreach (var item in _TraitService.ResultTraits)
+                    {
+                        <th>
+                            <div class="trait-col-header">
+                                <span>@item.Title</span>
+                                <button class="btn-xs" onclick="toggleEntireColumn(1)">انتخاب همه</button>
+                            </div>
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                @foreach (var item in _CategoryService.ResultCategorys2)
+                {
+                    _CategoryTraitService.AddCategoryTraitSelects.Clear();
+                    <tr data-parent-id="1">
+                        <td>
+                            <div class="subcat-info">
+                                <strong>@item.Title</strong>
+                                <span class="subcat-parent">پوشاک</span>
+                            </div>
+                            <button class="btn-xs" style="margin-top:5px;" onclick="toggleEntireRow(101)">انتخاب کل سطر</button>
+                        </td>
+                        <!-- Checkboxes: Cat 101 -->
+                        @foreach (var item2 in _TraitService.ResultTraits)
+                        {
+                            _CategoryTraitService.AddCategoryTraitSelects.Add(new AddCategoryTraitSelect
+                            {
+                                CategoryID = item.ID,
+                                TraitID = item2.ID,
+                                Checked = false,
+                            });
+                            <td>
+                                <input type="checkbox" data-cat="101" data-trait="1" checked onchange="handleCheckboxChange(101, 1, this.checked)">
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- المان نمایش پیام -->
+<div id="toast">پیام سیستم</div>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await _CategoryService.GetAllDataAsync2();
+        await _TraitService.GetAllDataAsync();
+
+    }
+
+   
+}
+

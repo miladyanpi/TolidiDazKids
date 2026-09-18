@@ -5,54 +5,43 @@ using Dto.DtoPaginagion;
 using Dto.Enum;
 using Dto.Models;
 using Dto.Models.Constant;
-using Dto.Models.DtoTrait;
+using Dto.Models.DtoCategoryTrait;
 using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
-using static Dto.Enum.EnumConstant;
 
-namespace Admin.Services.Trait
+namespace Admin.Services.CategoryTrait
 {
 
-    public class TraitService(
-        IRootApi<ResponseApiEntities<ResultTrait>> _RootApiResultTraits,
-        IRootApi<ResponseApiEntity<ResultTrait>> RootApiResultTrait,
-        IRootApi<ResponseApiEntity<AddTrait>> RootApiAddTrait,
-        IRootApi<ResponseApiEntity<UpdateTrait>> RootApiUpdateTrait,
+    public class CategoryTraitService(
+        IRootApi<ResponseApiEntities<ResultCategoryTrait>> _RootApiResultCategoryTraits,
+        IRootApi<ResponseApiEntity<ResultCategoryTrait>> RootApiResultCategoryTrait,
+        IRootApi<ResponseApiEntity<AddCategoryTrait>> RootApiAddCategoryTrait,
+        IRootApi<ResponseApiEntity<UpdateCategoryTrait>> RootApiUpdateCategoryTrait,
         IJSRuntime JS,
         SweetAlertService Swal
         ) :BaseService
     {
-        public UpdateTrait? updateTrait { get; set; } = new();
-        public AddTrait? addTrait { get; set; } = new();
-        public ResultTrait resultTrait { get; set; } = new();
-        public List<ResultTrait>? ResultTraits= new List<ResultTrait>();
-        public List<(int? Id,string Title)>? ResultTraitDisplayTypes = [];
-        public void GetListTraitDisplayType()
-        {
-            ResultTraitDisplayTypes = EnumConstant.GetListTraitDisplayType();
-            if (ResultTraitDisplayTypes.Count > 0)
-            {
-                addTrait.DisplayType = ResultTraitDisplayTypes[0].Id;
-            }
-            NotifyStateChanged();
-
-        }
+        public UpdateCategoryTrait? updateCategoryTrait { get; set; } = new();
+        public AddCategoryTrait? addCategoryTrait { get; set; } = new();
+        public ResultCategoryTrait resultCategoryTrait { get; set; } = new();
+        public List<ResultCategoryTrait>? ResultCategoryTraits= new List<ResultCategoryTrait>();
+        public List<AddCategoryTraitSelect>? AddCategoryTraitSelects= new List<AddCategoryTraitSelect>();
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultTraits.RunMethodApi($"Traits/Data", SetPaging(SearchText), method: Method.Post);
+                var resdata = await _RootApiResultCategoryTraits.RunMethodApi($"CategoryTraits/Data", SetPaging(SearchText), method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultTraits = resdata.Entities.ToList() ?? [];
+                    ResultCategoryTraits = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
                     NotifyStateChanged();
                 }
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -61,20 +50,20 @@ namespace Admin.Services.Trait
                 });
             }
         }
-        public async Task GetAllDataAsync()
+        public async Task GetAllDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultTraits.RunMethodApi($"Traits/All", null, method: Method.Get);
+                var resdata = await _RootApiResultCategoryTraits.RunMethodApi($"CategoryTraits/All", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultTraits = resdata.Entities.ToList();
+                    ResultCategoryTraits = resdata.Entities.ToList();
                     NotifyStateChanged();
                 }
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -97,7 +86,7 @@ namespace Admin.Services.Trait
             {
                 try
                 {
-                    var resdata = await RootApiResultTrait.RunMethodApi($"Traits/{ID}", null, method: Method.Delete);
+                    var resdata = await RootApiResultCategoryTrait.RunMethodApi($"CategoryTraits/{ID}", null, method: Method.Delete);
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
@@ -105,7 +94,7 @@ namespace Admin.Services.Trait
                     }
                     else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                     {
-                         await Swal.FireAsync(new SweetAlertOptions
+                        _ = await Swal.FireAsync(new SweetAlertOptions
                         {
                             Title = "پیام",
                             Text = resdata.Message,
@@ -115,7 +104,7 @@ namespace Admin.Services.Trait
                     }
                     else
                     {
-                        await Swal.FireAsync(new SweetAlertOptions
+                        _ = await Swal.FireAsync(new SweetAlertOptions
                         {
                             Title = "پیام",
                             Text = ResultMessageApi.ErrorDisconnectApi,
@@ -126,7 +115,7 @@ namespace Admin.Services.Trait
                 }
                 catch (Exception ex)
                 {
-                    await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ex.ToString(),
@@ -140,15 +129,15 @@ namespace Admin.Services.Trait
         {
             try
             {
-                var resdata = await RootApiAddTrait.RunMethodApi("Traits", addTrait, method: Method.Post);
+                var resdata = await RootApiAddCategoryTrait.RunMethodApi("CategoryTraits", addCategoryTrait, method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                    addTrait = new();
+                    addCategoryTrait = new();
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
-                     await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = resdata.Message,
@@ -158,7 +147,7 @@ namespace Admin.Services.Trait
                 }
                 else
                 {
-                     await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ResultMessageApi.ErrorDisconnectApi,
@@ -169,7 +158,7 @@ namespace Admin.Services.Trait
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -182,14 +171,14 @@ namespace Admin.Services.Trait
         {
             try
             {
-                var resdataEdit = await RootApiUpdateTrait.RunMethodApi("Traits", updateTrait, method: Method.Patch);
+                var resdataEdit = await RootApiUpdateCategoryTrait.RunMethodApi("CategoryTraits", updateCategoryTrait, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
                 }
                 else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
                 {
-                     await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = resdataEdit.Message,
@@ -199,7 +188,7 @@ namespace Admin.Services.Trait
                 }
                 else
                 {
-                     await Swal.FireAsync(new SweetAlertOptions
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ResultMessageApi.ErrorDisconnectApi,
@@ -210,7 +199,7 @@ namespace Admin.Services.Trait
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -223,16 +212,16 @@ namespace Admin.Services.Trait
         {
             try
             {
-                var resdataEdit = await RootApiUpdateTrait.RunMethodApi($"Traits/ByGuid/{guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateCategoryTrait.RunMethodApi($"CategoryTraits/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    updateTrait = resdataEdit.Entity;
+                    updateCategoryTrait = resdataEdit.Entity;
                     NotifyStateChanged();
                 }
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -241,5 +230,7 @@ namespace Admin.Services.Trait
                 });
             }
         }
+
     }
+
 }

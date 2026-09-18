@@ -15,6 +15,9 @@ namespace  Dto.Models.DtoTrait
         public string? Title { get; set; }
         [DisplayName("توضیحات")]
         public string? Description { get; set; }
+        [DisplayName("نوع")]
+        public int? DisplayType { get; set; }//
+
 
     }
 }

@@ -17,7 +17,7 @@ namespace Api.Controllers
         IAuthenticationManager _authenticationManager,
         UserManager<Account> _userManager,
         IRefreshTokenEntityService _refreshTokenEntity
-        ) 
+        )
         : ControllerBase
     {
         [HttpPost("auth/Login")]
@@ -87,7 +87,7 @@ namespace Api.Controllers
                                                             status: ResultMessageApi.Success,
                                                             message: ResultMessageApi.LoginOk));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new ResponseApiEntity<ResultLoginAccount>
                                                                 (entity: new ResultLoginAccount(),
@@ -102,7 +102,7 @@ namespace Api.Controllers
         {
             var Account = _userManager.Users.Where(s => s.SecurityStamp == SecurityStamp).FirstOrDefault();
 
-            if(Account==null)
+            if (Account == null)
                 return NotFound(new ResponseApiEntity<SecurityStampAccount>
                                                         (entity: new SecurityStampAccount(),
                                                         statusCode: ResultMessageApi.ErrorCode,
@@ -121,7 +121,7 @@ namespace Api.Controllers
                                                           status: ResultMessageApi.Success,
                                                           message: ResultMessageApi.GetOk));
             }
-               
+
         }
         [HttpGet("auth/CheckExpiredToken")]
         [AllowAnonymous]
@@ -130,7 +130,7 @@ namespace Api.Controllers
             var validate = await _authenticationManager.CheckTokenIsValid(Token);
             var model = new ResultExpiredToken
             {
-                Valid=validate,
+                Valid = validate,
             };
             if (!validate)
                 return NotFound(new ResponseApiEntity<ResultExpiredToken>
@@ -138,80 +138,91 @@ namespace Api.Controllers
                                                         statusCode: ResultMessageApi.ErrorCode,
                                                         status: ResultMessageApi.Error,
                                                         message: ResultMessageApi.ErrorExpiredToken));
-            
-                return Ok(new ResponseApiEntity<ResultExpiredToken>
-                                                          (entity: model,
-                                                          statusCode: ResultMessageApi.SuccessCode,
-                                                          status: ResultMessageApi.Success,
-                                                          message: ResultMessageApi.OKExpiredToken));
+
+            return Ok(new ResponseApiEntity<ResultExpiredToken>
+                                                      (entity: model,
+                                                      statusCode: ResultMessageApi.SuccessCode,
+                                                      status: ResultMessageApi.Success,
+                                                      message: ResultMessageApi.OKExpiredToken));
 
         }
         [HttpGet("auth/RefreshToken")]
         [AllowAnonymous]
-        public async Task<IActionResult> RefreshToken([FromQuery] string refreshToken,string DeviceID)
+        public async Task<IActionResult> RefreshToken([FromQuery] string refreshToken, string DeviceID)
         {
-            if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(DeviceID))
-                return NotFound(new ResponseApiEntity<ResultLoginAccount>
-                                                        (entity: new ResultLoginAccount(),
-                                                        statusCode: ResultMessageApi.ErrorCode,
-                                                        status: ResultMessageApi.Error,
-                                                        message: ResultMessageApi.ErrorBadRequest));
-
-            var refreshTokenModel=await _refreshTokenEntity.FirstOrDefaultAsync(s => s.Token == refreshToken && s.DeviceId== DeviceID && s.IsRevoked==false);
-
-            if (refreshTokenModel==null)
-                return NotFound(new ResponseApiEntity<ResultLoginAccount>
-                                                       (entity: new ResultLoginAccount(),
-                                                       statusCode: ResultMessageApi.ErrorCode,
-                                                       status: ResultMessageApi.Error,
-                                                       message: ResultMessageApi.ErrorBadRequest));
-            if (refreshTokenModel.ExpiryDate < DateTime.UtcNow)
+            try
             {
-                await _refreshTokenEntity.DeleteAsync(refreshTokenModel.ID);
+                if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(DeviceID))
+                    return NotFound(new ResponseApiEntity<ResultLoginAccount>
+                                                            (entity: new ResultLoginAccount(),
+                                                            statusCode: ResultMessageApi.ErrorCode,
+                                                            status: ResultMessageApi.Error,
+                                                            message: ResultMessageApi.ErrorBadRequest));
+
+                var refreshTokenModel = await _refreshTokenEntity.FirstOrDefaultAsync(s => s.Token == refreshToken && s.DeviceId == DeviceID && s.IsRevoked == false);
+
+                if (refreshTokenModel == null)
+                    return NotFound(new ResponseApiEntity<ResultLoginAccount>
+                                                           (entity: new ResultLoginAccount(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.ErrorBadRequest));
+                if (refreshTokenModel.ExpiryDate < DateTime.UtcNow)
+                {
+                    await _refreshTokenEntity.DeleteAsync(refreshTokenModel.ID);
+                    return NotFound(new ResponseApiEntity<ResultLoginAccount>
+                                                              (entity: new ResultLoginAccount(),
+                                                              statusCode: ResultMessageApi.ErrorCode,
+                                                              status: ResultMessageApi.Error,
+                                                              message: ResultMessageApi.ErrorTokenExpired));
+                }
+
+                var account = await _userManager.FindByIdAsync(refreshTokenModel.UserId);
+                var newToken = await _authenticationManager.CreateToken(account, isRefreshToken: false);
+                var newRefreshToken = await _authenticationManager.CreateToken(account, isRefreshToken: true);
+
+                var newRefreshEntity = new RefreshTokenEntity
+                {
+                    Token = newRefreshToken,
+                    ReplacedByToken = refreshTokenModel.Token,
+                    IsRevoked = false,
+                    DeviceId = refreshTokenModel.DeviceId,
+                    UserId = refreshTokenModel.Account.Id,
+                    ExpiryDate = DateTime.UtcNow.AddDays(1),
+                    CreatedAt = DateTime.UtcNow,
+                    RemoteIpAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString(),
+
+                    RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+                    EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+                    RegisterDate = DateFunctions.ConvertDateStringToInt(DateFunctions.GetNewDate()),
+                    EditDate = DateFunctions.ConvertDateStringToInt(DateFunctions.GetNewDate()),
+                };
+
+                ResultLoginAccount resultLoginAccount = new ResultLoginAccount
+                {
+                    DeviceID = refreshTokenModel.DeviceId,
+                    Token = newToken,
+                    RefreshToken = newRefreshToken,
+                    TokenExpired = DateTimeOffset.UtcNow.AddHours(2).ToUnixTimeSeconds(),
+                };
+                await _refreshTokenEntity.AddAsync(newRefreshEntity);
+
+                var id = await _refreshTokenEntity.DeleteAsync(refreshTokenModel.ID);
+
+                return Ok(new ResponseApiEntity<ResultLoginAccount>
+                                                             (entity: resultLoginAccount,
+                                                             statusCode: ResultMessageApi.SuccessCode,
+                                                             status: ResultMessageApi.Success,
+                                                             message: ResultMessageApi.OKExpiredTokenRefresh));
+            }
+            catch (Exception ex)
+            {
                 return NotFound(new ResponseApiEntity<ResultLoginAccount>
                                                           (entity: new ResultLoginAccount(),
                                                           statusCode: ResultMessageApi.ErrorCode,
                                                           status: ResultMessageApi.Error,
                                                           message: ResultMessageApi.ErrorTokenExpired));
             }
-
-            var account = await _userManager.FindByIdAsync(refreshTokenModel.UserId);
-            var newToken = await _authenticationManager.CreateToken(account, isRefreshToken: false);
-            var newRefreshToken = await _authenticationManager.CreateToken(account, isRefreshToken: true);
-
-            var newRefreshEntity = new RefreshTokenEntity
-            {
-                Token = newRefreshToken,
-                ReplacedByToken = refreshTokenModel.Token,
-                IsRevoked = false,
-                DeviceId = refreshTokenModel.DeviceId,
-                UserId = refreshTokenModel.Account.Id,
-                ExpiryDate = DateTime.UtcNow.AddDays(1),
-                CreatedAt = DateTime.UtcNow,
-                RemoteIpAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString(),
-
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(DateFunctions.GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(DateFunctions.GetNewDate()),
-            };
-
-            ResultLoginAccount resultLoginAccount = new ResultLoginAccount
-            {
-                DeviceID = refreshTokenModel.DeviceId,
-                Token = newToken,
-                RefreshToken = newRefreshToken,
-                TokenExpired = DateTimeOffset.UtcNow.AddHours(2).ToUnixTimeSeconds(),
-            };
-            await _refreshTokenEntity.AddAsync(newRefreshEntity);
-
-            var id= await _refreshTokenEntity.DeleteAsync(refreshTokenModel.ID);
-
-            return Ok(new ResponseApiEntity<ResultLoginAccount>
-                                                         (entity: resultLoginAccount,
-                                                         statusCode: ResultMessageApi.SuccessCode,
-                                                         status: ResultMessageApi.Success,
-                                                         message: ResultMessageApi.OKExpiredTokenRefresh));
         }
 
     }

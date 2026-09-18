@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using static Dto.Enum.EnumConstant;
 
 namespace Domain
 {
@@ -11,7 +12,7 @@ namespace Domain
     {
         public string? Title { get; set; }
         public string? Description { get; set; }
-
+        public TraitDisplayType DisplayType { get; set; } 
         public virtual ICollection<TraitValue>? TraitValues { get; set; }
         public virtual ICollection<CategoryTrait>? CategoryTraits { get; set; } 
     }

@@ -5,6 +5,7 @@ using Admin.Services.About;
 using Admin.Services.Blog;
 using Admin.Services.BlogComment;
 using Admin.Services.Category;
+using Admin.Services.CategoryTrait;
 using Admin.Services.City;
 using Admin.Services.GroupBlog;
 using Admin.Services.Personel;
@@ -26,6 +27,7 @@ using Admin.Services.Story;
 using Admin.Services.Team;
 using Admin.Services.Token;
 using Admin.Services.Trait;
+using Admin.Services.TraitValue;
 using Blazored.LocalStorage;
 using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +41,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
 builder.Services.AddAuthentication();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddBlazoredLocalStorage();
@@ -64,8 +67,10 @@ builder.Services.AddScoped<ProductFeatureValueService>();
 builder.Services.AddScoped<TeamService>();
 builder.Services.AddScoped<DisableService>();
 builder.Services.AddScoped<TraitService>();
+builder.Services.AddScoped<TraitValueService>();
 builder.Services.AddScoped<CityService>();
 builder.Services.AddScoped<ProvinceService>();
+builder.Services.AddScoped<CategoryTraitService>();
 
 builder.Services.AddScoped(typeof(IRootApi<>), typeof(RootApi<>));
 builder.Services.AddScoped<IToastMessage, ToastMessage>();

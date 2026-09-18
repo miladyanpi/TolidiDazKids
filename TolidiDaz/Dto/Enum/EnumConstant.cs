@@ -762,5 +762,47 @@ namespace Dto.Enum
             }
         }
         #endregion
+        #region TraitDisplayType
+        public enum TraitDisplayType
+        {
+            Text = 1,       // متن معمولی (مثل: مدل، حافظه، عیار طلا، جنس)
+            Color = 2,      // پالت رنگ (دارای کد هگز)
+            Size = 3,       // سایز و ابعاد
+            Image = 4       // انتخابی دارای پترن/تصویر (مثل طرح پارچه)
+        }
+
+        public static List<(int? Id, string Title)> GetListTraitDisplayType()
+        {
+            return new List<(int?, string)>
+    {
+        ((int?)TraitDisplayType.Text, "متن معمولی"),
+        ((int?)TraitDisplayType.Color, "پالت رنگ"),
+        ((int?)TraitDisplayType.Size, "سایز"),
+        ((int?)TraitDisplayType.Image, "تصویر/طرح")
+    };
+        }
+
+        public static string GetTitleTraitDisplayType(TraitDisplayType? displayType)
+        {
+            switch (displayType)
+            {
+                case TraitDisplayType.Text:
+                    return "متن معمولی";
+
+                case TraitDisplayType.Color:
+                    return "پالت رنگ";
+
+                case TraitDisplayType.Size:
+                    return "سایز";
+
+                case TraitDisplayType.Image:
+                    return "تصویر / طرح";
+
+                default:
+                    return "نامشخص";
+            }
+        }
+        #endregion
+
     }
 }

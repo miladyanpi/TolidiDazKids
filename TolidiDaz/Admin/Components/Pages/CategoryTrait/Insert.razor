@@ -1,0 +1,116 @@
+﻿@* @page "/InsertProductFeature"
+@using Admin.Services.Category
+@using Admin.Services.ProductFeature
+@inject ProductFeatureService _ProductFeatureService
+@inject CategoryService _CategoryService
+<AccessAdminRoles />
+<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+    <!-- header page -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">افزودن ویژگی جدید</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات ویژگی جدید را وارد نمایید</p>
+        </div>
+        <BackButton UrlPage="ProductFeature" />
+    </div>
+
+    <!-- Add category form -->
+    <EditForm Model="_ProductFeatureService.addProductFeature" OnValidSubmit="_ProductFeatureService.AddAsync" FormName="AddForm">
+        <DataAnnotationsValidator />
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left column - ProductFeature info -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Basic info card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">اطلاعات پایه ویژگی</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+
+                            <CustomLabel  For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
+                            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( ()=> _CategoryService.GetCategoryParent2InAdd())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _CategoryService.ResultCategorys1)
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+
+                        </div>
+                        <div>
+
+                            <CustomLabel For="@(() => _ProductFeatureService.addProductFeature.CategoryID)"></CustomLabel>
+                            <InputSelect @bind-Value="_ProductFeatureService.addProductFeature.CategoryID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _CategoryService.ResultCategorys2)
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <CustomLabel  For="@(() => _ProductFeatureService.addProductFeature.Title)"></CustomLabel>
+                            <ValidationMessage For="@(() => _ProductFeatureService.addProductFeature.Title)" class="validate" />
+                            <InputText id="ProductFeature-name" @bind-Value="_ProductFeatureService.addProductFeature.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+
+
+                        <div class="mb-4">
+                            <CustomLabel For="@(() => _ProductFeatureService.addProductFeature.Visible)"></CustomLabel>
+                            <InputRadioGroup @bind-Value="_ProductFeatureService.addProductFeature.Visible" Name="status">
+                                <InsertUpdateVisible />
+                            </InputRadioGroup>
+                            <ValidationMessage For="@(() => _ProductFeatureService.addProductFeature.Visible)" class="validate" />
+                        </div>
+
+
+                    </div>
+                </div>
+
+                
+
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                        ذخیره دسته‌بندی
+                    </button>
+                </div>
+            </div>
+
+          
+        </div>
+    </EditForm>
+</main>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        _CategoryService.OnChange += HandleStateChange;
+        await _CategoryService.GetAllDataAsync();
+        if (_CategoryService.ResultCategorys1.Count > 0)
+        {
+            _CategoryService.addCategory.ParentID1 = _CategoryService.ResultCategorys1[0].ID;
+            _CategoryService.GetCategoryParent2InAdd();
+            if (_CategoryService.ResultCategorys2.Count > 0)
+            {
+                _ProductFeatureService.addProductFeature.CategoryID = _CategoryService.ResultCategorys2[0].ID;
+
+            }
+            else
+            {
+                _ProductFeatureService.addProductFeature.CategoryID = null;
+            }
+        }
+        else
+        {
+            _CategoryService.addCategory.ParentID1 = null;
+        }
+    }
+    private async void HandleStateChange()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+    public void Dispose()
+    {
+        _CategoryService.OnChange -= HandleStateChange;
+    }
+}
+ *@

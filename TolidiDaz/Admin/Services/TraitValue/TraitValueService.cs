@@ -19,20 +19,21 @@ namespace Admin.Services.TraitValue
         IRootApi<ResponseApiEntity<ResultTraitValue>> RootApiResultTraitValue,
         IRootApi<ResponseApiEntity<AddTraitValue>> RootApiAddTraitValue,
         IRootApi<ResponseApiEntity<UpdateTraitValue>> RootApiUpdateTraitValue,
-        IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces,
         IJSRuntime JS,
         SweetAlertService Swal
         ) :BaseService
     {
+        public string? guid { get; set; }
         public UpdateTraitValue? updateTraitValue { get; set; } = new();
         public AddTraitValue? addTraitValue { get; set; } = new();
         public ResultTraitValue resultTraitValue { get; set; } = new();
         public List<ResultTraitValue>? ResultTraitValues= new List<ResultTraitValue>();
-        public async Task GetDataAsync(string? SearchText = "")
+        public async Task GetDataAsync(string? SearchText = "",string? guid=null)
         {
             try
             {
-                var resdata = await _RootApiResultTraitValues.RunMethodApi($"TraitValues/Data", SetPaging(SearchText), method: Method.Post);
+                this.guid = guid;
+                var resdata = await _RootApiResultTraitValues.RunMethodApi($"TraitValues/Data?guid={guid}", SetPaging(SearchText), method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     ResultTraitValues = resdata.Entities.ToList() ?? [];
@@ -84,7 +85,7 @@ namespace Admin.Services.TraitValue
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                        await GetDataAsync();
+                        await GetDataAsync(guid:this.guid);
                     }
                     else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                     {
@@ -127,7 +128,9 @@ namespace Admin.Services.TraitValue
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                    addTraitValue = new();
+                    addTraitValue = new() { 
+                        TraitID= addTraitValue.TraitID,
+                    };
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {

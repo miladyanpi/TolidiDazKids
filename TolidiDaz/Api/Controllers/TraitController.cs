@@ -176,6 +176,29 @@ namespace Api.Controllers
                                                             countAllRecordTable: count));
 
         }
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("Traits/All")]
+        public async Task<IActionResult> GetTraits3()
+        {
+            if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultTrait>
+                                                           (entity: new ResultTrait(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.GetError));
+
+            var Traits = await _TraitService
+                                .GetAllAsync();
+
+            var mappedTraits = _mapper.Map<ICollection<ResultTrait>>(Traits);
+
+            return Ok(new ResponseApiEntities<ResultTrait>
+                                                            (entities: mappedTraits,
+                                                            status: ResultMessageApi.Success,
+                                                            statusCode: ResultMessageApi.SuccessCode,
+                                                            message: ResultMessageApi.GetOk,
+                                                            countAllRecordTable: Traits.Count()));
+
+        }
         [HttpGet("Traits/{id}")]
         public async Task<IActionResult> GetTraitById([FromRoute] int id)
         {
