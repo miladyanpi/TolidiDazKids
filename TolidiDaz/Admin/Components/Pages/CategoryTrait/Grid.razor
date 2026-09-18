@@ -7,6 +7,7 @@
 @inject TraitService _TraitService
 @inject CategoryTraitService _CategoryTraitService
 @inject NavigationManager NavManager
+
 <div class="container">
     <!-- هدر -->
     <header>
@@ -17,17 +18,16 @@
             </h2>
             <p>برای هر زیردسته، ویژگی‌های قابل انتخاب را تعیین کنید.</p>
         </div>
-
     </header>
 
     <!-- نوار ابزار -->
     <div class="toolbar">
         <div class="filter-group">
             <label for="parentCategorySelect"><strong>انتخاب دسته والد (سطح ۱):</strong></label>
-            <!-- المان‌های Select به صورت استاتیک در HTML قرار گرفتند -->
-            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( async () => await _CategoryService.GetCategoryParent2InAdd2())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1"
+                         @bind-Value:after="OnCategoryParentChanged"
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 <option value="0">-- نمایش همه دسته‌ها --</option>
-
                 @foreach (var item in _CategoryService.ResultCategorys1)
                 {
                     <option value="@item.ID">@item.Title</option>
@@ -36,10 +36,18 @@
             <span class="text-muted" id="recordCount" style="font-size: 12px; color: #666;"></span>
         </div>
 
-        <button id="saveBtn" class="btn btn-primary" onclick="saveMatrix()">
-            <i class="fa-solid fa-save"></i>
-            ذخیره تغییرات
-        </button>
+        <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+            <button @onclick="HandleSubmit" type="submit" disabled="@isSubmitting" class="px-5 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2">
+                @if (isSubmitting)
+                {
+                    <span>در حال ذخیره...</span>
+                }
+                else
+                {
+                    <span>ذخیره تغییرات</span>
+                }
+            </button>
+        </div>
     </div>
 
     <!-- جدول -->
@@ -48,41 +56,40 @@
             <thead>
                 <tr id="tableHeaderRow">
                     <th>زیردسته (سطح ۲)</th>
-                    <!-- ستون‌های ویژگی به صورت استاتیک در HTML قرار گرفتند -->
                     @foreach (var item in _TraitService.ResultTraits)
                     {
                         <th>
                             <div class="trait-col-header">
                                 <span>@item.Title</span>
-                                <button class="btn-xs" onclick="toggleEntireColumn(1)">انتخاب همه</button>
+                                <button type="button" class="btn-xs" onclick="toggleEntireColumn(1)">انتخاب همه</button>
                             </div>
                         </th>
                     }
                 </tr>
             </thead>
             <tbody id="tableBody">
-                @foreach (var item in _CategoryService.ResultCategorys2)
+                @foreach (var category in _CategoryService.ResultCategorys2)
                 {
-                    _CategoryTraitService.AddCategoryTraitSelects.Clear();
                     <tr data-parent-id="1">
                         <td>
                             <div class="subcat-info">
-                                <strong>@item.Title</strong>
+                                <strong>@category.Title</strong>
                                 <span class="subcat-parent">پوشاک</span>
                             </div>
-                            <button class="btn-xs" style="margin-top:5px;" onclick="toggleEntireRow(101)">انتخاب کل سطر</button>
+                            <button type="button" class="btn-xs" style="margin-top:5px;" onclick="toggleEntireRow(101)">انتخاب کل سطر</button>
                         </td>
-                        <!-- Checkboxes: Cat 101 -->
-                        @foreach (var item2 in _TraitService.ResultTraits)
+
+                        @foreach (var trait in _TraitService.ResultTraits)
                         {
-                            _CategoryTraitService.AddCategoryTraitSelects.Add(new AddCategoryTraitSelect
-                            {
-                                CategoryID = item.ID,
-                                TraitID = item2.ID,
-                                Checked = false,
-                            });
+                            // پیدا کردن آیتم مربوطه از لیستی که توی C# ساختیم
+                            var itemSelect = _CategoryTraitService.AddUpdateCategoryTraitSelects
+                                .FirstOrDefault(x => x.CategoryID == category.ID && x.TraitID == trait.ID);
+
                             <td>
-                                <input type="checkbox" data-cat="101" data-trait="1" checked onchange="handleCheckboxChange(101, 1, this.checked)">
+                                @if (itemSelect != null)
+                                {
+                                    <input type="checkbox" @bind="itemSelect.Checked" />
+                                }
                             </td>
                         }
                     </tr>
@@ -92,18 +99,83 @@
     </div>
 </div>
 
-<!-- المان نمایش پیام -->
 <div id="toast">پیام سیستم</div>
 
 @code {
+    private bool isSubmitting = false;
+
 
     protected override async Task OnInitializedAsync()
     {
-        await _CategoryService.GetAllDataAsync2();
-        await _TraitService.GetAllDataAsync();
+        var q1 = _CategoryService.GetAllDataAsync2();
+        var q2 = _TraitService.GetAllDataAsync();
+        var q3 = _CategoryTraitService.GetAllDataAsync();
+        await Task.WhenAll(q1, q2,q3);
 
+
+        // پر کردن اولیه‌ی ماتریس انتخابی
+        BuildMatrixList();
     }
 
-   
-}
+    private async Task OnCategoryParentChanged()
+    {
+        await _CategoryService.GetCategoryParent2InAdd2();
+        // بعد از تغییر دسته والد، دوباره ماتریس رو می‌سازیم
+        BuildMatrixList();
+    }
 
+    private void BuildMatrixList()
+    {
+
+        foreach (var category in _CategoryService.ResultCategorys2)
+        {
+            foreach (var trait in _TraitService.ResultTraits)
+            {
+                var q = _CategoryTraitService.ResultCategoryTraits
+                    .FirstOrDefault(s => s.CategoryID == category.ID && s.TraitID == trait.ID);
+
+                if (q == null)
+                {
+                    _CategoryTraitService.AddUpdateCategoryTraitSelects.Add(new AddUpdateCategoryTraitSelect
+                    {
+                        ID = 0,
+                        CategoryID = category.ID,
+                        TraitID = trait.ID,
+                        Checked = false,
+                        Delete = false,
+                    });
+                }
+                else
+                {
+                    _CategoryTraitService.AddUpdateCategoryTraitSelects.Add(new AddUpdateCategoryTraitSelect
+                    {
+                        ID = q.ID,
+                        CategoryID = category.ID,
+                        TraitID = trait.ID,
+                        Checked = true,
+                        Delete = true,
+                    });
+                }
+            }
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (isSubmitting) return;
+        try
+        {
+            isSubmitting = true;
+            var q1 = _CategoryTraitService.DeleteRangeAsync();
+            var q2 = _CategoryTraitService.AddRangeAsync();
+            var q3= _CategoryTraitService.GetAllDataAsync();
+
+            await Task.WhenAll(q1, q2,q3);
+          //  BuildMatrixList(); // به روزرسانی مجدد بعد از ذخیره
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

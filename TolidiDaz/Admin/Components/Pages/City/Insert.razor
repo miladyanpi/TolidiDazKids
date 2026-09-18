@@ -33,9 +33,9 @@
                 <!-- Column 1: Info -->
                 <div class="space-y-4">
                     <div>
-                        <CustomLabel ForId="category-parent" For="@(() => _CityService.addCity.ProvinceID)" />
+                        <CustomLabel  For="@(() => _CityService.addCity.ProvinceID)" />
                         <ValidationMessage For="@(() => _CityService.addCity.ProvinceID)" class="validate" />
-                        <InputSelect id="category-parent" @bind-Value="_CityService.addCity.ProvinceID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <InputSelect  @bind-Value="_CityService.addCity.ProvinceID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             @foreach (var item in _ProvinceService.ResultProvinces)
                             {
                                 <option value="@item.ID">@item.Title</option>
@@ -44,16 +44,16 @@
                     </div>
 
                     <div>
-                        <CustomLabel ForId="City-Title" For="@(() => _CityService.addCity.Title)" />
+                        <CustomLabel For="@(() => _CityService.addCity.Title)" />
                         <ValidationMessage For="@(() => _CityService.addCity.Title)" class="validate" />
-                        <InputText id="City-Title" @bind-Value="_CityService.addCity.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_CityService.addCity.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                 </div>
 
                 <!-- Column 2: Settings -->
                 <div class="space-y-4">
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _CityService.addCity.Visible)" />
+                        <CustomLabel  For="@(() => _CityService.addCity.Visible)" />
                         <InputRadioGroup @bind-Value="_CityService.addCity.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>
