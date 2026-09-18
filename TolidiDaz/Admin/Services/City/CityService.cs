@@ -28,7 +28,6 @@ namespace Admin.Services.City
         public AddCity? addCity { get; set; } = new();
         public ResultCity resultCity { get; set; } = new();
         public List<ResultCity>? ResultCitys= new List<ResultCity>();
-        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
@@ -103,6 +102,13 @@ namespace Admin.Services.City
                 }
                 catch (Exception ex)
                 {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -139,7 +145,15 @@ namespace Admin.Services.City
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
+           
         }
         public async Task UpdateAsync()
         {
@@ -173,9 +187,16 @@ namespace Admin.Services.City
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
@@ -188,6 +209,13 @@ namespace Admin.Services.City
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
     }

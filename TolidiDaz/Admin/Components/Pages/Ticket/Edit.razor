@@ -1,6 +1,6 @@
 ﻿@page "/UpdateTicket/{guid}"
 @using Admin.Services.Ticket
-@inject NavigationManager NavManager
+
 @inject TicketService _TicketService
 <AccessAdminRoles />
 
@@ -75,11 +75,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _TicketService.guid = guid;
-            await _TicketService.GetUpdateDataAsync();
+            await _TicketService.GetUpdateDataAsync(guid);
         }
 
     }

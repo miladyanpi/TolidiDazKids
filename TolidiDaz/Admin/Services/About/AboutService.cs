@@ -32,18 +32,18 @@ namespace Admin.Services.About
         public UpdateAbout? updateAbout { get; set; } = new();
         public AddAbout? addAbout { get; set; } = new();
         public ResultAbout? ResultAbout = new ResultAbout();
-        public string? Guid { get; set; }
         public List<ResultUploadFile> ResultUploadImages { get;  set; } = [];
         
-        public async Task GetLastDataAsync(string? SearchText = "")
+        public async Task<string?> GetLastDataAsync()
         {
+            string guid = string.Empty;
             try
             {
                 var resdata = await RootApiUpdateAbout.RunMethodApi($"Abouts/LastRecord", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     updateAbout = resdata.Entity;
-                    Guid = resdata.Entity.IdentityCode.ToString();
+                     guid = resdata.Entity.IdentityCode.ToString();
                     IsUpdateStatuse = true;
                 }
                 else
@@ -54,9 +54,16 @@ namespace Admin.Services.About
             catch (Exception ex)
             {
                 IsUpdateStatuse = false;
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
             NotifyStateChanged();
-
+            return guid;
         }
         public async Task DeleteAsync(int ID)
         {
@@ -101,6 +108,13 @@ namespace Admin.Services.About
                 }
                 catch (Exception ex)
                 {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -137,6 +151,13 @@ namespace Admin.Services.About
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task UpdateAsync()
@@ -171,13 +192,20 @@ namespace Admin.Services.About
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
-                var resdataEdit = await RootApiUpdateAbout.RunMethodApi($"Abouts/ByGuid/{Guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateAbout.RunMethodApi($"Abouts/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     updateAbout = resdataEdit.Entity;
@@ -190,6 +218,13 @@ namespace Admin.Services.About
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task AddToListImagesAsync(List<ResultUploadFile> resultUploadFiles)
@@ -211,6 +246,13 @@ namespace Admin.Services.About
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task DeleteImage(List<ResultUploadFile> resultUploadImages)
@@ -229,6 +271,13 @@ namespace Admin.Services.About
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         

@@ -114,8 +114,7 @@
         if (!System.Guid.TryParse(Guid, out _))
             return;
 
-        ImageService.Guid = Guid;
-        await ImageService.GetUpdateDataAsync();
+        await ImageService.GetUpdateDataAsync(Guid);
     }
 
     private void OnServiceChanged()

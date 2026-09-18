@@ -10,7 +10,8 @@ namespace Dto.Models.Base
     {
         public BaseModel()
         {
-            IdentityCode = new Guid();
+            IdentityCode = Guid.NewGuid();
+            Visible = true;
         }
         public Guid? IdentityCode { get; set; }
         [DisplayName("تاریخ ثبت")]
@@ -27,7 +28,7 @@ namespace Dto.Models.Base
         public string? JsonLableTexts { get; set; }
 
         public List<ResultJsonLable>? ResultJsonLables { get; set; }
-        [DisplayName("وضعبت")]
+        [DisplayName("فعال/غیرفعال")]
         public bool Visible { get; set; }
 
     }

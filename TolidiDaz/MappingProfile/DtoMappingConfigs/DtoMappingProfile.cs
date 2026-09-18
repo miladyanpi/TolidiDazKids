@@ -45,7 +45,6 @@ using Dto.Models.DtoStory;
 using Dto.Models.DtoTeam;
 using Dto.Models.DtoTicket;
 using Dto.Models.DtoTrait;
-using Dto.Models.DtoTraitValue;
 using Dto.Models.DtoUploadFile;
 using Dto.Models.DtoWallet;
 using Dto.Models.DtoWalletTransaction;
@@ -3228,7 +3227,6 @@ namespace MappingProfile.DtoMappingConfigs
 
 
 
-
            
             #region About
             CreateMap<AddAbout, About>()
@@ -3255,7 +3253,6 @@ namespace MappingProfile.DtoMappingConfigs
             #endregion
             #region City
             CreateMap<AddCity, City>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(Guid.NewGuid().ToString())))
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
@@ -3570,22 +3567,22 @@ namespace MappingProfile.DtoMappingConfigs
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
-            #region TraitValue
-            CreateMap<AddTraitValue, TraitValue>()
+            #region Province
+            CreateMap<AddProvince, Province>()
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
-            CreateMap<UpdateTraitValue, TraitValue>()
+            CreateMap<UpdateProvince, Province>()
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-            CreateMap<TraitValue, UpdateTraitValue>()
+            CreateMap<Province, UpdateProvince>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
 
-            CreateMap<TraitValue, ResultTraitValue>()
+            CreateMap<Province, ResultProvince>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion

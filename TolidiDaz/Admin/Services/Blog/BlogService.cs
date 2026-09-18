@@ -34,7 +34,6 @@ namespace Admin.Services.Blog
         public UpdateBlog? updateBlog { get; set; } = new();
         public AddBlog? addBlog { get; set; } = new();
         public List<ResultBlog>? ResultBlogs = new List<ResultBlog>();
-        public string? Guid { get; set; }
         public List<ResultUploadFile> ResultUploadImages { get; set; } = [];
         public async Task GetDataAsync(string? SearchText = "")
         {
@@ -50,6 +49,13 @@ namespace Admin.Services.Blog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task DeleteAsync(int ID)
@@ -95,6 +101,13 @@ namespace Admin.Services.Blog
                 }
                 catch (Exception ex)
                 {
+                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -131,6 +144,13 @@ namespace Admin.Services.Blog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task UpdateAsync()
@@ -165,13 +185,20 @@ namespace Admin.Services.Blog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
-                var resdataEdit = await RootApiUpdateBlog.RunMethodApi($"Blogs/ByGuid/{Guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateBlog.RunMethodApi($"Blogs/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     updateBlog = resdataEdit.Entity;
@@ -184,6 +211,13 @@ namespace Admin.Services.Blog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task AddToListImagesAsync(List<ResultUploadFile> resultUploadFiles)
@@ -206,6 +240,13 @@ namespace Admin.Services.Blog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task DeleteImage(List<ResultUploadFile> resultUploadImages)
@@ -222,6 +263,13 @@ namespace Admin.Services.Blog
             }
             catch (Exception ex)
             {
+                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public void SetDataLable(List<AddJsonLable> addJsonLables)

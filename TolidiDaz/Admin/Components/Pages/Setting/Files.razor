@@ -2,7 +2,7 @@
 @using Dto.Models.DtoSetting
 @inject SweetAlertService Swal
 @inject ILocalStorageService localStorageService
-@inject NavigationManager NavManager
+
 @inject IRootApi<ResponseApiEntity<UpdateSetting>> RootApiUpdateSetting
 @attribute [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
 <div class="card custom-card p-5">

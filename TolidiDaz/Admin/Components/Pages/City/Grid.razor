@@ -2,14 +2,12 @@
 @using Admin.Services.City
 @inject CityService _CityService
 <AccessAdminRoles />
-
-
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
     <!-- header page -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">مدیریت شهر</h2>
-            <p class="text-gray-600 dark:text-gray-400">لیست تمام شهر</p>
+            <p class="text-gray-600 dark:text-gray-400">لیست تمام شهرها</p>
         </div>
         <div class="mt-4 md:mt-0">
             <a href="/InsertCity" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
@@ -92,20 +90,9 @@
 
 
 @code {
-
-
     protected override async Task OnInitializedAsync()
     {
-        _CityService.OnChange += HandleStateChange;
         await _CityService.GetDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _CityService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {

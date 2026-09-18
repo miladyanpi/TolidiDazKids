@@ -5,6 +5,7 @@ using Admin.Services.About;
 using Admin.Services.Blog;
 using Admin.Services.BlogComment;
 using Admin.Services.Category;
+using Admin.Services.City;
 using Admin.Services.GroupBlog;
 using Admin.Services.Personel;
 using Admin.Services.Position;
@@ -13,6 +14,8 @@ using Admin.Services.Product;
 using Admin.Services.Product_CountAction_CostType;
 using Admin.Services.ProductFeature;
 using Admin.Services.ProductFeatureValue;
+using Admin.Services.Province;
+
 
 
 //using Admin.Services.ProductFeature;
@@ -22,6 +25,7 @@ using Admin.Services.Slider;
 using Admin.Services.Story;
 using Admin.Services.Team;
 using Admin.Services.Token;
+using Admin.Services.Trait;
 using Blazored.LocalStorage;
 using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Authorization;
@@ -59,6 +63,9 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductFeatureValueService>();
 builder.Services.AddScoped<TeamService>();
 builder.Services.AddScoped<DisableService>();
+builder.Services.AddScoped<TraitService>();
+builder.Services.AddScoped<CityService>();
+builder.Services.AddScoped<ProvinceService>();
 
 builder.Services.AddScoped(typeof(IRootApi<>), typeof(RootApi<>));
 builder.Services.AddScoped<IToastMessage, ToastMessage>();

@@ -5,42 +5,42 @@ using Dto.DtoPaginagion;
 using Dto.Enum;
 using Dto.Models;
 using Dto.Models.Constant;
-using Dto.Models.DtoGroupBlog;
+using Dto.Models.DtoProvince;
 using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
 
-namespace Admin.Services.GroupBlog
+namespace Admin.Services.Province
 {
 
-    public class GroupBlogService(
-        IRootApi<ResponseApiEntities<ResultGroupBlog>> _RootApiResultGroupBlogs,
-        IRootApi<ResponseApiEntity<ResultGroupBlog>> RootApiResultGroupBlog,
-        IRootApi<ResponseApiEntity<AddGroupBlog>> RootApiAddGroupBlog,
-        IRootApi<ResponseApiEntity<UpdateGroupBlog>> RootApiUpdateGroupBlog,
+    public class ProvinceService(
+        IRootApi<ResponseApiEntities<ResultProvince>> _RootApiResultProvinces,
+        IRootApi<ResponseApiEntity<ResultProvince>> RootApiResultProvince,
+        IRootApi<ResponseApiEntity<AddProvince>> RootApiAddProvince,
+        IRootApi<ResponseApiEntity<UpdateProvince>> RootApiUpdateProvince,
         IJSRuntime JS,
         SweetAlertService Swal
         ) :BaseService
     {
-        public UpdateGroupBlog? updateGroupBlog { get; set; } = new();
-        public AddGroupBlog? addGroupBlog { get; set; } = new();
-        public ResultGroupBlog resultGroupBlog { get; set; } = new();
-        public List<ResultGroupBlog>? ResultGroupBlogs= new List<ResultGroupBlog>();
+        public UpdateProvince? updateProvince { get; set; } = new();
+        public AddProvince? addProvince { get; set; } = new();
+        public ResultProvince resultProvince { get; set; } = new();
+        public List<ResultProvince>? ResultProvinces= new List<ResultProvince>();
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
             {
-                var resdata = await _RootApiResultGroupBlogs.RunMethodApi($"GroupBlogs/Data", SetPaging(SearchText), method: Method.Post);
+                var resdata = await _RootApiResultProvinces.RunMethodApi($"Provinces/Data", SetPaging(SearchText), method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultGroupBlogs = resdata.Entities.ToList() ?? [];
+                    ResultProvinces = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
                     NotifyStateChanged();
                 }
             }
             catch (Exception ex)
             {
-                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -49,20 +49,20 @@ namespace Admin.Services.GroupBlog
                 });
             }
         }
-        public async Task GetAllDataAsync(string? SearchText = "")
+        public async Task GetAllDataAsync()
         {
             try
             {
-                var resdata = await _RootApiResultGroupBlogs.RunMethodApi($"GroupBlogs/All", null, method: Method.Get);
+                var resdata = await _RootApiResultProvinces.RunMethodApi($"Provinces/All", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultGroupBlogs = resdata.Entities.ToList();
+                    ResultProvinces = resdata.Entities.ToList();
                     NotifyStateChanged();
                 }
             }
             catch (Exception ex)
             {
-                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -85,7 +85,7 @@ namespace Admin.Services.GroupBlog
             {
                 try
                 {
-                    var resdata = await RootApiResultGroupBlog.RunMethodApi($"GroupBlogs/{ID}", null, method: Method.Delete);
+                    var resdata = await RootApiResultProvince.RunMethodApi($"Provinces/{ID}", null, method: Method.Delete);
                     if (resdata != null && resdata.Status == ResultMessageApi.Success)
                     {
                         await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
@@ -114,7 +114,7 @@ namespace Admin.Services.GroupBlog
                 }
                 catch (Exception ex)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ex.ToString(),
@@ -128,11 +128,11 @@ namespace Admin.Services.GroupBlog
         {
             try
             {
-                var resdata = await RootApiAddGroupBlog.RunMethodApi("GroupBlogs", addGroupBlog, method: Method.Post);
+                var resdata = await RootApiAddProvince.RunMethodApi("Provinces", addProvince, method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
-                    addGroupBlog = new();
+                    addProvince = new();
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
@@ -157,7 +157,7 @@ namespace Admin.Services.GroupBlog
             }
             catch (Exception ex)
             {
-                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -170,7 +170,7 @@ namespace Admin.Services.GroupBlog
         {
             try
             {
-                var resdataEdit = await RootApiUpdateGroupBlog.RunMethodApi("GroupBlogs", updateGroupBlog, method: Method.Patch);
+                var resdataEdit = await RootApiUpdateProvince.RunMethodApi("Provinces", updateProvince, method: Method.Patch);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
@@ -198,7 +198,7 @@ namespace Admin.Services.GroupBlog
             }
             catch (Exception ex)
             {
-                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),
@@ -211,16 +211,16 @@ namespace Admin.Services.GroupBlog
         {
             try
             {
-                var resdataEdit = await RootApiUpdateGroupBlog.RunMethodApi($"GroupBlogs/ByGuid/{guid}", null, method: Method.Get);
+                var resdataEdit = await RootApiUpdateProvince.RunMethodApi($"Provinces/ByGuid/{guid}", null, method: Method.Get);
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    updateGroupBlog = resdataEdit.Entity;
+                    updateProvince = resdataEdit.Entity;
                     NotifyStateChanged();
                 }
             }
             catch (Exception ex)
             {
-                var result2 = await Swal.FireAsync(new SweetAlertOptions
+                await Swal.FireAsync(new SweetAlertOptions
                 {
                     Title = "پیام",
                     Text = ex.ToString(),

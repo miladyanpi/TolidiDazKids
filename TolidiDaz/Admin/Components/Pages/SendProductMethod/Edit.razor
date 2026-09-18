@@ -1,6 +1,6 @@
 ﻿@page "/UpdateSendProductMethod/{guid}"
 @using Admin.Services.SendProductMethod
-@inject NavigationManager NavManager
+
 @inject SendProductMethodService _SendProductMethodService
 <AccessAdminRoles />
 
@@ -65,11 +65,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _SendProductMethodService.guid = guid;
-            await _SendProductMethodService.GetUpdateDataAsync();
+            await _SendProductMethodService.GetUpdateDataAsync(guid);
         }
 
     }

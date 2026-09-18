@@ -29,7 +29,6 @@ namespace Admin.Services.Question
         public ResultQuestion resultQuestion { get; set; } = new();
         public List<ResultQuestion>? ResultQuestions= new List<ResultQuestion>();
         public List<ResultGroupQuestion>? ResultGroupQuestions = new List<ResultGroupQuestion>();
-        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
@@ -44,6 +43,13 @@ namespace Admin.Services.Question
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task GetAllDataAsync(string? SearchText = "")
@@ -59,6 +65,13 @@ namespace Admin.Services.Question
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task DeleteAsync(int ID)
@@ -104,6 +117,13 @@ namespace Admin.Services.Question
                 }
                 catch (Exception ex)
                 {
+                    await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -140,6 +160,13 @@ namespace Admin.Services.Question
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task UpdateAsync()
@@ -174,9 +201,16 @@ namespace Admin.Services.Question
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
@@ -196,6 +230,13 @@ namespace Admin.Services.Question
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
     }

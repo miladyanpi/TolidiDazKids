@@ -2,7 +2,7 @@
 @using Admin.Services.Blog
 @using Admin.Services.BlogComment
 @using Dto.Models.DtoBlog
-@inject NavigationManager NavManager
+
 @inject BlogCommentService _BlogCommentService
 @inject BlogService _BlogService
 <AccessAdminRoles />
@@ -162,12 +162,12 @@
     {
         _BlogCommentService.OnChange += HandleStateChange;
         _BlogService.OnChange += HandleStateChange;
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
          
             var q1= _BlogCommentService.GetDataAsync();
-            var q2= _BlogService.GetUpdateDataAsync();
+            var q2 = _BlogService.GetUpdateDataAsync(guid);
             await Task.WhenAll(q1, q2);
         }
        

@@ -7,7 +7,7 @@
 @inject SweetAlertService Swal
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService localStorageService
-@inject NavigationManager NavManager
+
 @inject IRootApi<ResponseApiEntity<UpdateAdvertisement>> RootApiUpdateAdvertisement
 @inject IRootApi<ResponseApiEntity<UpdateJsonFile>> RootApiUpdateJsonFile
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]

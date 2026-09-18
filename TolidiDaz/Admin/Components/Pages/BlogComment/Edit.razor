@@ -1,6 +1,6 @@
 ﻿@page "/ShowBlogComment/{guid}"
 @using Admin.Services.BlogComment
-@inject NavigationManager NavManager
+
 @inject BlogCommentService _BlogCommentService
 <AccessAdminRoles />
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
@@ -69,11 +69,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _BlogCommentService.guid = guid;
-            await _BlogCommentService.GetUpdateDataAsync();
+            await _BlogCommentService.GetUpdateDataAsync(guid);
         }
 
     }

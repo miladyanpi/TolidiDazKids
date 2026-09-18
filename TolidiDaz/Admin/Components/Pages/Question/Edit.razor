@@ -1,6 +1,6 @@
 ﻿@page "/UpdateQuestion/{guid}"
 @using Admin.Services.Question
-@inject NavigationManager NavManager
+
 @inject QuestionService _QuestionService
 <AccessAdminRoles />
 
@@ -79,11 +79,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _QuestionService.guid = guid;
-            await _QuestionService.GetUpdateDataAsync();
+            await _QuestionService.GetUpdateDataAsync(guid);
         }
 
     }

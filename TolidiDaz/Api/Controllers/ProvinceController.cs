@@ -176,6 +176,30 @@ namespace Api.Controllers
                                                             countAllRecordTable: count));
 
         }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("Provinces/All")]
+        public async Task<IActionResult> GetProvinces3()
+        {
+            if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<ResultProvince>
+                                                           (entity: new ResultProvince(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.GetError));
+
+            var Provinces = await _ProvinceService
+                                .GetAllAsync();
+
+            var mappedProvinces = _mapper.Map<ICollection<ResultProvince>>(Provinces);
+
+            return Ok(new ResponseApiEntities<ResultProvince>
+                                                            (entities: mappedProvinces,
+                                                            status: ResultMessageApi.Success,
+                                                            statusCode: ResultMessageApi.SuccessCode,
+                                                            message: ResultMessageApi.GetOk,
+                                                            countAllRecordTable: Provinces.Count()));
+
+        }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("Provinces/{id}")]
         public async Task<IActionResult> GetProvinceById([FromRoute] int id)

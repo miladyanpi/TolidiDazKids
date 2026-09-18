@@ -87,11 +87,11 @@
                 </div>
 
             </div>
-            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
-                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                    ذخیره
+            <!-- Footer & Actions (الان دقیقاً داخل کادر اصلی قرار دارد) -->
+            <div class="modal-footer px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                <button type="submit" disabled="@isSubmitting" class="px-6 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+                    @(isSubmitting ? "در حال ذخیره..." : "ذخیره")
                 </button>
-
             </div>
         </div>
 
@@ -99,25 +99,17 @@
 </main>
 
 @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private bool isSubmitting = false;
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            _GroupBlogService.OnChange += StateHasChanged;
-            _TeamService.OnChange += StateHasChanged;
-            var q1= _GroupBlogService.GetAllDataAsync();
-            var q2= _TeamService.GetAllDataAsync();
-            await Task.WhenAll(q1, q2);
-            if (_GroupBlogService.ResultGroupBlogs.Count > 0)
-                _BlogService.addBlog.GroupBlogID = _GroupBlogService.ResultGroupBlogs[0].ID;
-            if (_TeamService.ResultTeams.Count > 0)
-                _BlogService.addBlog.TeamID = _TeamService.ResultTeams[0].ID;
-        }
-    }
-    public void Dispose()
-    {
-        _GroupBlogService.OnChange -= StateHasChanged;
-        _TeamService.OnChange -= StateHasChanged;
+        var q1 = _GroupBlogService.GetAllDataAsync();
+        var q2 = _TeamService.GetAllDataAsync();
+        await Task.WhenAll(q1, q2);
+        if (_GroupBlogService.ResultGroupBlogs.Count > 0)
+            _BlogService.addBlog.GroupBlogID = _GroupBlogService.ResultGroupBlogs[0].ID;
+        if (_TeamService.ResultTeams.Count > 0)
+            _BlogService.addBlog.TeamID = _TeamService.ResultTeams[0].ID;
+
     }
 }
 

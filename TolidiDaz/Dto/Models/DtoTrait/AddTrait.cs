@@ -6,7 +6,11 @@ namespace  Dto.Models.DtoTrait
 {
     public class AddTrait:BaseModel
     {
-        [DisplayName("روش ارسال(عنوان)")]
+        public AddTrait()
+        {
+            Visible = true;
+        }
+        [DisplayName("عناون")]
         [Required(ErrorMessage = "| الزامی است")]
         public string? Title { get; set; }
         [DisplayName("توضیحات")]

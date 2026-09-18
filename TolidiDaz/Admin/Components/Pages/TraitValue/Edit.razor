@@ -1,6 +1,6 @@
 ﻿@page "/UpdateTraitValue/{guid}"
 @using Admin.Services.TraitValue
-@inject NavigationManager NavManager
+
 @inject TraitValueService _TraitValueService
 <AccessAdminRoles />
 
@@ -74,11 +74,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        bool isValid = Guid.TryParse(guid, out Guid gid);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            _TraitValueService.guid = guid;
-            await _TraitValueService.GetUpdateDataAsync();
+            await _TraitValueService.GetUpdateDataAsync(guid);
         }
     }
 }

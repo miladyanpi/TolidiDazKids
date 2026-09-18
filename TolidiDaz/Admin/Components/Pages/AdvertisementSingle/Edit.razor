@@ -5,13 +5,10 @@
 @using Dto.Models.Constant
 @using Dto.Models.DtoAccount
 @using Dto.Models.DtoAdvertisementSingle
-@using Dto.Models.DtoUploadFile
-@using System.Net.Http.Headers
 @using Dto.Models.ResponseApi
-@using Newtonsoft.Json
 @using RestSharp
 @inject SweetAlertService Swal
-@inject NavigationManager NavManager
+
 @inject IToastMessage JS
 @inject IRootApi<ResponseApiEntity<UpdateAdvertisementSingle>> RootApiUpdateAdvertisementSingle
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]

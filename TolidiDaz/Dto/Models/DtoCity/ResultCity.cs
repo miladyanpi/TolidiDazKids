@@ -13,6 +13,7 @@ namespace  Dto.Models.DtoCity
         public int? ProvinceID { get; set; }
         [DisplayName("نام شهر")]
         public string? Title { get; set; }
+        [DisplayName("نام استان")]
         public ResultProvince? ResultProvince { get; set; } = new();
     }
 }

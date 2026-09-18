@@ -28,7 +28,6 @@ namespace Admin.Services.TraitValue
         public AddTraitValue? addTraitValue { get; set; } = new();
         public ResultTraitValue resultTraitValue { get; set; } = new();
         public List<ResultTraitValue>? ResultTraitValues= new List<ResultTraitValue>();
-        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
@@ -45,7 +44,7 @@ namespace Admin.Services.TraitValue
             {
             }
         }
-        public async Task GetAllDataAsync(string? SearchText = "")
+        public async Task GetAllDataAsync()
         {
             try
             {
@@ -58,6 +57,13 @@ namespace Admin.Services.TraitValue
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task DeleteAsync(int ID)
@@ -82,7 +88,7 @@ namespace Admin.Services.TraitValue
                     }
                     else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                     {
-                        _ = await Swal.FireAsync(new SweetAlertOptions
+                         await Swal.FireAsync(new SweetAlertOptions
                         {
                             Title = "پیام",
                             Text = resdata.Message,
@@ -92,7 +98,7 @@ namespace Admin.Services.TraitValue
                     }
                     else
                     {
-                        _ = await Swal.FireAsync(new SweetAlertOptions
+                         await Swal.FireAsync(new SweetAlertOptions
                         {
                             Title = "پیام",
                             Text = ResultMessageApi.ErrorDisconnectApi,
@@ -103,6 +109,13 @@ namespace Admin.Services.TraitValue
                 }
                 catch (Exception ex)
                 {
+                    await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -118,7 +131,7 @@ namespace Admin.Services.TraitValue
                 }
                 else if (resdata != null && resdata.Status == ResultMessageApi.Error)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                     await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = resdata.Message,
@@ -128,7 +141,7 @@ namespace Admin.Services.TraitValue
                 }
                 else
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ResultMessageApi.ErrorDisconnectApi,
@@ -139,6 +152,13 @@ namespace Admin.Services.TraitValue
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task UpdateAsync()
@@ -152,7 +172,7 @@ namespace Admin.Services.TraitValue
                 }
                 else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = resdataEdit.Message,
@@ -162,7 +182,7 @@ namespace Admin.Services.TraitValue
                 }
                 else
                 {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                    await Swal.FireAsync(new SweetAlertOptions
                     {
                         Title = "پیام",
                         Text = ResultMessageApi.ErrorDisconnectApi,
@@ -173,9 +193,16 @@ namespace Admin.Services.TraitValue
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
@@ -188,6 +215,13 @@ namespace Admin.Services.TraitValue
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
     }

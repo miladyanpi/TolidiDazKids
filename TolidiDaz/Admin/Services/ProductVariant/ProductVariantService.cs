@@ -28,7 +28,6 @@ namespace Admin.Services.ProductVariant
         public AddProductVariant? addProductVariant { get; set; } = new();
         public ResultProductVariant resultProductVariant { get; set; } = new();
         public List<ResultProductVariant>? ResultProductVariants= new List<ResultProductVariant>();
-        public string? guid { get; set; }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
@@ -43,6 +42,13 @@ namespace Admin.Services.ProductVariant
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task GetAllDataAsync(string? SearchText = "")
@@ -58,6 +64,13 @@ namespace Admin.Services.ProductVariant
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task DeleteAsync(int ID)
@@ -103,6 +116,13 @@ namespace Admin.Services.ProductVariant
                 }
                 catch (Exception ex)
                 {
+                    await Swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "پیام",
+                        Text = ex.ToString(),
+                        Icon = ResultMessageApi.Error,
+                        ShowConfirmButton = true,
+                    });
                 }
             }
         }
@@ -139,6 +159,13 @@ namespace Admin.Services.ProductVariant
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
         public async Task UpdateAsync()
@@ -173,9 +200,16 @@ namespace Admin.Services.ProductVariant
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
-        public async Task GetUpdateDataAsync()
+        public async Task GetUpdateDataAsync(string guid)
         {
             try
             {
@@ -188,6 +222,13 @@ namespace Admin.Services.ProductVariant
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ex.ToString(),
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
         }
     }
