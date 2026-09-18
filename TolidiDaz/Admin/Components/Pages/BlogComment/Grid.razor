@@ -1,7 +1,6 @@
 ﻿@page "/BlogComment/{guid}"
 @using Admin.Services.Blog
 @using Admin.Services.BlogComment
-@using Dto.Models.DtoBlog
 
 @inject BlogCommentService _BlogCommentService
 @inject BlogService _BlogService
@@ -160,12 +159,9 @@
     public string? guid { get; set; } = null;
     protected override async Task OnInitializedAsync()
     {
-        _BlogCommentService.OnChange += HandleStateChange;
-        _BlogService.OnChange += HandleStateChange;
         bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-         
             var q1= _BlogCommentService.GetDataAsync();
             var q2 = _BlogService.GetUpdateDataAsync(guid);
             await Task.WhenAll(q1, q2);
@@ -173,15 +169,8 @@
        
 
     }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _BlogCommentService.OnChange -= HandleStateChange;
-        _BlogService.OnChange -= HandleStateChange;
-    }
+   
+   
     private async Task CallBackPagingAsync(decimal page)
     {
         _BlogCommentService.pagingModel.Page = page;

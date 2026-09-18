@@ -12,120 +12,126 @@
         </div>
         <BackButton UrlPage="Category" />
     </div>
+    @if (isLoading)
+    {
+        <FetchingData/>
 
-    <!-- Add category form -->
-    <EditForm Model="_CategoryService.updateCategory" OnValidSubmit="_CategoryService.UpdateAsync" FormName="UpdateForm">
-        <DataAnnotationsValidator />
+    }
+    else if (_CategoryService.updateCategory == null)
+    {
+        <DataNotFound/>
+    }
+    else
+    {
+        <!-- Add category form -->
+        <EditForm Model="_CategoryService.updateCategory" OnValidSubmit="_CategoryService.UpdateAsync" FormName="UpdateForm">
+            <DataAnnotationsValidator />
 
-        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
-            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
-                    فرم اطلاعات دسته‌بندی
-                </h3>
-            </div>
+            <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                        فرم اطلاعات دسته‌بندی
+                    </h3>
+                </div>
 
-            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Category Info -->
-                <div class="space-y-4">
-                    <div>
-                        <CustomLabel ForId="category-name" For="@(() => _CategoryService.updateCategory.Title)"></CustomLabel>
-                        <ValidationMessage For="@(() => _CategoryService.updateCategory.Title)" class="validate" />
-                        <InputText id="category-name" @bind-Value="_CategoryService.updateCategory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    </div>
+                <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Category Info -->
+                    <div class="space-y-4">
+                        <div>
+                            <CustomLabel ForId="category-name" For="@(() => _CategoryService.updateCategory.Title)"></CustomLabel>
+                            <ValidationMessage For="@(() => _CategoryService.updateCategory.Title)" class="validate" />
+                            <InputText id="category-name" @bind-Value="_CategoryService.updateCategory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
 
-                    <div>
-                        <CustomLabel ForId="category-slug" For="@(() => _CategoryService.updateCategory.Slug)"></CustomLabel>
-                        <ValidationMessage For="@(() => _CategoryService.updateCategory.Slug)" class="validate" />
-                        <InputText id="category-slug" @bind-Value="_CategoryService.updateCategory.Slug" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    </div>
+                        <div>
+                            <CustomLabel ForId="category-slug" For="@(() => _CategoryService.updateCategory.Slug)"></CustomLabel>
+                            <ValidationMessage For="@(() => _CategoryService.updateCategory.Slug)" class="validate" />
+                            <InputText id="category-slug" @bind-Value="_CategoryService.updateCategory.Slug" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
 
-                    <div>
-
-                        <CustomLabel ForId="category-parent" For="@(() => _CategoryService.updateCategory.ParentID1)"></CustomLabel>
-                        <ValidationMessage For="@(() => _CategoryService.updateCategory.ParentID1)" class="validate" />
-                        <InputSelect @bind-Value="_CategoryService.updateCategory.ParentID1" @bind-Value:after="@( () =>  _CategoryService.GetCategoryParent2InUpdate())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="0">بدون والد (دسته اصلی)</option>
-                            @foreach (var item in _CategoryService.ResultCategorys1)
-                            {
-                                <option value="@item.ID">@item.Title</option>
-                            }
-                        </InputSelect>
-
-                    </div> 
-                     @if (_CategoryService.updateCategory.ParentID1 > 0)
-                    {
                         <div>
 
-                            <CustomLabel ForId="category-parent" For="@(() => _CategoryService.updateCategory.ParentID2)"></CustomLabel>
-                            <ValidationMessage For="@(() => _CategoryService.updateCategory.ParentID2)" class="validate" />
-                            <InputSelect @bind-Value="_CategoryService.updateCategory.ParentID2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <CustomLabel ForId="category-parent" For="@(() => _CategoryService.updateCategory.ParentID1)"></CustomLabel>
+                            <ValidationMessage For="@(() => _CategoryService.updateCategory.ParentID1)" class="validate" />
+                            <InputSelect @bind-Value="_CategoryService.updateCategory.ParentID1" @bind-Value:after="@( () =>  _CategoryService.GetCategoryParent2InUpdate())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 <option value="0">بدون والد (دسته اصلی)</option>
-                                @foreach (var item in _CategoryService.ResultCategorys2)
+                                @foreach (var item in _CategoryService.ResultCategorys1)
                                 {
-                                   <option value="@item.ID">@item.Title</option>
+                                    <option value="@item.ID">@item.Title</option>
                                 }
                             </InputSelect>
 
+                        </div> 
+                        @if (_CategoryService.updateCategory.ParentID1 > 0)
+                        {
+                            <div>
+
+                                <CustomLabel ForId="category-parent" For="@(() => _CategoryService.updateCategory.ParentID2)"></CustomLabel>
+                                <ValidationMessage For="@(() => _CategoryService.updateCategory.ParentID2)" class="validate" />
+                                <InputSelect @bind-Value="_CategoryService.updateCategory.ParentID2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="0">بدون والد (دسته اصلی)</option>
+                                    @foreach (var item in _CategoryService.ResultCategorys2)
+                                    {
+                                        <option value="@item.ID">@item.Title</option>
+                                    }
+                                </InputSelect>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div></div>
+                        }
+                    </div>
+
+
+                    <!-- Settings -->
+                    <div class="space-y-4">
+                        <div >
+
+                            <CustomLabel ForId="category-description" For="@(() => _CategoryService.updateCategory.Description)"></CustomLabel>
+                            <InputTextArea @bind-Value="_CategoryService.updateCategory.Description" id="category-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+
                         </div>
-                    }
-                    else
-                    {
-                        <div></div>
-                    }
-                </div>
 
+                        <div class="mb-4">
+                            <CustomLabel ForId="Visible-stock" For="@(() => _CategoryService.updateCategory.Visible)"></CustomLabel>
 
-                <!-- Settings -->
-                <div class="space-y-4">
-                    <div >
+                            <InputRadioGroup @bind-Value="_CategoryService.updateCategory.Visible" Name="status">
+                                <InsertUpdateVisible/>
+                            </InputRadioGroup>
+                            <ValidationMessage For="@(() => _CategoryService.updateCategory.Visible)" class="validate" />
+                        </div>
 
-                        <CustomLabel ForId="category-description" For="@(() => _CategoryService.updateCategory.Description)"></CustomLabel>
-                        <InputTextArea @bind-Value="_CategoryService.updateCategory.Description" id="category-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                   
                     </div>
-
-                    <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _CategoryService.updateCategory.Visible)"></CustomLabel>
-
-                        <InputRadioGroup @bind-Value="_CategoryService.updateCategory.Visible" Name="status">
-                           <InsertUpdateVisible/>
-                        </InputRadioGroup>
-                        <ValidationMessage For="@(() => _CategoryService.updateCategory.Visible)" class="validate" />
-                    </div>
-
                 </div>
+                <SaveButton Disabled="@isSubmitting" />
             </div>
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
-       
-                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                    ذخیره دسته‌بندی
-                </button>
-            </div>
-        </div>
-    </EditForm>
+        </EditForm>
+    }
 </main>
 @code {
     [Parameter]
     public string? guid { get; set; }
+    private bool isLoading = true;
+    private bool isSubmitting = false;
     protected override async Task OnInitializedAsync()
     {
-        _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
-       
+    }
+    protected override async Task OnParametersSetAsync()
+    {
         bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
+            isLoading = true;
             await _CategoryService.GetUpdateDataAsync(guid);
+            isLoading = false;
         }
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-  
-    public void Dispose()
-    {
-        _CategoryService.OnChange -= HandleStateChange;
+        else
+        {
+            NavManager.NavigateTo("/Category");
+        }
     }
 }
 

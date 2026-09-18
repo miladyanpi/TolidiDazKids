@@ -20,63 +20,82 @@
                 فرم بلاگ
             </h3>
         </div>
+        @if (isLoading)
+        {
+            <FetchingData />
 
-        <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- BlogComment Info -->
-            <div class="space-y-4">
+        }
+        else if (_BlogCommentService.updateBlogComment == null)
+        {
+            <DataNotFound />
+        }
+        else
+        {
+            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- BlogComment Info -->
+                <div class="space-y-4">
 
-                <div>
-                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.AuthorName)"></CustomLabel>
-                    <InputText readonly @bind-Value="_BlogCommentService.resultBlogComment.AuthorName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                </div>
-                <div>
-                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.Rating)"></CustomLabel>
-                    <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.Rating" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                </div>
-                <div>
-                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.IsVerifiedBuyer)"></CustomLabel>
-                    <span>@((MarkupString)_BlogCommentService.resultBlogComment.IsVerifiedBuyer)</span>
-                </div>
-                
+                    <div>
+                        <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.AuthorName)"></CustomLabel>
+                        <InputText readonly @bind-Value="_BlogCommentService.resultBlogComment.AuthorName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.Rating)"></CustomLabel>
+                        <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.Rating" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.IsVerifiedBuyer)"></CustomLabel>
+                        <span>@((MarkupString)_BlogCommentService.resultBlogComment.IsVerifiedBuyer)</span>
+                    </div>
 
+
+                </div>
+                <!-- Settings -->
+                <div class="space-y-4">
+                    <div>
+                        <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.LikeCount)"></CustomLabel>
+                        <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.LikeCount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+
+                    <div>
+                        <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.DislikeCount)"></CustomLabel>
+                        <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.DislikeCount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    </div>
+                    <div>
+                        <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.Body)"></CustomLabel>
+                        <InputTextArea rows="10" @bind-Value="_BlogCommentService.resultBlogComment.Body" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-0" />
+                    </div>
+
+                </div>
             </div>
-            <!-- Settings -->
-            <div class="space-y-4">
-                <div>
-                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.LikeCount)"></CustomLabel>
-                    <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.LikeCount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                </div>
-
-                <div>
-                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.DislikeCount)"></CustomLabel>
-                    <InputNumber readonly @bind-Value="_BlogCommentService.resultBlogComment.DislikeCount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                </div>
-                <div>
-                    <CustomLabel For="@(() => _BlogCommentService.resultBlogComment.Body)"></CustomLabel>
-                    <InputTextArea rows="10" @bind-Value="_BlogCommentService.resultBlogComment.Body" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-0" />
-                </div>
-
-            </div>
-        </div>
-
+        }
     </div>
-
 </main>
 @code {
 
     [Parameter]
     public string? guid { get; set; }
-
+    private bool isLoading = true;
+    private bool isSubmitting = false;
     protected override async Task OnParametersSetAsync()
     {
         bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
+            isLoading = true;
             await _BlogCommentService.GetUpdateDataAsync(guid);
+            isLoading = false;
         }
+        else
+        {
 
+            NavManager.NavigateTo("/City");
+        }
     }
-
+    private async Task HandleSubmit()
+    {
+        await _BlogCommentService.UpdateAsync();
+    }
 
 }
 
