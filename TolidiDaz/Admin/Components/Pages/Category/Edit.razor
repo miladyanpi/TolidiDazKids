@@ -24,7 +24,7 @@
     else
     {
         <!-- Add category form -->
-        <EditForm Model="_CategoryService.updateCategory" OnValidSubmit="_CategoryService.UpdateAsync" FormName="UpdateForm">
+        <EditForm Model="_CategoryService.updateCategory" OnValidSubmit="HandleSubmit" FormName="UpdateForm">
             <DataAnnotationsValidator />
 
             <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -131,6 +131,20 @@
         else
         {
             NavManager.NavigateTo("/Category");
+        }
+    }
+   
+    private async Task HandleSubmit()
+    {
+        if (isSubmitting) return;
+        try
+        {
+            isSubmitting = true;
+            await _CategoryService.UpdateAsync();
+        }
+        finally
+        {
+            isSubmitting = false;
         }
     }
 }

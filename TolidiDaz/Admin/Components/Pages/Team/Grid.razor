@@ -111,18 +111,10 @@
 
 
 @code {
+   
     protected override async Task OnInitializedAsync()
     {
-        _TeamService.OnChange += HandleStateChange;
         await _TeamService.GetDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _TeamService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {

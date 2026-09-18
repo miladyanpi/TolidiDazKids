@@ -98,19 +98,9 @@
 
 @code {
 
-
     protected override async Task OnInitializedAsync()
     {
-        _TicketService.OnChange += HandleStateChange;
         await _TicketService.GetDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _TicketService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {

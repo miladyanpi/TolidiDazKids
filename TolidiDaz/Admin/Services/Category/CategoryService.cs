@@ -63,6 +63,10 @@ namespace Admin.Services.Category
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     ResultCategorys1 = resdata.Entities.ToList();
+                    if(ResultCategorys1.Count>0)
+                    {
+                        addCategory.ParentID1 = ResultCategorys1[0].ID;
+                    }
                     NotifyStateChanged();
                 }
                 else

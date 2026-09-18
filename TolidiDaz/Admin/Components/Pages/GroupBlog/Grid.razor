@@ -87,17 +87,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _GroupBlogService.OnChange += HandleStateChange;
         await _GroupBlogService.GetDataAsync();
     }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _GroupBlogService.OnChange -= HandleStateChange;
-    }
+    
     private async Task CallBackPagingAsync(decimal page)
     {
         _GroupBlogService.pagingModel.Page = page;

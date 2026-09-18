@@ -68,5 +68,32 @@
         </div>
     </EditForm>
 </main>
+@code {
+    private bool isSubmitting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        if (isSubmitting) return;
+
+        try
+        {
+            isSubmitting = true;
+           
+
+            await _TicketService.AddAsync();
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}
+
 
 
