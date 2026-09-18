@@ -15,6 +15,7 @@ using ServicesLibrary.Services.BlogSrv;
 using ServicesLibrary.Services.CartItemSrv;
 using ServicesLibrary.Services.CartSrv;
 using ServicesLibrary.Services.CategorySrv;
+using ServicesLibrary.Services.CategoryTraitSrv;
 using ServicesLibrary.Services.CitySrv;
 using ServicesLibrary.Services.ContactUsSrv;
 using ServicesLibrary.Services.CustomerAddressSrv;
@@ -36,6 +37,7 @@ using ServicesLibrary.Services.ProductFeatureSrv;
 using ServicesLibrary.Services.ProductFeatureValueSrv;
 using ServicesLibrary.Services.ProductSrv;
 using ServicesLibrary.Services.ProductVariantSrv;
+using ServicesLibrary.Services.ProductVariantValueSrv;
 using ServicesLibrary.Services.ProvinceSrv;
 using ServicesLibrary.Services.QuestionSrv;
 using ServicesLibrary.Services.RawProductSrv;
@@ -127,6 +129,8 @@ namespace ServicesLibrary.Services
             service.AddTransient<ITraitService, TraitService>();
             service.AddTransient<ITraitValueService, TraitValueService>();
             service.AddTransient<IProductVariantService, ProductVariantService>();
+            service.AddTransient<IProductVariantService, ProductVariantService>();
+            service.AddTransient<ICategoryTraitService, CategoryTraitService>();
             service.AddSingleton<IViewCounterService, InMemoryViewCounterService>();
             service.AddScoped<SyncProductViewsJob>();
 
