@@ -19,7 +19,7 @@
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="_ProductService.addProduct" OnValidSubmit="_ProductService.AddAsync" FormName="AddForm">
+    <EditForm Model="_ProductService.addProduct" OnValidSubmit="HandleSubmitAsync" FormName="AddForm">
         <DataAnnotationsValidator />
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -149,11 +149,7 @@
                    
                 </div>
 
-                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
-                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                        ذخیره دسته‌بندی
-                    </button>
-                </div>
+                <SaveButton Disabled="@isSubmitting" />
             </div>
 
             <!-- Right column - Publish and attributes -->
@@ -177,10 +173,7 @@
                                     <ValidationMessage For="@(() => _ProductFeatureService.AddProductFeatureValues[k].Value)" class="validate" />
                                     <InputText id="product-sku" @bind-Value="_ProductFeatureService.AddProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                                 </div>
-                            
                             }
-
-
                         }
                     </div>
 
@@ -191,12 +184,9 @@
     </EditForm>
 </main>
 @code {
+    private bool isSubmitting = false;
     protected override async Task OnInitializedAsync()
     {
-        _ProductService.OnChange += HandleStateChange;
-        _CategoryService.OnChange += HandleStateChange;
-        _ProductFeatureService.OnChange += HandleStateChange;
-
         await _CategoryService.GetAllDataAsync();
         if (_CategoryService.ResultCategorys1.Count > 0)
         {
@@ -209,8 +199,7 @@
                 _CategoryService.GetCategoryParent3InAdd();
                 if (_CategoryService.ResultCategorys3.Count > 0)
                 {
-                    _ProductService.CategoryID = _CategoryService.ResultCategorys3[0].ID;
-
+                    _ProductService.addProduct.CategoryID = _CategoryService.ResultCategorys3[0].ID;
                 }
                 else
                 {
@@ -230,16 +219,7 @@
         _ProductService.AddProductFeatureValues= await _ProductFeatureService.GetAllDataAsync();
 
     }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _ProductService.OnChange -= HandleStateChange;
-        _CategoryService.OnChange -= HandleStateChange;
-        _ProductFeatureService.OnChange -= HandleStateChange;
-    }
+    
     private async Task GetCategoryParent2InAdd()
     {
         _CategoryService.GetCategoryParent2InAdd();
@@ -278,6 +258,22 @@
             _ProductService.CategoryID = null;
         }
         await _ProductService.GetDataAsync();
+    }
+    private async Task HandleSubmitAsync()
+    {
+        if (isSubmitting) return;
+
+        try
+        {
+            isSubmitting = true;
+           
+
+            await _ProductService.AddAsync();
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
 }
 

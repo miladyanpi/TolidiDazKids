@@ -14,7 +14,7 @@
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="_CategoryService.addCategory" OnValidSubmit="_CategoryService.AddAsync" FormName="AddForm">
+    <EditForm Model="_CategoryService.addCategory" OnValidSubmit="HandleSubmitAsync" FormName="AddForm">
         <DataAnnotationsValidator />
 
         <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -96,27 +96,31 @@
             </div>
 
           
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
-       
-                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                    ذخیره دسته‌بندی
-                </button>
-            </div>
+             <SaveButton Disabled="@isSubmitting" />
         </div>
     </EditForm>
 </main>
 @code{
+        private bool isSubmitting = false;
+
     protected override async Task OnInitializedAsync()
     {
-        _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
     }
-    private async void HandleStateChange()
+     private async Task HandleSubmitAsync()
     {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _CategoryService.OnChange -= HandleStateChange;
+        if (isSubmitting) return;
+
+        try
+        {
+            isSubmitting = true;
+           
+
+            await _CategoryService.AddAsync();
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
 }

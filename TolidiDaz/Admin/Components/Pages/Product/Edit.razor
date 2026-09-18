@@ -1,7 +1,5 @@
 ﻿@page "/UpdateProduct/{guid}"
-@using Admin.Services.Category
 @using Admin.Services.Product
-
 @inject ProductService _ProductService
 <AccessAdminRoles />
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
@@ -13,179 +11,193 @@
         </div>
         <BackButton UrlPage="Product" />
     </div>
+    @if (isLoading)
+    {
+        <FetchingData />
 
-    <!-- Add category form -->
-    <EditForm Model="_ProductService.updateProduct" OnValidSubmit="_ProductService.UpdateAsync" FormName="AddForm">
-        <DataAnnotationsValidator />
+    }
+    else if (_ProductService.updateProduct == null)
+    {
+        <DataNotFound />
+    }
+    else
+    {
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left column - Product info -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Basic info card -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">اطلاعات پایه محصول</h3>
+        <!-- Add category form -->
+        <EditForm Model="_ProductService.updateProduct" OnValidSubmit="HandleSubmit" FormName="AddForm">
+            <DataAnnotationsValidator />
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <CustomLabel For="@(() => _ProductService.updateProduct.Title)"></CustomLabel>
-                            <ValidationMessage For="@(() => _ProductService.updateProduct.Title)" class="validate" />
-                            <InputText id="product-name" @bind-Value="_ProductService.updateProduct.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left column - Product info -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Basic info card -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">اطلاعات پایه محصول</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <CustomLabel For="@(() => _ProductService.updateProduct.Title)"></CustomLabel>
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.Title)" class="validate" />
+                                <InputText id="product-name" @bind-Value="_ProductService.updateProduct.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+                            <div>
+                                <CustomLabel For="@(() => _ProductService.updateProduct.Brand)"></CustomLabel>
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.Brand)" class="validate" />
+                                <InputText id="product-brand" @bind-Value="_ProductService.updateProduct.Brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+
                         </div>
-                        <div>
-                            <CustomLabel For="@(() => _ProductService.updateProduct.Brand)"></CustomLabel>
-                            <ValidationMessage For="@(() => _ProductService.updateProduct.Brand)" class="validate" />
-                            <InputText id="product-brand" @bind-Value="_ProductService.updateProduct.Brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <div class="row">
+                            <CustomLabel For="@(() => _ProductService.updateProduct.ShortDescription)"></CustomLabel>
+                            <TextEditor @bind-Value="_ProductService.updateProduct.ShortDescription" />
                         </div>
-                        
-                    </div>
-                    <div class="row">
-                        <CustomLabel For="@(() => _ProductService.updateProduct.ShortDescription)"></CustomLabel>
-                        <TextEditor @bind-Value="_ProductService.updateProduct.ShortDescription" />
+
+                        <div class="row">
+                            <CustomLabel For="@(() => _ProductService.updateProduct.Description)"></CustomLabel>
+                            <TextEditor @bind-Value="_ProductService.updateProduct.Description" />
+                        </div>
                     </div>
 
-                    <div class="row">
-                        <CustomLabel For="@(() => _ProductService.updateProduct.Description)"></CustomLabel>
-                        <TextEditor @bind-Value="_ProductService.updateProduct.Description" />
+                    <!-- Pricing card -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">قیمت‌گذاری و موجودی</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <CustomLabel For="@(() => _ProductService.updateProduct.Price)"></CustomLabel>(تومان)
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.Price)" class="validate" />
+                                <InputNumber id="product-price" @bind-Value="_ProductService.updateProduct.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+                            <div>
+                                <CustomLabel For="@(() => _ProductService.updateProduct.Discount)"></CustomLabel>(تومان)
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.Discount)" class="validate" />
+                                <InputNumber id="product-discount" @bind-Value="_ProductService.updateProduct.Discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+                            <div>
+                                <CustomLabel For="@(() => _ProductService.updateProduct.Count)"></CustomLabel>
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.Count)" class="validate" />
+                                <InputNumber id="product-stock" @bind-Value="_ProductService.updateProduct.Count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+                            <div>
+                                <CustomLabel For="@(() => _ProductService.updateProduct.SkuCode)"></CustomLabel>
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.SkuCode)" class="validate" />
+                                <InputText id="product-sku" @bind-Value="_ProductService.updateProduct.SkuCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+                            <div class="mb-4">
+                                <CustomLabel For="@(() => _ProductService.updateProduct.Visible)"></CustomLabel>
+                                <InputRadioGroup @bind-Value="_ProductService.updateProduct.ProductExistStatus" Name="stock-status">
+                                    <div class="flex flex-row items-center space-x-6">
+
+                                        <div class="flex items-center">
+                                            <InputRadio o Value="@Dto.Enum.EnumConstant.ProductExistStatus.Existent"
+                                                        id="in-stock"
+                                                        class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                            <label for="in-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">موجود</label>
+                                        </div>
+
+                                        <div class="flex items-center">
+                                            <InputRadio Value="@Dto.Enum.EnumConstant.ProductExistStatus.Nonexistent"
+                                                        id="out-of-stock"
+                                                        class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
+                                            <label for="out-of-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">ناموجود</label>
+                                        </div>
+
+                                    </div>
+                                </InputRadioGroup>
+
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.ProductExistStatus)" class="validate" />
+                            </div>
+
+                            <div class="mb-4">
+                                <CustomLabel For="@(() => _ProductService.updateProduct.Visible)"></CustomLabel>
+                                <InputRadioGroup @bind-Value="_ProductService.updateProduct.Visible" Name="status">
+                                    <InsertUpdateVisible />
+                                </InputRadioGroup>
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.Visible)" class="validate" />
+                            </div>
+                        </div>
                     </div>
+
+                    <SaveButton Disabled="@isSubmitting" />
                 </div>
 
-                <!-- Pricing card -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">قیمت‌گذاری و موجودی</h3>
+                <div class="space-y-6">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <CustomLabel For="@(() => _ProductService.updateProduct.Price)"></CustomLabel>(تومان)
-                            <ValidationMessage For="@(() => _ProductService.updateProduct.Price)" class="validate" />
-                            <InputNumber id="product-price" @bind-Value="_ProductService.updateProduct.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        </div>
-                        <div>
-                            <CustomLabel For="@(() => _ProductService.updateProduct.Discount)"></CustomLabel>(تومان)
-                            <ValidationMessage For="@(() => _ProductService.updateProduct.Discount)" class="validate" />
-                            <InputNumber id="product-discount" @bind-Value="_ProductService.updateProduct.Discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        </div>
-                        <div>
-                            <CustomLabel For="@(() => _ProductService.updateProduct.Count)"></CustomLabel>
-                            <ValidationMessage For="@(() => _ProductService.updateProduct.Count)" class="validate" />
-                            <InputNumber id="product-stock" @bind-Value="_ProductService.updateProduct.Count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        </div>
-                        <div>
-                            <CustomLabel For="@(() => _ProductService.updateProduct.SkuCode)"></CustomLabel>
-                            <ValidationMessage For="@(() => _ProductService.updateProduct.SkuCode)" class="validate" />
-                            <InputText id="product-sku" @bind-Value="_ProductService.updateProduct.SkuCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        </div>
-                        <div class="mb-4">
-                            <CustomLabel For="@(() => _ProductService.updateProduct.Visible)"></CustomLabel>
-                            <InputRadioGroup @bind-Value="_ProductService.updateProduct.ProductExistStatus" Name="stock-status">
-                                <div class="flex flex-row items-center space-x-6">
-
-                                    <div class="flex items-center">
-                                        <InputRadio o Value="@Dto.Enum.EnumConstant.ProductExistStatus.Existent"
-                                                    id="in-stock"
-                                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
-                                        <label for="in-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">موجود</label>
+                    <!-- Attributes card -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">ویژگی‌های محصول</h3>
+                        <div class="space-y-4">
+                            @if (_ProductService.UpdateProductFeatureValues.Count > 0)
+                            {
+                                int i = -1;
+                                @foreach (var item in _ProductService.UpdateProductFeatureValues)
+                                {
+                                    i++;
+                                    int k = i;
+                                    <div>
+                                        <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@_ProductService.UpdateProductFeatureValues[k].ResultProductFeature.Title</label>
+                                        <ValidationMessage For="@(() => _ProductService.UpdateProductFeatureValues[k].Value)" class="validate" />
+                                        <InputText id="product-sku" @bind-Value="_ProductService.UpdateProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                                     </div>
+                                }
+                            }
+                            @if (_ProductService.AddProductFeatureValues.Count > 0)
+                            {
+                                int i = -1;
+                                @foreach (var item in _ProductService.AddProductFeatureValues)
+                                {
+                                    i++;
+                                    int k = i;
+                                    <div>
+                                        <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@_ProductService.AddProductFeatureValues[k].ResultProductFeature.Title</label>
 
-                                    <div class="flex items-center">
-                                        <InputRadio Value="@Dto.Enum.EnumConstant.ProductExistStatus.Nonexistent"
-                                                    id="out-of-stock"
-                                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
-                                        <label for="out-of-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">ناموجود</label>
+                                        <ValidationMessage For="@(() => _ProductService.AddProductFeatureValues[k].Value)" class="validate" />
+                                        <InputText id="product-sku" @bind-Value="_ProductService.AddProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                                     </div>
-
-                                </div>
-                            </InputRadioGroup>
-
-                            <ValidationMessage For="@(() => _ProductService.updateProduct.ProductExistStatus)" class="validate" />
+                                }
+                            }
                         </div>
 
-                        <div class="mb-4">
-                            <CustomLabel For="@(() => _ProductService.updateProduct.Visible)"></CustomLabel>
-                            <InputRadioGroup @bind-Value="_ProductService.updateProduct.Visible" Name="status">
-                                <InsertUpdateVisible />
-                            </InputRadioGroup>
-                            <ValidationMessage For="@(() => _ProductService.updateProduct.Visible)" class="validate" />
-                        </div>
                     </div>
-                </div>
 
-                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
-                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                        ذخیره دسته‌بندی
-                    </button>
                 </div>
             </div>
-
-            <div class="space-y-6">
-        
-                <!-- Attributes card -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">ویژگی‌های محصول</h3>
-                    <div class="space-y-4">
-                        @if (_ProductService.UpdateProductFeatureValues.Count > 0)
-                        {
-                            int i = -1;
-                            @foreach (var item in _ProductService.UpdateProductFeatureValues)
-                            {
-                                i++;
-                                int k = i;
-                                <div>
-                                    <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@_ProductService.UpdateProductFeatureValues[k].ResultProductFeature.Title</label>
-                                    <ValidationMessage For="@(() => _ProductService.UpdateProductFeatureValues[k].Value)" class="validate" />
-                                    <InputText id="product-sku" @bind-Value="_ProductService.UpdateProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                                </div>
-                            }
-
-
-                        }
-                        @if (_ProductService.AddProductFeatureValues.Count > 0)
-                        {
-                            int i = -1;
-                            @foreach (var item in _ProductService.AddProductFeatureValues)
-                            {
-                                i++;
-                                int k = i;
-                                <div>
-                                    <label for="product-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@_ProductService.AddProductFeatureValues[k].ResultProductFeature.Title</label>
-
-                                    <ValidationMessage For="@(() => _ProductService.AddProductFeatureValues[k].Value)" class="validate" />
-                                    <InputText id="product-sku" @bind-Value="_ProductService.AddProductFeatureValues[k].Value" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                                </div>
-                             
-                            }
-
-
-                        }
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-    </EditForm>
+        </EditForm>
+    }
 </main>
 @code {
     [Parameter]
     public string? guid { get; set; }
-   
-  
+    private bool isLoading = true;
+    private bool isSubmitting = false;
     protected override async Task OnParametersSetAsync()
     {
-        _ProductService.OnChange += HandleStateChange;
         bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
+            isLoading = true;
             await _ProductService.GetUpdateDataAsync(guid);
+            isLoading = false;
         }
+        else
+        {
 
+            NavManager.NavigateTo("/Product");
+        }
     }
-    private async void HandleStateChange()
+    private async Task HandleSubmit()
     {
-        await InvokeAsync(StateHasChanged);
+        if (isSubmitting) return;
+        try
+        {
+            isSubmitting = true;
+            await _ProductService.UpdateAsync();
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
-    public void Dispose()
-    {
-        _ProductService.OnChange -= HandleStateChange;
-    }
+
 }
 
