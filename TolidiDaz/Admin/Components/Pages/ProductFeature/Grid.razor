@@ -126,8 +126,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _ProductFeatureService.OnChange += HandleStateChange;
-        _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
         if (_CategoryService.ResultCategorys1.Count>0)
         {
@@ -141,15 +139,6 @@
         }
         await _ProductFeatureService.GetDataAsync();
 
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _ProductFeatureService.OnChange -= HandleStateChange;
-        _CategoryService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {

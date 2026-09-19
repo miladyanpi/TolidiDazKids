@@ -1,5 +1,4 @@
 ﻿@page "/Product"
-
 @using Admin.Services.Category
 @using Admin.Services.Product
 @using Admin.Services.Search
@@ -21,8 +20,6 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @if (!_DisableService.Disabled)
             {
-
-
                 <div>
 
                     <CustomLabel  For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
@@ -244,8 +241,6 @@
     private int? openDropdownId = null;
     protected override async Task OnInitializedAsync()
     {
-        _ProductService.OnChange += HandleStateChange;
-        _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
         if (_CategoryService.ResultCategorys1.Count > 0)
         {
@@ -258,21 +253,10 @@
                 if (_CategoryService.ResultCategorys3.Count > 0)
                 {
                     _ProductService.CategoryID = _CategoryService.ResultCategorys3[0].ID;
-
                 }
-
             }
         }
         await _ProductService.GetDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _ProductService.OnChange -= HandleStateChange;
-        _CategoryService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {
@@ -298,7 +282,6 @@
         _DisableService.SetDisabled(_ProductService.SearchAllFlag);
         await _ProductService.GetDataAsync();
     }
-
 
     private void GoToPricingRule(int id)
     {

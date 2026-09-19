@@ -56,7 +56,6 @@
                         <TextEditor @bind-Value="_TeamService.updateTeam.Description" />
 
                     </div>
-                 
 
                 </div>
                 <!-- Settings -->
@@ -100,7 +99,7 @@
     public string? guid { get; set; }
     private bool isLoading = true;
     private bool isSubmitting = false;
-       protected override async Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
         bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
