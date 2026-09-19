@@ -65,55 +65,19 @@ namespace MappingProfile.DtoMappingConfigs
         {
 
             #region Category
-            CreateMap<AddCategory, Category>().ConvertUsing(x => new Category
-            {
-                Title = x.Title,
-                ParentID = x.ParentID1,
-                Order = x.Order,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                Description = x.Description,
+            CreateMap<AddCategory, Category>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<UpdateCategory, Category>()
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateCategory, Category>().ConvertUsing(x => new Category
-            {
-                ID = x.ID,
-                Title = x.Title,
-                ParentID = x.ParentID == 0 ? null : x.ParentID,
-                Order = x.Order,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-
-            });
-            CreateMap<Category, UpdateCategory>().ConvertUsing(x => new UpdateCategory
-            {
-                ID = x.ID,
-                Title = x.Title,
-                ParentID1 = x.ParentID,
-
-                Order = x.Order,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                ParentResultCategory = x.Parent != null ? new ResultCategory
+            CreateMap<Category, UpdateCategory>()
+                .ForMember(des => des.ParentResultCategory, s => s.MapFrom(x =>
+                x.Parent != null ? new ResultCategory
                 {
                     ID = x.Parent.ID,
                     Title = x.Parent.Title,
@@ -125,28 +89,17 @@ namespace MappingProfile.DtoMappingConfigs
                     Count = x.Parent.Categories.Count(),
                     IdentityCode = x.Parent.IdentityCode,
 
-                } : new ResultCategory(),
-                EditTime = x.EditTime,
+                } : new ResultCategory()
 
-            });
-            CreateMap<Category, ResultCategory>().ConvertUsing(x => new ResultCategory
-            {
-                ID = x.ID,
-                Title = x.Title,
-                ParentID = x.ParentID,
-                Order = x.Order,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                Description = x.Description,
-                Count = x.Categories.Count(),
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-                ResultUploadFiles = GetResultUploadFiles(x.JsonPicture),
-                ResultCategorys = x.Categories != null && x.Categories.Count > 0 ? x.Categories.Select(s => new ResultCategory
+                ))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+        
+            CreateMap<Category, ResultCategory>()
+                .ForMember(des => des.Count, s => s.MapFrom(x => x.Categories.Count()))
+                .ForMember(des => des.ResultUploadFiles, s => s.MapFrom(x => GetResultUploadFiles(x.JsonPicture)))
+                .ForMember(des => des.ResultCategorys, s => s.MapFrom(x =>
+                x.Categories != null && x.Categories.Count > 0 ? x.Categories.Select(s => new ResultCategory
                 {
                     ID = s.ID,
                     Title = s.Title,
@@ -169,8 +122,11 @@ namespace MappingProfile.DtoMappingConfigs
                         Count = k.Categories.Count(),
                         IdentityCode = k.IdentityCode,
                     }).ToList() : new List<ResultCategory>(),
-                }).ToList() : new List<ResultCategory>(),
-            });
+                }).ToList() : new List<ResultCategory>()))
+                //.ForMember(des => des.IsRead, s => s.MapFrom(x => x.IsRead))
+                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+           
 
             #endregion
             #region Product
@@ -3405,14 +3361,12 @@ namespace MappingProfile.DtoMappingConfigs
             #endregion
             #region Faq
             CreateMap<AddFaq, Faq>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(Guid.NewGuid().ToString())))
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
             CreateMap<UpdateFaq, Faq>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
@@ -3427,6 +3381,8 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.IsRead, s => s.MapFrom(x => x.IsRead))
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+            
+            
             #endregion
             #region GroupQuestion
             CreateMap<AddGroupQuestion, GroupQuestion>()

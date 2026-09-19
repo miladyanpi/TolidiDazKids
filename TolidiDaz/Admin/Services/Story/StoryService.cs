@@ -30,6 +30,7 @@ namespace Admin.Services.Story
     {
         private List<AddJsonLable> AddJsonLables { get; set; } = new List<AddJsonLable>();
 
+        public ResultStory resultStory { get; set; } = new();
         public UpdateStory? updateStory { get; set; } = new();
         public AddStory? addStory { get; set; } = new();
         public List<ResultStory>? ResultStorys = new List<ResultStory>();
