@@ -89,20 +89,9 @@
 
 
 @code {
-
-
     protected override async Task OnInitializedAsync()
     {
-        _SendProductMethodService.OnChange += HandleStateChange;
         await _SendProductMethodService.GetDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _SendProductMethodService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {
