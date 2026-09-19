@@ -71,21 +71,6 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Title</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Url</td>
-                            @* <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                    @if (item.ResultUploadFiles!=null&& item.ResultUploadFiles.Count > 0)
-                                    {
-                                        var path = @ApiLink.FullPath + @item.ResultUploadFiles[0].PathFileName;
-
-                                        <div class="flex-shrink-0 h-10 w-10">
-                                            <img class="h-10 w-10 rounded-md object-cover" src="@path" alt="@item.Title">
-                                        </div>
-                                    }
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <Visible Value="@item.ShowInAbout" />
-                            </td> *@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <Visible Value="@item.Visible" />
                             </td>
@@ -126,16 +111,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        _SliderService.OnChange += HandleStateChange;
         await _SliderService.GetDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _SliderService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {
