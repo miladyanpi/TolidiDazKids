@@ -61,7 +61,17 @@
                         <th>
                             <div class="trait-col-header">
                                 <span>@item.Title</span>
-                                <button type="button" class="btn-xs" onclick="toggleEntireColumn(1)">انتخاب همه</button>
+                                <button type="button" class="btn-xs" @onclick="@(() => ToggleEntireColumn(item.ID))"> 
+                                    @if (IsColumnAllChecked(item.ID))
+                                    {
+                                        <span>حذف انتخاب</span>
+                                    }
+                                    else
+                                    {
+                                        <span>انتخاب همه</span>
+                                    }
+
+                                </button>
                             </div>
                         </th>
                     }
@@ -76,7 +86,17 @@
                                 <strong>@category.Title</strong>
                                 <span class="subcat-parent">پوشاک</span>
                             </div>
-                            <button type="button" class="btn-xs" style="margin-top:5px;" onclick="toggleEntireRow(101)">انتخاب کل سطر</button>
+                            <button type="button" class="btn-xs" style="margin-top:5px;" @onclick="@(() => ToggleEntireRow(category.ID))">
+                                @if (IsRowAllChecked(category.ID))
+                                {
+                                    <span>حذف انتخاب سطر</span>
+                                }
+                                else
+                                {
+                                    <span>انتخاب کل سطر</span>
+                                }
+
+                            </button>
                         </td>
 
                         @foreach (var trait in _TraitService.ResultTraits)
@@ -103,16 +123,12 @@
 
 @code {
     private bool isSubmitting = false;
-
-
     protected override async Task OnInitializedAsync()
     {
         var q1 = _CategoryService.GetAllDataAsync2();
         var q2 = _TraitService.GetAllDataAsync();
         var q3 = _CategoryTraitService.GetAllDataAsync();
         await Task.WhenAll(q1, q2,q3);
-
-
         // پر کردن اولیه‌ی ماتریس انتخابی
         BuildMatrixList();
     }
@@ -171,11 +187,59 @@
             var q3= _CategoryTraitService.GetAllDataAsync();
 
             await Task.WhenAll(q1, q2,q3);
-          //  BuildMatrixList(); // به روزرسانی مجدد بعد از ذخیره
+
         }
         finally
         {
             isSubmitting = false;
         }
     }
+    private void ToggleEntireColumn(int traitID)
+    {
+        // ۱. لیست مربوط به این ستون رو فیلتر کن
+        var columnItems = _CategoryTraitService.AddUpdateCategoryTraitSelects
+            .Where(s => s.TraitID == traitID).ToList();
+
+        // ۲. بررسی کن آیا در حال حاضر همه‌شون تیک دارن؟
+        // متد All در LINQ اینجا مثل یک ناظر کل لیست رو چک می‌کنه
+        bool areAllChecked = columnItems.All(x => x.Checked);
+
+        // ۳. اگر همه تیک داشتن، مقدار جدید می‌شه false (برای برداشتن تیک‌ها)
+        // اگر حتی یکی تیک نداشت، مقدار جدید می‌شه true (برای تیک زدن همه)
+        bool newState = !areAllChecked;
+
+        // ۴. حالا با یک حرکت اعمالش کن
+        columnItems.ForEach(item => item.Checked = newState);
+    }
+    private bool IsColumnAllChecked(int traitID)
+    {
+        // آیا همه آیتم‌های این ستون تیک خوردن؟
+        return _CategoryTraitService.AddUpdateCategoryTraitSelects
+            .Where(s => s.TraitID == traitID)
+            .All(s => s.Checked);
+    }
+    private void ToggleEntireRow(int categoryID)
+    {
+        // ۱. لیست تمام آیتم‌های این سطر خاص (زیردسته خاص)
+        var rowItems = _CategoryTraitService.AddUpdateCategoryTraitSelects
+            .Where(s => s.CategoryID == categoryID).ToList();
+
+        // ۲. چک کن آیا همه تیک دارن؟
+        bool areAllChecked = rowItems.All(x => x.Checked);
+
+        // ۳. معکوس کن
+        bool newState = !areAllChecked;
+
+        // ۴. اعمال کن
+        rowItems.ForEach(item => item.Checked = newState);
+    }
+
+    private bool IsRowAllChecked(int categoryID)
+    {
+        // آیا همه آیتم‌های این سطر تیک خوردن؟
+        return _CategoryTraitService.AddUpdateCategoryTraitSelects
+            .Where(s => s.CategoryID == categoryID)
+            .All(s => s.Checked);
+    }
+
 }

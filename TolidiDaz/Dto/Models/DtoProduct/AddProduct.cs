@@ -12,6 +12,9 @@ namespace  Dto.Models.DtoProduct
     {
         [DisplayName("دسته بندی سطح 3")]
         public int? CategoryID { get; set; }
+        [DisplayName("نوع قیمت گذاری")]
+        public PricingType? PricingType { get; set; }
+
         [DisplayName("نام محصول")]
         [Required(ErrorMessage = "| الزامی است")]
         public string? Title { get; set; }

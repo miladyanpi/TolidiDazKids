@@ -804,5 +804,37 @@ namespace Dto.Enum
         }
         #endregion
 
+        #region PricingType
+        public enum PricingType
+        {
+            Simple = 1,         // قیمت‌گذاری ساده (محصول تکی و بدون تنوع)
+            VariantBase = 2     // قیمت‌گذاری بر اساس تنوع (ویژگی‌محور مثل رنگ، سایز و...)
+        }
+
+        public static List<(int? Id, string Title)> GetListPricingType()
+        {
+            return new List<(int?, string)>
+            {
+                ((int?)PricingType.Simple, "ساده"),
+                ((int?)PricingType.VariantBase, "بر اساس تنوع")
+            };
+        }
+
+        public static string GetTitlePricingType(PricingType? pricingType)
+        {
+            switch (pricingType)
+            {
+                case PricingType.Simple:
+                    return "ساده";
+
+                case PricingType.VariantBase:
+                    return "بر اساس تنوع";
+
+                default:
+                    return "نامشخص";
+            }
+        }
+        #endregion
+
     }
 }

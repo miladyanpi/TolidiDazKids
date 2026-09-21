@@ -1,8 +1,14 @@
-﻿namespace Domain
+﻿using static Dto.Enum.EnumConstant;
+
+namespace Domain
 {
     public class Product:Base
     {
         public int? CategoryID { get; set; }
+        /// <summary>
+        /// نوع قیمت گذاری
+        /// </summary>
+        public PricingType? PricingType { get; set; }
         public string? ProductCode { get; set; }
         public string? Title { get; set; }
         public string? Brand { get; set; }
