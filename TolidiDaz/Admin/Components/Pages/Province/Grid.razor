@@ -88,16 +88,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _ProvinceService.OnChange += HandleStateChange;
         await _ProvinceService.GetDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _ProvinceService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {

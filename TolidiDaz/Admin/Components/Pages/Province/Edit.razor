@@ -1,6 +1,5 @@
 ﻿@page "/UpdateProvince/{guid}"
 @using Admin.Services.Province
-
 @inject ProvinceService _ProvinceService
 <AccessAdminRoles />
 
@@ -14,66 +13,91 @@
         </div>
         <BackButton UrlPage="Province" />
     </div>
+@if (isLoading)
+    {
+        <FetchingData/>
 
-    <!-- Add category form -->
-    <EditForm Model="_ProvinceService.updateProvince" OnValidSubmit="_ProvinceService.UpdateAsync" FormName="UpdateForm">
-        <DataAnnotationsValidator />
-        <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
-            <div class="px-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
-                    فرم استان
-                </h3>
-            </div>
-
-            <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Province Info -->
-                <div class="space-y-4">
-
-
-                    <div>
-                        <CustomLabel ForId="Province-name" For="@(() => _ProvinceService.updateProvince.Title)"></CustomLabel>
-                        <ValidationMessage For="@(() => _ProvinceService.updateProvince.Title)" class="validate" />
-                        <InputText id="Province-name" @bind-Value="_ProvinceService.updateProvince.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    </div>
-                 
+    }
+    else if (_ProvinceService.updateProvince == null)
+    {
+        <DataNotFound/>
+    }
+    else
+    {
+        <!-- Add category form -->
+        <EditForm Model="_ProvinceService.updateProvince" OnValidSubmit="HandleSubmit" FormName="UpdateForm">
+            <DataAnnotationsValidator />
+            <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
+                        فرم استان
+                    </h3>
                 </div>
-                <!-- Settings -->
-                <div class="space-y-4">
-      
-                    <div class="mb-4">
-                        <CustomLabel For="@(() => _ProvinceService.updateProvince.Visible)"></CustomLabel>
-                        <InputRadioGroup @bind-Value="_ProvinceService.updateProvince.Visible" Name="status">
-                            <InsertUpdateVisible />
-                        </InputRadioGroup>
-                        <ValidationMessage For="@(() => _ProvinceService.updateProvince.Visible)" class="validate" />
+
+                <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Province Info -->
+                    <div class="space-y-4">
+
+
+                        <div>
+                            <CustomLabel ForId="Province-name" For="@(() => _ProvinceService.updateProvince.Title)"></CustomLabel>
+                            <ValidationMessage For="@(() => _ProvinceService.updateProvince.Title)" class="validate" />
+                            <InputText id="Province-name" @bind-Value="_ProvinceService.updateProvince.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+
                     </div>
+                    <!-- Settings -->
+                    <div class="space-y-4">
 
+                        <div class="mb-4">
+                            <CustomLabel For="@(() => _ProvinceService.updateProvince.Visible)"></CustomLabel>
+                            <InputRadioGroup @bind-Value="_ProvinceService.updateProvince.Visible" Name="status">
+                                <InsertUpdateVisible />
+                            </InputRadioGroup>
+                            <ValidationMessage For="@(() => _ProvinceService.updateProvince.Visible)" class="validate" />
+                        </div>
+
+                    </div>
                 </div>
+                <SaveButton Disabled="@isSubmitting"/>
             </div>
-            <div class="modal-footer d-flex justify-content-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
-                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                    ذخیره
-                </button>
 
-            </div>
-        </div>
-
-    </EditForm>
+        </EditForm>
+    }
 </main>
 @code {
 
     [Parameter]
     public string? guid { get; set; }
-
+    private bool isLoading = true;
+    private bool isSubmitting = false;
     protected override async Task OnParametersSetAsync()
     {
         bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
+            isLoading = true;
             await _ProvinceService.GetUpdateDataAsync(guid);
+            isLoading = false;
         }
-
+        else
+        {
+       
+            NavManager.NavigateTo("/Province");
+        }
     }
-
+     private async Task HandleSubmit()
+    {
+        if (isSubmitting) return;
+        try
+        {
+            isSubmitting = true;
+            await _ProvinceService.UpdateAsync();
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
     
 }

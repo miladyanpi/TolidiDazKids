@@ -100,16 +100,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _ProductVariantService.OnChange += HandleStateChange;
         await _ProductVariantService.GetDataAsync();
-    }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _ProductVariantService.OnChange -= HandleStateChange;
     }
     private async Task CallBackPagingAsync(decimal page)
     {

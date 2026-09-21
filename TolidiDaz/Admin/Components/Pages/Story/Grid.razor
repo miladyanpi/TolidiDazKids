@@ -36,11 +36,11 @@
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultStory.Title)"></CustomLabel></th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultStory.Url)"></CustomLabel></th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => resultStory.Visible)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _StoryService.resultStory.Title)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _StoryService.resultStory.Url)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _StoryService.resultStory.Visible)"></CustomLabel></th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            <CustomLabel For="@(() => resultStory.Visible)"></CustomLabel>
+                            <CustomLabel For="@(() => _StoryService.resultStory.Visible)"></CustomLabel>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th>
                     </tr>
@@ -126,21 +126,13 @@
 </main>
 @code {
 
-    private ResultStory resultStory { get; set; } = new();
-
+   
     protected override async Task OnInitializedAsync()
     {
-        _StoryService.OnChange += HandleStateChange;
+       
         await _StoryService.GetDataAsync();
     }
-    private async void HandleStateChange()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        _StoryService.OnChange -= HandleStateChange;
-    }
+   
     private async Task CallBackPagingAsync(decimal page)
     {
         _StoryService.pagingModel.Page = page;

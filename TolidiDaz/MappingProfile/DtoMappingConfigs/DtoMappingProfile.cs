@@ -53,6 +53,7 @@ using Dto.Models.DtoUploadFile;
 using Dto.Models.DtoWallet;
 using Dto.Models.DtoWalletTransaction;
 using MappingProfile.FrpRoot;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Utility;
 using static Dto.Enum.EnumConstant;
@@ -64,56 +65,45 @@ namespace MappingProfile.DtoMappingConfigs
         public DtoMappingProfile()
         {
 
+            #region About
+            CreateMap<AddAbout, About>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<UpdateAbout, About>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<About, UpdateAbout>()
+                .ForMember(des => des.ResultUploadFiles, s => s.MapFrom(x => GetResultUploadFiles(x.JsonPicture)))
+                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+
+            CreateMap<About, ResultAbout>()
+                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+            #endregion
             #region Category
-            CreateMap<AddCategory, Category>().ConvertUsing(x => new Category
-            {
-                Title = x.Title,
-                ParentID = x.ParentID1,
-                Order = x.Order,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                Description = x.Description,
+            CreateMap<AddCategory, Category>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<UpdateCategory, Category>()
+                .ForMember(des => des.ParentID, s => s.MapFrom(x => x.ParentID == 0 ? null : x.ParentID))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateCategory, Category>().ConvertUsing(x => new Category
-            {
-                ID = x.ID,
-                Title = x.Title,
-                ParentID = x.ParentID == 0 ? null : x.ParentID,
-                Order = x.Order,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-
-            });
-            CreateMap<Category, UpdateCategory>().ConvertUsing(x => new UpdateCategory
-            {
-                ID = x.ID,
-                Title = x.Title,
-                ParentID1 = x.ParentID,
-
-                Order = x.Order,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                ParentResultCategory = x.Parent != null ? new ResultCategory
+            CreateMap<Category, UpdateCategory>()
+                .ForMember(des => des.ParentID1, s => s.MapFrom(x => x.ParentID))
+                .ForMember(des => des.ParentResultCategory, s => s.MapFrom(x =>
+                x.Parent != null ? new ResultCategory
                 {
                     ID = x.Parent.ID,
                     Title = x.Parent.Title,
@@ -125,28 +115,17 @@ namespace MappingProfile.DtoMappingConfigs
                     Count = x.Parent.Categories.Count(),
                     IdentityCode = x.Parent.IdentityCode,
 
-                } : new ResultCategory(),
-                EditTime = x.EditTime,
+                } : new ResultCategory()
 
-            });
-            CreateMap<Category, ResultCategory>().ConvertUsing(x => new ResultCategory
-            {
-                ID = x.ID,
-                Title = x.Title,
-                ParentID = x.ParentID,
-                Order = x.Order,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                Description = x.Description,
-                Count = x.Categories.Count(),
+                ))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-                ResultUploadFiles = GetResultUploadFiles(x.JsonPicture),
-                ResultCategorys = x.Categories != null && x.Categories.Count > 0 ? x.Categories.Select(s => new ResultCategory
+            CreateMap<Category, ResultCategory>()
+                .ForMember(des => des.Count, s => s.MapFrom(x => x.Categories.Count()))
+                .ForMember(des => des.ResultUploadFiles, s => s.MapFrom(x => GetResultUploadFiles(x.JsonPicture)))
+                .ForMember(des => des.ResultCategorys, s => s.MapFrom(x =>
+                x.Categories != null && x.Categories.Count > 0 ? x.Categories.Select(s => new ResultCategory
                 {
                     ID = s.ID,
                     Title = s.Title,
@@ -169,123 +148,55 @@ namespace MappingProfile.DtoMappingConfigs
                         Count = k.Categories.Count(),
                         IdentityCode = k.IdentityCode,
                     }).ToList() : new List<ResultCategory>(),
-                }).ToList() : new List<ResultCategory>(),
-            });
+                }).ToList() : new List<ResultCategory>()))
+                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
 
             #endregion
             #region Product
-            CreateMap<AddProduct, Product>().ConvertUsing(x => new Product
-            {
-                Title = x.Title,
-                Count = x.Count,
-                Price = x.Price,
-                CategoryID = x.CategoryID,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                ShortDescription = x.ShortDescription,
-                Description = x.Description,
-                Discount = x.Discount,
-                Brand = x.Brand,
-                ProductCode = x.ProductCode,
-                ProductExistStatus = (int)x.ProductExistStatus,
-                SkuCode = x.SkuCode,
+            CreateMap<AddProduct, Product>()
+                 .ForMember(des => des.ProductExistStatus, s => s.MapFrom(x => (int)x.ProductExistStatus))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<UpdateProduct, Product>()
+                .ForMember(des => des.ProductExistStatus, s => s.MapFrom(x => (int)x.ProductExistStatus))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateProduct, Product>().ConvertUsing(x => new Product
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Count = x.Count,
-                Price = x.Price,
-                CategoryID = x.CategoryID,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                ShortDescription = x.ShortDescription,
-                Description = x.Description,
-                Discount = x.Discount,
-                Brand = x.Brand,
-                ProductCode = x.ProductCode,
-                ProductExistStatus = (int)x.ProductExistStatus,
-                SkuCode = x.SkuCode,
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-
-            }); ;
-            CreateMap<Product, UpdateProduct>().ConvertUsing(x => new UpdateProduct
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Count = x.Count,
-                Price = x.Price,
-                CategoryID = x.CategoryID,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                ShortDescription = x.ShortDescription,
-                Description = x.Description,
-                Discount = x.Discount,
-                Brand = x.Brand,
-                ProductCode = x.ProductCode,
-                ProductExistStatus = (ProductExistStatus)x.ProductExistStatus,
-                SkuCode = x.SkuCode,
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-                ResultCategory = x.Category != null ? new ResultCategory
+            CreateMap<Product, UpdateProduct>()
+                .ForMember(des => des.ProductExistStatus, s => s.MapFrom(x => (ProductExistStatus)x.ProductExistStatus))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
+                .ForMember(des => des.ResultCategory, s => s.MapFrom(x => x.Category != null ? new ResultCategory
                 {
                     ID = x.Category.ID,
                     Title = x.Category.Title,
                     ParentID = x.Category.ParentID,
                 } : new ResultCategory()
+                ));
 
+            CreateMap<Product, ResultProduct>()
+                 .ForMember(des => des.ProductExistStatus, s => s.MapFrom(x => GetProductExistStatus(x.ProductExistStatus)))
+                 .ForMember(des => des.ProductExistStatus2, s => s.MapFrom(x => (ProductExistStatus)x.ProductExistStatus))
+                 .ForMember(des => des.ResultUploadFiles, s => s.MapFrom(x => GetResultUploadFiles(x.JsonPicture)))
+                 .ForMember(des => des.RatingAverage, s => s.MapFrom(x => CalCulatorAverageRatingProductComment(x.ProductComments)))
+                 .ForMember(des => des.ProductCommentCount, s => s.MapFrom(x => x.ProductComments != null ? x.ProductComments.Count() : 0))
+                 .ForMember(des => des.ResultCategory, s => s.MapFrom(x => x.Category != null ? new ResultCategory
+                 {
+                     ID = x.Category.ID,
+                     Title = x.Category.Title,
+                     ParentID = x.Category.ParentID,
+                     Description = x.Category.Description,
+                     Visible = x.Category.Visible,
 
-            });
-            CreateMap<Product, ResultProduct>().ConvertUsing(x => new ResultProduct
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Count = x.Count,
-                Price = x.Price,
-                CategoryID = x.CategoryID,
-                Visible = x.Visible,
-                JsonPicture = x.JsonPicture,
-                ShortDescription = x.ShortDescription,
-                Description = x.Description,
-                Discount = x.Discount,
-                Brand = x.Brand,
-                ProductCode = x.ProductCode,
-                ViewCount = x.ViewCount,
-                ProductExistStatus = GetProductExistStatus(x.ProductExistStatus),
-                ProductExistStatus2 = (ProductExistStatus)x.ProductExistStatus,
-                SkuCode = x.SkuCode,
-                ResultUploadFiles = GetResultUploadFiles(x.JsonPicture),
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-                RatingAverage = CalCulatorAverageRatingProductComment(x.ProductComments),
-                ProductCommentCount = x.ProductComments != null ? x.ProductComments.Count() : 0,
-                ResultCategory = x.Category != null ? new ResultCategory
-                {
-                    ID = x.Category.ID,
-                    Title = x.Category.Title,
-                    ParentID = x.Category.ParentID,
-                    Description = x.Category.Description,
-                    Visible = x.Category.Visible,
-
-                } : new ResultCategory(),
-                ResultPricingRules = x.PricingRules != null && x.PricingRules.Count > 0 ? x.PricingRules.Select(k => new ResultPricingRule
+                 } : new ResultCategory()
+                ))
+                .ForMember(des => des.ResultPricingRules, s => s.MapFrom(x => x.PricingRules != null && x.PricingRules.Count > 0 ? x.PricingRules.Select(k => new ResultPricingRule
                 {
                     ID = k.ID,
                     ProductID = k.ProductID,
@@ -298,226 +209,88 @@ namespace MappingProfile.DtoMappingConfigs
                     FromDate = DateFunctions.ConvertDateIntToString(k.FromDate),
                     ToDate = DateFunctions.ConvertDateIntToString(k.ToDate),
                     Visible = k.Visible,
-
                     RegisterTime = k.RegisterTime,
                     EditTime = k.EditTime,
                     RegisterDate = DateFunctions.ConvertDateIntToString(k.RegisterDate),
                     EditDate = DateFunctions.ConvertDateIntToString(k.EditDate),
 
                 }).ToList() : new List<ResultPricingRule>()
-            });
+                ))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+                
+
+
+
+
             #endregion
             #region Setting
-            CreateMap<AddSetting, Setting>().ConvertUsing(x => new Setting
-            {
-                Name = x.Name,
-                CountShowRecord = x.CountShowRecord,
-                JsonPicture = x.JsonPicture,
-                UserName = x.UserName,
-                Password = x.Password,
-                PhoneSender = x.PhoneSender,
-                CurrencyUnit = x.CurrencyUnit,
-                Email = x.Email,
-                JsonTel = x.JsonTel,
-                JsonMobile = x.JsonMobile,
-                Address = x.Address,
+            CreateMap<AddSetting, Setting>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<UpdateSetting, Setting>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateSetting, Setting>().ConvertUsing(x => new Setting
-            {
-                ID = x.ID,
-                Name = x.Name,
-                CountShowRecord = x.CountShowRecord,
-                JsonPicture = x.JsonPicture,
-                UserName = x.UserName,
-                Password = x.Password,
-                PhoneSender = x.PhoneSender,
-                CurrencyUnit = x.CurrencyUnit,
-                Email = x.Email,
-                JsonTel = x.JsonTel,
-                JsonMobile = x.JsonMobile,
+            CreateMap<ResultSetting, UpdateSetting>()
+                .ForMember(des => des.CurrencyUnit, s => s.MapFrom(x => x.CurrencyUnit2))
+                .ForMember(des => des.JsonTel, s => s.MapFrom(x => ConvertTelListToJson(x.ResultTels)))
+                .ForMember(des => des.JsonMobile, s => s.MapFrom(x => ConvertMobileListToJson(x.ResultMobiles)));
 
-                Address = x.Address,
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<Setting, UpdateSetting>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
-            CreateMap<ResultSetting, UpdateSetting>().ConvertUsing(x => new UpdateSetting
-            {
-                ID = x.ID,
-                Name = x.Name,
-                CountShowRecord = x.CountShowRecord,
-                JsonPicture = x.JsonPicture,
-                UserName = x.UserName,
-                Password = x.Password,
-                PhoneSender = x.PhoneSender,
-                CurrencyUnit = x.CurrencyUnit2,
-                Email = x.Email,
-                JsonTel = ConvertTelListToJson(x.ResultTels),
-                JsonMobile = ConvertMobileListToJson(x.ResultMobiles),
-                Address = x.Address,
-                IdentityCode = x.IdentityCode,
-                RegisterDate = x.RegisterDate,
-                RegisterTime = x.RegisterTime,
-                EditDate = x.EditDate,
-                EditTime = x.EditTime,
+            CreateMap<Setting, ResultSetting>()
+                .ForMember(des => des.CurrencyUnit2, s => s.MapFrom(x => x.CurrencyUnit))
+                .ForMember(des => des.CurrencyUnit, s => s.MapFrom(x => GetTitleCurrencyUnit(x.CurrencyUnit)))
+                .ForMember(des => des.ResultTels, s => s.MapFrom(x => ConvertTelJsonToList(x.JsonTel)))
+                .ForMember(des => des.ResultMobiles, s => s.MapFrom(x => ConvertMobileJsonToList(x.JsonMobile)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
-            CreateMap<Setting, UpdateSetting>().ConvertUsing(x => new UpdateSetting
-            {
-                ID = x.ID,
-                Name = x.Name,
-                CountShowRecord = x.CountShowRecord,
-                JsonPicture = x.JsonPicture,
-                UserName = x.UserName,
-                Password = x.Password,
-                PhoneSender = x.PhoneSender,
-                CurrencyUnit = x.CurrencyUnit,
-                Email = x.Email,
-                JsonTel = x.JsonTel,
-                JsonMobile = x.JsonMobile,
-                Address = x.Address,
+            CreateMap<Setting, ResultPublicSetting>()
+                .ForMember(des => des.ResultTels, s => s.MapFrom(x => ConvertTelJsonToList(x.JsonTel)))
+                .ForMember(des => des.ResultMobiles, s => s.MapFrom(x => ConvertMobileJsonToList(x.JsonMobile)));
 
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-
-            });
-            CreateMap<Setting, ResultSetting>().ConvertUsing(x => new ResultSetting
-            {
-                ID = x.ID,
-                Name = x.Name,
-                CountShowRecord = x.CountShowRecord,
-                JsonPicture = x.JsonPicture,
-                UserName = x.UserName,
-                Password = x.Password,
-                PhoneSender = x.PhoneSender,
-                CurrencyUnit2 = x.CurrencyUnit,
-                CurrencyUnit = GetTitleCurrencyUnit(x.CurrencyUnit),
-                Email = x.Email,
-                JsonTel = x.JsonTel,
-                ResultTels = ConvertTelJsonToList(x.JsonTel),
-                JsonMobile = x.JsonMobile,
-                ResultMobiles = ConvertMobileJsonToList(x.JsonMobile),
-                Address = x.Address,
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-
-            });
-            CreateMap<Setting, ResultPublicSetting>().ConvertUsing(x => new ResultPublicSetting
-            {
-                ID = x.ID,
-                Name = x.Name,
-                CountShowRecord = x.CountShowRecord,
-                JsonPicture = x.JsonPicture,
-                Email = x.Email,
-                JsonTel = x.JsonTel,
-                ResultTels = ConvertTelJsonToList(x.JsonTel),
-                JsonMobile = x.JsonMobile,
-                ResultMobiles = ConvertMobileJsonToList(x.JsonMobile),
-                Address = x.Address,
-
-            });
             #endregion
             #region Customer
-            CreateMap<AddCustomer, Customer>().ConvertUsing(x => new Customer
-            {
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateStringToInt(x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Mcode = x.Mcode,
-                Email = x.Email,
-                Gender = (int)x.Gender,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                JsonLableTexts = x.JsonLableTexts,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<AddCustomer, Customer>()
+                .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate == null ? (int?)null : DateFunctions.ConvertDateStringToInt(x.BirthDate)))
+                .ForMember(des => des.Gender, s => s.MapFrom(x => (int)x.Gender))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-            });
-            CreateMap<UpdateCustomer, Customer>().ConvertUsing(x => new Customer
-            {
-                ID = x.ID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateStringToInt(x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Mcode = x.Mcode,
-                Email = x.Email,
-                Gender = (int)x.Gender,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                IdentityCode = x.IdentityCode,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateCustomerInfo, Customer>().ConvertUsing(x => new Customer
-            {
-                ID = x.ID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateStringToInt(x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Mcode = x.Mcode,
-                Email = x.Email,
-                Gender = (int)x.Gender,
-                Visible = x.Visible,
-                JsonLableTexts = x.JsonLableTexts,
-                IdentityCode = x.IdentityCode,
+            CreateMap<UpdateCustomer, Customer>()
+                .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate == null ? (int?)null : DateFunctions.ConvertDateStringToInt(x.BirthDate)))
+                .ForMember(des => des.Gender, s => s.MapFrom(x => (int)x.Gender))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<Customer, UpdateCustomer>().ConvertUsing(x => new UpdateCustomer
-            {
-                ID = x.ID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Mcode = x.Mcode,
-                Email = x.Email,
-                Gender = (Gender)x.Gender,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Slug = x.Slug,
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
+            CreateMap<UpdateCustomerInfo, Customer>()
+                .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate == null ? (int?)null : DateFunctions.ConvertDateStringToInt(x.BirthDate)))
+                .ForMember(des => des.Gender, s => s.MapFrom(x => (int)x.Gender))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                ResultCustomerUserInfo = new ResultCustomerUserInfo
+            CreateMap<Customer, UpdateCustomer>()
+                .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null))
+                .ForMember(des => des.Gender, s => s.MapFrom(x => (Gender)x.Gender))
+                .ForMember(des => des.ResultCustomerUserInfo, s => s.MapFrom(x => new ResultCustomerUserInfo
                 {
                     Mobile = x.Mobile,
                     Email = x.Email,
 
-                },
-                UpdateCustomerAddresss = x.CustomerAddresss != null ? x.CustomerAddresss.Select(s => new UpdateCustomerAddress
+                }))
+                .ForMember(des => des.UpdateCustomerAddresss, s => s.MapFrom(x => x.CustomerAddresss != null ? x.CustomerAddresss.Select(s => new UpdateCustomerAddress
                 {
                     ID = s.ID,
                     Address = s.Address,
@@ -529,7 +302,7 @@ namespace MappingProfile.DtoMappingConfigs
                     Plaque = s.Plaque,
                     PostalCode = s.PostalCode,
                     Description = s.Description,
-                    Visible = x.Visible,
+                    Visible = s.Visible,
                     RegisterTime = s.RegisterTime,
                     EditTime = s.EditTime,
                     IdentityCode = s.IdentityCode,
@@ -549,56 +322,29 @@ namespace MappingProfile.DtoMappingConfigs
 
                     } : new ResultCity()
 
-                }).ToList() : new List<UpdateCustomerAddress>(),
+                }).ToList() : new List<UpdateCustomerAddress>()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
-            CreateMap<Customer, UpdateCustomerInfo>().ConvertUsing(x => new UpdateCustomerInfo
-            {
-                ID = x.ID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Mcode = x.Mcode,
-                Email = x.Email,
-                Gender = (Gender)x.Gender,
-                Visible = x.Visible,
-                Slug = x.Slug,
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
+            CreateMap<Customer, UpdateCustomerInfo>()
+                .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null))
+                .ForMember(des => des.Gender, s => s.MapFrom(x => (Gender)x.Gender))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
-            });
-            CreateMap<Customer, ResultCustomer>().ConvertUsing(x => new ResultCustomer
-            {
-                ID = x.ID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Mcode = x.Mcode,
-                Email = x.Email,
-                Gender = EnumConstant.GetTitleGender(x.Gender),
-                JsonPicture = x.JsonPicture,
-                ImageUIrl = GetPathImage(x.JsonPicture),
-                Visible = x.Visible,
-                Slug = x.Slug,
-                CartCount = x.Carts != null ? x.Carts.Count : 0,
-                OrderCount = x.Orders != null ? x.Orders.Count : 0,
-
-                RegisterTime = x.RegisterTime,
-
-                ResultCustomerUserInfo = new ResultCustomerUserInfo
+            CreateMap<Customer, ResultCustomer>()
+                .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null))
+                .ForMember(des => des.Gender, s => s.MapFrom(x => EnumConstant.GetTitleGender(x.Gender)))
+                .ForMember(des => des.ImageUIrl, s => s.MapFrom(x => GetPathImage(x.JsonPicture)))
+                .ForMember(des => des.CartCount, s => s.MapFrom(x => x.Carts != null ? x.Carts.Count : 0))
+                .ForMember(des => des.OrderCount, s => s.MapFrom(x => x.Orders != null ? x.Orders.Count : 0))
+                .ForMember(des => des.ResultCustomerUserInfo, s => s.MapFrom(x => new ResultCustomerUserInfo
                 {
                     Mobile = x.Mobile,
                     Email = x.Email,
 
-                },
-                ResultCustomerAddresss = x.CustomerAddresss != null ? x.CustomerAddresss.Select(s => new ResultCustomerAddress
+                }))
+                .ForMember(des => des.ResultCustomerAddresss, s => s.MapFrom(x => x.CustomerAddresss != null ? x.CustomerAddresss.Select(s => new ResultCustomerAddress
                 {
                     ID = s.ID,
                     Address = s.Address,
@@ -609,7 +355,7 @@ namespace MappingProfile.DtoMappingConfigs
                     Plaque = s.Plaque,
                     PostalCode = s.PostalCode,
                     Description = s.Description,
-                    Visible = x.Visible,
+                    Visible = s.Visible,
                     RegisterTime = s.RegisterTime,
                     EditTime = s.EditTime,
                     IdentityCode = s.IdentityCode,
@@ -626,126 +372,44 @@ namespace MappingProfile.DtoMappingConfigs
                         } : new ResultProvince(),
                     } : new ResultCity(),
 
-                }).ToList() : new List<ResultCustomerAddress>(),
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                IdentityCode = x.IdentityCode,
+                }).ToList() : new List<ResultCustomerAddress>()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
             CreateMap<ResultCustomer, UpdateCustomer>();
 
 
             #endregion
             #region Order
-            CreateMap<AddOrder, Order>().ConvertUsing(x => new Order
-            {
-                CustomerID = x.CustomerID,
-                OrderStatus = x.OrderStatus,
-                PaymentStatus = x.PaymentStatus,
-                Discount = x.Discount,
-                FinalAmount = x.FinalAmount,
-                TotalAmount = x.TotalAmount,
-                OrderCode = x.OrderCode,
-                CardPen = x.CardPen,
-                RefId = x.RefId,
-                ResNum = x.ResNum,
-                SendProductMethodID = x.SendProductMethodID,
-                JsonAddress = x.JsonAddress,
-                StatusDescription = x.StatusDescription,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<AddOrder, Order>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
+            CreateMap<UpdateOrder, Order>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateOrder, Order>().ConvertUsing(x => new Order
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                OrderStatus = x.OrderStatus,
-                PaymentStatus = x.PaymentStatus,
-                Discount = x.Discount,
-                FinalAmount = x.FinalAmount,
-                TotalAmount = x.TotalAmount,
-                OrderCode = x.OrderCode,
-                CardPen = x.CardPen,
-                RefId = x.RefId,
-                ResNum = x.ResNum,
-                Visible = x.Visible,
-                SendProductMethodID = x.SendProductMethodID,
-                JsonAddress = x.JsonAddress,
-                StatusDescription = x.StatusDescription,
+            CreateMap<Order, UpdateOrder>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<Order, UpdateOrder>().ConvertUsing(x => new UpdateOrder
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                OrderStatus = x.OrderStatus,
-                PaymentStatus = x.PaymentStatus,
-                Discount = x.Discount,
-                FinalAmount = x.FinalAmount,
-                TotalAmount = x.TotalAmount,
-                OrderCode = x.OrderCode,
-                CardPen = x.CardPen,
-                RefId = x.RefId,
-                ResNum = x.ResNum,
-                Visible = x.Visible,
-                SendProductMethodID = x.SendProductMethodID,
-                JsonAddress = x.JsonAddress,
-                StatusDescription = x.StatusDescription,
-
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultOrder, UpdateOrder>();
-            CreateMap<Order, ResultOrder>().ConvertUsing(x => new ResultOrder
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                OrderStatus = GetStatusOrder(x.OrderStatus),
-                OrderStatus2 = x.OrderStatus,
-                PaymentStatus = GetPaymentStatus(x.PaymentStatus),
-                PaymentStatus2 = x.PaymentStatus,
-                Discount = x.Discount,
-                FinalAmount = x.FinalAmount,
-                TotalAmount = x.TotalAmount,
-                OrderCode = x.OrderCode,
-                CardPen = x.CardPen,
-                RefId = x.RefId,
-                ResNum = x.ResNum,
-                Visible = x.Visible,
-                SendProductMethodID = x.SendProductMethodID,
-                JsonAddress = x.JsonAddress,
-                StatusDescription = x.StatusDescription,
-
-                IdentityCode = x.IdentityCode,
-                ResultJsonLables = x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>(),
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                ResultSendProductMethod = x.PaymentStatus != PaymentStatus.paid ? new ResultSendProductMethod() : x.SendProductMethod != null ? new ResultSendProductMethod
+            CreateMap<Order, ResultOrder>()
+                .ForMember(des => des.OrderStatus, s => s.MapFrom(x => GetStatusOrder(x.OrderStatus)))
+                .ForMember(des => des.OrderStatus2, s => s.MapFrom(x => x.OrderStatus))
+                .ForMember(des => des.PaymentStatus, s => s.MapFrom(x => GetPaymentStatus(x.PaymentStatus)))
+                .ForMember(des => des.PaymentStatus2, s => s.MapFrom(x => x.PaymentStatus))
+                .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
+                .ForMember(des => des.ResultSendProductMethod, s => s.MapFrom(x => x.PaymentStatus != PaymentStatus.paid ? new ResultSendProductMethod() : x.SendProductMethod != null ? new ResultSendProductMethod
                 {
                     ID = x.SendProductMethod.ID,
                     Title = x.SendProductMethod.Title,
                     Description = x.SendProductMethod.Description,
-                } : new ResultSendProductMethod(),
-                ResultCustomer = x.Customer != null ? new ResultCustomer
+                } : new ResultSendProductMethod()))
+                .ForMember(des => des.ResultCustomer, s => s.MapFrom(x => x.Customer != null ? new ResultCustomer
                 {
                     ID = x.Customer.ID,
                     Name = x.Customer.Name,
@@ -755,74 +419,34 @@ namespace MappingProfile.DtoMappingConfigs
                     Email = x.Customer.Email,
                     Gender = EnumConstant.GetTitleGender(x.Customer.Gender),
                     BirthDate = x.Customer.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.Customer.BirthDate) : null,
-                } : new ResultCustomer(),
-                ResultCustomerAddress = GetResultCustomerAddress(x.JsonAddress),
-
-            });
+                } : new ResultCustomer()))
+                .ForMember(des => des.ResultCustomerAddress, s => s.MapFrom(x => GetResultCustomerAddress(x.JsonAddress)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region OrderItem
-            CreateMap<AddOrderItem, OrderItem>().ConvertUsing(x => new OrderItem
-            {
+            CreateMap<AddOrderItem, OrderItem>()
+                .ForMember(des => des.Quantity, s => s.MapFrom(x => 1))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                OrderID = x.OrderID,
-                ProductID = x.ProductID,
-                Quantity = 1, //x.Quantity,
-                PriceAtOrder = x.PriceAtOrder,
+            CreateMap<UpdateOrderItem, OrderItem>()
+                .ForMember(des => des.Quantity, s => s.MapFrom(x => 1))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateOrderItem, OrderItem>().ConvertUsing(x => new OrderItem
-            {
-                ID = x.ID,
-                OrderID = x.OrderID,
-                ProductID = x.ProductID,
-                Quantity = 1, //x.Quantity,
-                PriceAtOrder = x.PriceAtOrder,
+            CreateMap<OrderItem, UpdateOrderItem>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                Visible = x.Visible,
-
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<OrderItem, UpdateOrderItem>().ConvertUsing(x => new UpdateOrderItem
-            {
-                ID = x.ID,
-                OrderID = x.OrderID,
-                ProductID = x.ProductID,
-                Quantity = x.Quantity,
-                PriceAtOrder = x.PriceAtOrder,
-
-                Visible = x.Visible,
-
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultOrderItem, UpdateOrderItem>();
-            CreateMap<OrderItem, ResultOrderItem>().ConvertUsing(x => new ResultOrderItem
-            {
-                ID = x.ID,
-                OrderID = x.OrderID,
-                ProductID = x.ProductID,
-                Quantity = x.Quantity,
-                PriceAtOrder = x.PriceAtOrder,
-                FinalAmount = x.PriceAtOrder * x.Quantity,
-
-                Visible = x.Visible,
-                ResultProduct = x.Product != null ? new ResultProduct
+            CreateMap<OrderItem, ResultOrderItem>()
+                .ForMember(des => des.FinalAmount, s => s.MapFrom(x => x.PriceAtOrder * x.Quantity))
+                .ForMember(des => des.ResultProduct, s => s.MapFrom(x => x.Product != null ? new ResultProduct
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
@@ -830,81 +454,41 @@ namespace MappingProfile.DtoMappingConfigs
                     Price = x.Product.Price,
                     IdentityCode = x.Product.IdentityCode,
                     ResultUploadFiles = GetResultUploadFiles(x.Product.JsonPicture),
-                } : new ResultProduct(),
-                ResultJsonLables = x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>(),
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
+                } : new ResultProduct()))
+                .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region Cart
-            CreateMap<AddCart, Cart>().ConvertUsing(x => new Cart
-            {
-                CustomerID = x.CustomerID,
-                Visible = x.Visible,
-                CartStatus = (int)x.CartStatus,
-                SendProductMethodID = x.SendProductMethodID,
-                JsonLableTexts = x.JsonLableTexts,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateCart, Cart>().ConvertUsing(x => new Cart
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                SendProductMethodID = x.SendProductMethodID,
-                Visible = x.Visible,
-                CartStatus = (int)x.CartStatus,
+            CreateMap<AddCart, Cart>()
+                .ForMember(des => des.CartStatus, s => s.MapFrom(x => (int)x.CartStatus))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<UpdateCart, Cart>()
+                .ForMember(des => des.CartStatus, s => s.MapFrom(x => (int)x.CartStatus))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<Cart, UpdateCart>().ConvertUsing(x => new UpdateCart
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                SendProductMethodID = x.SendProductMethodID,
-                Visible = x.Visible,
-                CartStatus = (CartStatus)x.CartStatus,
+            CreateMap<Cart, UpdateCart>()
+                .ForMember(des => des.CartStatus, s => s.MapFrom(x => (CartStatus)x.CartStatus))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultCart, UpdateCart>();
-            CreateMap<Cart, ResultCart>().ConvertUsing(x => new ResultCart
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                SendProductMethodID = x.SendProductMethodID,
-                Visible = x.Visible,
-                Slug = x.Slug,
-                CartStatus = GetCartStatus(x.CartStatus),
-                CartStatus2 = (CartStatus)x.CartStatus,
-                TotalAmount = x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Price * s.Quantity) : 0,
-                Discount = x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Discount * s.Quantity) : 0,
-                FinalAmount = x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Price * s.Quantity) - x.CartItems.Sum(s => s.Product.Discount * s.Quantity) : 0,
-                CountCartItems = x.CartItems != null ? x.CartItems.Count : 0,
-
-                ResultJsonLables = x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>(),
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                IdentityCode = x.IdentityCode,
-                ResultCustomer = x.Customer != null ? new ResultCustomer
+            CreateMap<Cart, ResultCart>()
+                .ForMember(des => des.CartStatus, s => s.MapFrom(x => GetCartStatus(x.CartStatus)))
+                .ForMember(des => des.CartStatus2, s => s.MapFrom(x => (CartStatus)x.CartStatus))
+                .ForMember(des => des.TotalAmount, s => s.MapFrom(x => x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Price * s.Quantity) : 0))
+                .ForMember(des => des.Discount, s => s.MapFrom(x => x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Discount * s.Quantity) : 0))
+                .ForMember(des => des.FinalAmount, s => s.MapFrom(x => x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Price * s.Quantity) - x.CartItems.Sum(s => s.Product.Discount * s.Quantity) : 0))
+                .ForMember(des => des.CountCartItems, s => s.MapFrom(x => x.CartItems != null ? x.CartItems.Count : 0))
+                .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
+                .ForMember(des => des.ResultCustomer, s => s.MapFrom(x => x.Customer != null ? new ResultCustomer
                 {
                     ID = x.Customer.ID,
                     Name = x.Customer.Name,
@@ -914,85 +498,38 @@ namespace MappingProfile.DtoMappingConfigs
                     Email = x.Customer.Email,
                     Gender = EnumConstant.GetTitleGender(x.Customer.Gender),
                     BirthDate = x.Customer.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.Customer.BirthDate) : null,
-                } : new ResultCustomer(),
-
-            });
+                } : new ResultCustomer()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region CartItem
-            CreateMap<AddCartItem, CartItem>().ConvertUsing(x => new CartItem
-            {
+            CreateMap<AddCartItem, CartItem>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                CartID = x.CartID,
-                ProductID = x.ProductID,
-                Quantity = x.Quantity,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<AddCartItem, ResultCartItem>().ConvertUsing(x => new ResultCartItem
-            {
+            CreateMap<AddCartItem, ResultCartItem>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                CartID = x.CartID,
-                ProductID = x.ProductID,
-                Quantity = x.Quantity,
-                Visible = x.Visible,
+            CreateMap<UpdateCartItem, CartItem>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = GetNewDate(),
-                EditDate = GetNewDate(),
-            });
-            CreateMap<UpdateCartItem, CartItem>().ConvertUsing(x => new CartItem
-            {
-                ID = x.ID,
-                CartID = x.CartID,
-                ProductID = x.ProductID,
-                Quantity = x.Quantity,
-                Visible = x.Visible,
+            CreateMap<CartItem, UpdateCartItem>()
+                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<CartItem, UpdateCartItem>().ConvertUsing(x => new UpdateCartItem
-            {
-                ID = x.ID,
-                CartID = x.CartID,
-                ProductID = x.ProductID,
-                Quantity = x.Quantity,
-                Visible = x.Visible,
-
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultCartItem, UpdateCartItem>();
-            CreateMap<CartItem, ResultCartItem>().ConvertUsing(x => new ResultCartItem
-            {
-                ID = x.ID,
-                CartID = x.CartID,
-                ProductID = x.ProductID,
-                Quantity = x.Quantity,
-                TotalAmount = x.Product != null ? x.Product.Price * x.Quantity : 0,
-                Visible = x.Visible,
-
-                ResultJsonLables = x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>(),
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                ResultProduct = x.Product != null ? new ResultProduct
+            CreateMap<CartItem, ResultCartItem>()
+                .ForMember(des => des.TotalAmount, s => s.MapFrom(x => x.Product != null ? x.Product.Price * x.Quantity : 0))
+                .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
+                .ForMember(des => des.ResultProduct, s => s.MapFrom(x => x.Product != null ? new ResultProduct
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
@@ -1022,790 +559,316 @@ namespace MappingProfile.DtoMappingConfigs
                         EditDate = DateFunctions.ConvertDateIntToString(k.EditDate),
 
                     }).ToList() : new List<ResultPricingRule>()
-                } : new ResultProduct()
-            });
+                } : new ResultProduct()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region Slider
-            CreateMap<AddSlider, Slider>().ConvertUsing(x => new Slider
-            {
-                Title = x.Title,
-                Url = x.Url,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateSlider, Slider>().ConvertUsing(x => new Slider
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Url = x.Url,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<Slider, UpdateSlider>().ConvertUsing(x => new UpdateSlider
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Url = x.Url,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<ResultSlider, UpdateSlider>();
-            CreateMap<Slider, ResultSlider>().ConvertUsing(x => new ResultSlider
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Url = x.Url,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
-
-            #endregion
-            #region Advertisement
-            CreateMap<AddAdvertisement, Advertisement>().ConvertUsing(x => new Advertisement
-            {
-                Title = x.Title,
-                SiteUrl = x.SiteUrl,
-                SiteName = x.SiteName,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateAdvertisement, Advertisement>().ConvertUsing(x => new Advertisement
-            {
-                ID = x.ID,
-                Title = x.Title,
-                SiteUrl = x.SiteUrl,
-                SiteName = x.SiteName,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<Advertisement, UpdateAdvertisement>().ConvertUsing(x => new UpdateAdvertisement
-            {
-                ID = x.ID,
-                Title = x.Title,
-                SiteUrl = x.SiteUrl,
-                SiteName = x.SiteName,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<ResultAdvertisement, UpdateAdvertisement>();
-            CreateMap<Advertisement, ResultAdvertisement>().ConvertUsing(x => new ResultAdvertisement
-            {
-                ID = x.ID,
-                Title = x.Title,
-                SiteUrl = x.SiteUrl,
-                SiteName = x.SiteName,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
-
-            #endregion
-            #region AdvertisementSingle
-            CreateMap<AddAdvertisementSingle, AdvertisementSingle>().ConvertUsing(x => new AdvertisementSingle
-            {
-                Title = x.Title,
-                SiteUrl = x.SiteUrl,
-                SiteName = x.SiteName,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateAdvertisementSingle, AdvertisementSingle>().ConvertUsing(x => new AdvertisementSingle
-            {
-                ID = x.ID,
-                Title = x.Title,
-                SiteUrl = x.SiteUrl,
-                SiteName = x.SiteName,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<AdvertisementSingle, UpdateAdvertisementSingle>().ConvertUsing(x => new UpdateAdvertisementSingle
-            {
-                ID = x.ID,
-                Title = x.Title,
-                SiteUrl = x.SiteUrl,
-                SiteName = x.SiteName,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<ResultAdvertisementSingle, UpdateAdvertisementSingle>();
-            CreateMap<AdvertisementSingle, ResultAdvertisementSingle>().ConvertUsing(x => new ResultAdvertisementSingle
-            {
-                ID = x.ID,
-                Title = x.Title,
-                SiteUrl = x.SiteUrl,
-                SiteName = x.SiteName,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
-
-            #endregion
-            #region GroupBlog
-            CreateMap<AddGroupBlog, GroupBlog>().ConvertUsing(x => new GroupBlog
-            {
-                Title = x.Title,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateGroupBlog, GroupBlog>().ConvertUsing(x => new GroupBlog
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Visible = x.Visible,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<GroupBlog, UpdateGroupBlog>().ConvertUsing(x => new UpdateGroupBlog
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Visible = x.Visible,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<ResultGroupBlog, UpdateGroupBlog>();
-            CreateMap<GroupBlog, ResultGroupBlog>().ConvertUsing(x => new ResultGroupBlog
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Visible = x.Visible,
-                CountBlog = x.Blogs != null ? x.Blogs.Count : 0,
-                IdentityCode = x.IdentityCode,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-
-            });
-            #endregion
-            #region Blog
-            CreateMap<AddBlog, Blog>().ConvertUsing(x => new Blog
-            {
-                Title = x.Title,
-                GroupBlogID = x.GroupBlogID,
-                TeamID = x.TeamID,
-                StudyDuration = x.StudyDuration,
-                NumberOfVisits = x.NumberOfVisits,
-                JsonLableTexts = x.JsonLableTexts,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateBlog, Blog>().ConvertUsing(x => new Blog
-            {
-                ID = x.ID,
-                Title = x.Title,
-                GroupBlogID = x.GroupBlogID,
-                TeamID = x.TeamID,
-                StudyDuration = x.StudyDuration,
-                NumberOfVisits = x.NumberOfVisits,
-                JsonLableTexts = x.JsonLableTexts,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Description = x.Description,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<Blog, UpdateBlog>().ConvertUsing(x => new UpdateBlog
-            {
-                ID = x.ID,
-                Title = x.Title,
-                GroupBlogID = x.GroupBlogID,
-                TeamID = x.TeamID,
-                StudyDuration = x.StudyDuration,
-                NumberOfVisits = x.NumberOfVisits,
-                JsonLableTexts = x.JsonLableTexts,
-                ResultJsonLables = x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>(),
-                JsonPicture = x.JsonPicture,
-
-                Visible = x.Visible,
-                Description = x.Description,
-                ResultGroupBlog = x.GroupBlog != null ? new ResultGroupBlog
-                {
-                    Title = x.GroupBlog.Title,
-                } : new ResultGroupBlog(),
-                ResultTeam = x.Team != null ? new ResultTeam
-                {
-                    Name = x.Team.Name,
-                    Title = x.Team.Title,
-                    Description = x.Team.Description,
-                } : new ResultTeam(),
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<ResultBlog, UpdateBlog>();
-            CreateMap<Blog, ResultBlog>().ConvertUsing(x => new ResultBlog
-            {
-                ID = x.ID,
-                Title = x.Title,
-                GroupBlogID = x.GroupBlogID,
-                TeamID = x.TeamID,
-                StudyDuration = x.StudyDuration,
-                NumberOfVisits = x.NumberOfVisits,
-                ResultJsonLables = x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>(),
-                Visible = x.Visible,
-                Description = x.Description,
-                JsonPicture = x.JsonPicture,
-                IdentityCode = x.IdentityCode,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                ResultGroupBlog = x.GroupBlog != null ? new ResultGroupBlog
-                {
-                    Title = x.GroupBlog.Title,
-                } : new ResultGroupBlog(),
-                ResultTeam = x.Team != null ? new ResultTeam
-                {
-                    Name = x.Team.Name,
-                    Title = x.Team.Title,
-                    Description = x.Team.Description,
-                } : new ResultTeam(),
-
-            });
-
-            #endregion
-            #region BlogComment
-            CreateMap<AddBlogComment, BlogComment>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => Guid.NewGuid()))
+            CreateMap<AddSlider, Slider>()
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
-            CreateMap<UpdateBlogComment, BlogComment>()
+
+            CreateMap<UpdateSlider, Slider>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<Slider, UpdateSlider>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            CreateMap<ResultSlider, UpdateSlider>();
+            CreateMap<Slider, ResultSlider>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            #endregion
+            #region Advertisement
+            CreateMap<AddAdvertisement, Advertisement>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-            CreateMap<BlogComment, UpdateBlogComment>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+            CreateMap<UpdateAdvertisement, Advertisement>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<Advertisement, UpdateAdvertisement>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
-            CreateMap<BlogComment, ResultBlogComment>()
-                .ForMember(des => des.IsVerifiedBuyer, s => s.MapFrom(x => x.IsVerifiedBuyer
-            ? "<span class='inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800'>✓ بله</span>"
-           : "<span class='inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800'>✕ خیر</span>"))
-                .ForMember(des => des.Status, s => s.MapFrom(x => EnumConstant.GetTitleCommentStatus(x.Status)))
-                .ForMember(des => des.Status2, s => s.MapFrom(x => x.Status))
+            CreateMap<ResultAdvertisement, UpdateAdvertisement>();
+            CreateMap<Advertisement, ResultAdvertisement>()
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
-                .ForMember(des => des.ResultBlog, s => s.MapFrom(x => x.Blog != null ? new ResultBlog
-                {
-                    Title = x.Blog.Title
-                } : new ResultBlog()
-                ))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            .ForMember(des => des.ResultCustomer, s => s.MapFrom(x => x.Customer != null ? new ResultCustomer
-            {
-                Name = x.Customer.Name
-            } : new ResultCustomer()
-                ));
+            #endregion
+            #region AdvertisementSingle
+            CreateMap<AddAdvertisementSingle, AdvertisementSingle>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<UpdateAdvertisementSingle, AdvertisementSingle>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<AdvertisementSingle, UpdateAdvertisementSingle>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            CreateMap<ResultAdvertisementSingle, UpdateAdvertisementSingle>();
+            CreateMap<AdvertisementSingle, ResultAdvertisementSingle>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            #endregion
+            #region GroupBlog
+            CreateMap<AddGroupBlog, GroupBlog>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<UpdateGroupBlog, GroupBlog>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<GroupBlog, UpdateGroupBlog>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            CreateMap<ResultGroupBlog, UpdateGroupBlog>();
+            CreateMap<GroupBlog, ResultGroupBlog>()
+                .ForMember(des => des.CountBlog, s => s.MapFrom(x => x.Blogs != null ? x.Blogs.Count : 0))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            #endregion
+            #region Blog
+            CreateMap<AddBlog, Blog>()
+                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<UpdateBlog, Blog>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<Blog, UpdateBlog>()
+                .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
+                .ForMember(des => des.ResultGroupBlog, s => s.MapFrom(x => x.GroupBlog != null ? new ResultGroupBlog
+                {
+                    Title = x.GroupBlog.Title,
+                } : new ResultGroupBlog()))
+                .ForMember(des => des.ResultTeam, s => s.MapFrom(x => x.Team != null ? new ResultTeam
+                {
+                    Name = x.Team.Name,
+                    Title = x.Team.Title,
+                    Description = x.Team.Description,
+                } : new ResultTeam()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            CreateMap<ResultBlog, UpdateBlog>();
+            CreateMap<Blog, ResultBlog>()
+                .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
+                .ForMember(des => des.ResultGroupBlog, s => s.MapFrom(x => x.GroupBlog != null ? new ResultGroupBlog
+                {
+                    Title = x.GroupBlog.Title,
+                } : new ResultGroupBlog()))
+                .ForMember(des => des.ResultTeam, s => s.MapFrom(x => x.Team != null ? new ResultTeam
+                {
+                    Name = x.Team.Name,
+                    Title = x.Team.Title,
+                    Description = x.Team.Description,
+                } : new ResultTeam()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
 
             #endregion
             #region Story
-            CreateMap<AddStory, Story>().ConvertUsing(x => new Story
-            {
-                Title = x.Title,
-                Url = x.Url,
-                JsonPicture = x.JsonPicture,
-                JsonVideo = x.JsonVideo,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateStory, Story>().ConvertUsing(x => new Story
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Url = x.Url,
-                JsonPicture = x.JsonPicture,
-                JsonVideo = x.JsonVideo,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode= x.IdentityCode,
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<AddStory, Story>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-            });
-            CreateMap<Story, UpdateStory>().ConvertUsing(x => new UpdateStory
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Url = x.Url,
-                JsonPicture = x.JsonPicture,
-                JsonVideo = x.JsonVideo,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = x.IdentityCode,
+            CreateMap<UpdateStory, Story>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
+            CreateMap<Story, UpdateStory>()
+                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
             CreateMap<ResultStory, UpdateStory>();
-            CreateMap<Story, ResultStory>().ConvertUsing(x => new ResultStory
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Url = x.Url,
-                JsonPicture = x.JsonPicture,
-                JsonVideo = x.JsonVideo,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
+            CreateMap<Story, ResultStory>()
+                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region SmsOtpCode
-            CreateMap<AddSmsOtpCode, SmsOtpCode>().ConvertUsing(x => new SmsOtpCode
-            {
-                Code = x.Code,
-                PhoneNumber = x.PhoneNumber,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                TimeExpired = (new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)) + TimeSpan.FromMinutes(2),
-                DateExpired = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateSmsOtpCode, SmsOtpCode>().ConvertUsing(x => new SmsOtpCode
-            {
-                ID = x.ID,
-                Code = x.Code,
-                PhoneNumber = x.PhoneNumber,
-                Visible = x.Visible,
+            CreateMap<AddSmsOtpCode, SmsOtpCode>()
+                .ForMember(des => des.TimeExpired, s => s.MapFrom(x => (new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)) + TimeSpan.FromMinutes(2)))
+                .ForMember(des => des.DateExpired, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                TimeExpired = (new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)) + TimeSpan.FromMinutes(2),
-                DateExpired = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<UpdateSmsOtpCode, SmsOtpCode>()
+                .ForMember(des => des.TimeExpired, s => s.MapFrom(x => (new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)) + TimeSpan.FromMinutes(2)))
+                .ForMember(des => des.DateExpired, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<SmsOtpCode, UpdateSmsOtpCode>().ConvertUsing(x => new UpdateSmsOtpCode
-            {
-                ID = x.ID,
-                Code = x.Code,
-                PhoneNumber = x.PhoneNumber,
-                Visible = x.Visible,
+            CreateMap<SmsOtpCode, UpdateSmsOtpCode>()
+                .ForMember(des => des.DateExpired, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.DateExpired)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
-                TimeExpired = x.TimeExpired,
-                DateExpired = DateFunctions.ConvertDateIntToString(x.DateExpired),
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultSmsOtpCode, UpdateSmsOtpCode>();
-            CreateMap<SmsOtpCode, ResultSmsOtpCode>().ConvertUsing(x => new ResultSmsOtpCode
-            {
-                ID = x.ID,
-                Code = x.Code,
-                PhoneNumber = x.PhoneNumber,
-                Visible = x.Visible,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
+            CreateMap<SmsOtpCode, ResultSmsOtpCode>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region Wallet
-            CreateMap<AddWallet, Wallet>().ConvertUsing(x => new Wallet
-            {
-                Currency = x.Currency,
-                Balance = x.Balance,
-                CustomerID = x.CustomerID,
-                GiftCredit = x.GiftCredit,
+            CreateMap<AddWallet, Wallet>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                Visible = x.Visible,
+            CreateMap<UpdateWallet, Wallet>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateWallet, Wallet>().ConvertUsing(x => new Wallet
-            {
-                ID = x.ID,
-                Currency = x.Currency,
-                Balance = x.Balance,
-                CustomerID = x.CustomerID,
-                GiftCredit = x.GiftCredit,
-                Visible = x.Visible,
+            CreateMap<Wallet, UpdateWallet>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<Wallet, UpdateWallet>().ConvertUsing(x => new UpdateWallet
-            {
-                ID = x.ID,
-                Currency = x.Currency,
-                Balance = x.Balance,
-                CustomerID = x.CustomerID,
-                GiftCredit = x.GiftCredit,
-                Visible = x.Visible,
-                Slug = x.Slug,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultWallet, UpdateWallet>();
-            CreateMap<Wallet, ResultWallet>().ConvertUsing(x => new ResultWallet
-            {
-                ID = x.ID,
-                Currency = x.Currency,
-                Balance = x.Balance,
-                CustomerID = x.CustomerID,
-                GiftCredit = x.GiftCredit,
-                Visible = x.Visible,
-                Slug = x.Slug,
+            CreateMap<Wallet, ResultWallet>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
 
             #endregion
             #region WalletTransaction
-            CreateMap<AddWalletTransaction, WalletTransaction>().ConvertUsing(x => new WalletTransaction
-            {
-                WalletID = x.WalletID,
-                Currency = x.Currency,
-                Amount = x.Amount,
-                AfterBalance = x.AfterBalance,
-                ExternalReference = x.ExternalReference,
-                RefID = x.RefID,
-                Status = x.Status,
-                Description = x.Description,
-                Kind = x.Kind,
-                IdentityCode = x.IdentityCode,
-                Visible = x.Visible,
+            CreateMap<AddWalletTransaction, WalletTransaction>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateWalletTransaction, WalletTransaction>().ConvertUsing(x => new WalletTransaction
-            {
-                ID = x.ID,
-                Currency = x.Currency,
-                WalletID = x.WalletID,
-                Amount = x.Amount,
-                AfterBalance = x.AfterBalance,
-                ExternalReference = x.ExternalReference,
-                RefID = x.RefID,
-                Status = x.Status,
-                Description = x.Description,
-                Kind = x.Kind,
-                IdentityCode = x.IdentityCode,
-                Visible = x.Visible,
+            CreateMap<UpdateWalletTransaction, WalletTransaction>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<WalletTransaction, UpdateWalletTransaction>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
-            CreateMap<WalletTransaction, UpdateWalletTransaction>().ConvertUsing(x => new UpdateWalletTransaction
-            {
-                ID = x.ID,
-                Currency = x.Currency,
-                WalletID = x.WalletID,
-                Amount = x.Amount,
-                AfterBalance = x.AfterBalance,
-                ExternalReference = x.ExternalReference,
-                RefID = x.RefID,
-                Status = x.Status,
-                Description = x.Description,
-                Kind = x.Kind,
-                IdentityCode = x.IdentityCode,
-                Visible = x.Visible,
-                Slug = x.Slug,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultWalletTransaction, UpdateWalletTransaction>();
-            CreateMap<WalletTransaction, ResultWalletTransaction>().ConvertUsing(x => new ResultWalletTransaction
-            {
-                ID = x.ID,
-                Currency = x.Currency,
-                WalletID = x.WalletID,
-                Amount = x.Amount,
-                AfterBalance = x.AfterBalance,
-                ExternalReference = x.ExternalReference,
-                RefID = x.RefID,
-                Status = GetTransactionStatuse(x.Status),
-                Description = x.Description,
-                Kind = GetTransactionKind(x.Kind),
-                IdentityCode = x.IdentityCode,
-                Visible = x.Visible,
-                Slug = x.Slug,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
+            CreateMap<WalletTransaction, ResultWalletTransaction>()
+                .ForMember(des => des.Status, s => s.MapFrom(x => GetTransactionStatuse(x.Status)))
+                .ForMember(des => des.Kind, s => s.MapFrom(x => GetTransactionKind(x.Kind)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region Province
-            CreateMap<AddProvince, Province>().ConvertUsing(x => new Province
-            {
-                Title = x.Title,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateProvince, Province>().ConvertUsing(x => new Province
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Visible = x.Visible,
+            CreateMap<AddProvince, Province>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<UpdateProvince, Province>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<Province, UpdateProvince>().ConvertUsing(x => new UpdateProvince
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Visible = x.Visible,
+            CreateMap<Province, UpdateProvince>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultProvince, UpdateProvince>();
-            CreateMap<Province, ResultProvince>().ConvertUsing(x => new ResultProvince
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Visible = x.Visible,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
+            CreateMap<Province, ResultProvince>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
+            #region City
+            CreateMap<AddCity, City>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<UpdateCity, City>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<City, UpdateCity>()
+               .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+               .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
+               .ForMember(des => des.ResultProvince, s => s.MapFrom(x => x.Province != null ? new ResultProvince
+               {
+                   ID = x.Province.ID,
+                   Title = x.Province.Title,
+
+               } : new ResultProvince()
+                ));
+            CreateMap<City, ResultCity>()
+              .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+              .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
+              .ForMember(des => des.ResultProvince, s => s.MapFrom(x => x.Province != null ? new ResultProvince
+              {
+                  ID = x.Province.ID,
+                  Title = x.Province.Title,
+
+              } : new ResultProvince()
+                ));
+            #endregion
             #region CustomerAddress
-            CreateMap<AddCustomerAddress, CustomerAddress>().ConvertUsing(x => new CustomerAddress
-            {
-                Address = x.Address,
-                PostalCode = x.PostalCode,
-                BuildingUnit = x.BuildingUnit,
-                CityID = x.CityID,
+            CreateMap<AddCustomerAddress, CustomerAddress>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                CustomerID = x.CustomerID,
-                Plaque = x.Plaque,
-                Default = x.Default,
+            CreateMap<UpdateCustomerAddress, CustomerAddress>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateCustomerAddress, CustomerAddress>().ConvertUsing(x => new CustomerAddress
-            {
-                ID = x.ID,
-                Address = x.Address,
-                PostalCode = x.PostalCode,
-                BuildingUnit = x.BuildingUnit,
-                CityID = x.CityID,
-                CustomerID = x.CustomerID,
-                Plaque = x.Plaque,
-                Default = x.Default,
-                Visible = x.Visible,
-                Description = x.Description,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-
-            });
-            CreateMap<CustomerAddress, UpdateCustomerAddress>().ConvertUsing(x => new UpdateCustomerAddress
-            {
-                ID = x.ID,
-                Address = x.Address,
-                PostalCode = x.PostalCode,
-                BuildingUnit = x.BuildingUnit,
-                CityID = x.CityID,
-                CustomerID = x.CustomerID,
-                Plaque = x.Plaque,
-                Default = x.Default,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = x.IdentityCode,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                ResultProvince = x.City != null && x.City.Province != null ? new ResultProvince
+            CreateMap<CustomerAddress, UpdateCustomerAddress>()
+                .ForMember(des => des.ResultProvince, s => s.MapFrom(x => x.City != null && x.City.Province != null ? new ResultProvince
                 {
                     ID = x.City.Province.ID,
                     Title = x.City.Province.Title,
 
-                } : new ResultProvince(),
-                ResultCity = x.City != null ? new ResultCity
+                } : new ResultProvince()))
+                .ForMember(des => des.ResultCity, s => s.MapFrom(x => x.City != null ? new ResultCity
                 {
                     ID = x.City.ID,
                     Title = x.City.Title,
@@ -1814,42 +877,27 @@ namespace MappingProfile.DtoMappingConfigs
                         ID = x.City.Province.ID,
                         Title = x.City.Province.Title,
                     } : new ResultProvince(),
-                } : new ResultCity(),
-                ResultCustomer = x.Customer != null ? new ResultCustomer
+                } : new ResultCity()))
+                .ForMember(des => des.ResultCustomer, s => s.MapFrom(x => x.Customer != null ? new ResultCustomer
                 {
                     ID = x.Customer.ID,
                     Name = x.Customer.Name,
                     LastName = x.Customer.LastName,
                     Mcode = x.Customer.Mcode,
-                } : new ResultCustomer(),
-            });
-            CreateMap<ResultCustomerAddress, UpdateCustomerAddress>();
-            CreateMap<CustomerAddress, ResultCustomerAddress>().ConvertUsing(x => new ResultCustomerAddress
-            {
-                ID = x.ID,
-                Address = x.Address,
-                PostalCode = x.PostalCode,
-                BuildingUnit = x.BuildingUnit,
-                CityID = x.CityID,
-                CustomerID = x.CustomerID,
-                Plaque = x.Plaque,
-                Default = x.Default,
-                Visible = x.Visible,
-                Description = x.Description,
-                IdentityCode = x.IdentityCode,
+                } : new ResultCustomer()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                ResultCustomer = x.Customer != null ? new ResultCustomer
+            CreateMap<ResultCustomerAddress, UpdateCustomerAddress>();
+            CreateMap<CustomerAddress, ResultCustomerAddress>()
+                .ForMember(des => des.ResultCustomer, s => s.MapFrom(x => x.Customer != null ? new ResultCustomer
                 {
                     Name = x.Customer.Name,
                     LastName = x.Customer.LastName,
                     Mobile = x.Customer.Mobile,
 
-                } : new ResultCustomer(),
-                ResultCity = x.City != null ? new ResultCity
+                } : new ResultCustomer()))
+                .ForMember(des => des.ResultCity, s => s.MapFrom(x => x.City != null ? new ResultCity
                 {
                     ID = x.City.ID,
                     Title = x.City.Title,
@@ -1858,280 +906,103 @@ namespace MappingProfile.DtoMappingConfigs
                         ID = x.City.Province.ID,
                         Title = x.City.Province.Title,
                     } : new ResultProvince(),
-                } : new ResultCity(),
-            });
+                } : new ResultCity()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region SendProductMethod
-            CreateMap<AddSendProductMethod, SendProductMethod>().ConvertUsing(x => new SendProductMethod
-            {
-                Title = x.Title,
-                Description = x.Description,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateSendProductMethod, SendProductMethod>().ConvertUsing(x => new SendProductMethod
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Description = x.Description,
-                Visible = x.Visible,
+            CreateMap<AddSendProductMethod, SendProductMethod>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<UpdateSendProductMethod, SendProductMethod>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<SendProductMethod, UpdateSendProductMethod>().ConvertUsing(x => new UpdateSendProductMethod
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Description = x.Description,
-                Visible = x.Visible,
+            CreateMap<SendProductMethod, UpdateSendProductMethod>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultSendProductMethod, UpdateSendProductMethod>();
-            CreateMap<SendProductMethod, ResultSendProductMethod>().ConvertUsing(x => new ResultSendProductMethod
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Description = x.Description,
-                Visible = x.Visible,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
+            CreateMap<SendProductMethod, ResultSendProductMethod>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region OrderPaymentTemp
-            CreateMap<AddOrderPaymentTemp, OrderPaymentTemp>().ConvertUsing(x => new OrderPaymentTemp
-            {
-                ResNum = x.ResNum,
-                Token = x.Token,
-                Amount = x.Amount,
-                Visible = x.Visible,
-                JsonLableTexts = x.JsonLableTexts,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateOrderPaymentTemp, OrderPaymentTemp>().ConvertUsing(x => new OrderPaymentTemp
-            {
-                ID = x.ID,
-                ResNum = x.ResNum,
-                Token = x.Token,
-                Amount = x.Amount,
-                Visible = x.Visible,
+            CreateMap<AddOrderPaymentTemp, OrderPaymentTemp>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<UpdateOrderPaymentTemp, OrderPaymentTemp>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<OrderPaymentTemp, UpdateOrderPaymentTemp>().ConvertUsing(x => new UpdateOrderPaymentTemp
-            {
-                ID = x.ID,
-                ResNum = x.ResNum,
-                Token = x.Token,
-                Amount = x.Amount,
-                Visible = x.Visible,
+            CreateMap<OrderPaymentTemp, UpdateOrderPaymentTemp>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
 
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<OrderPaymentTemp, SearchOrderPaymentTemp>().ConvertUsing(x => new SearchOrderPaymentTemp
-            {
-                ID = x.ID,
-                ResNum = x.ResNum,
-                Token = x.Token,
-                Amount = x.Amount,
-                Visible = x.Visible,
+            CreateMap<OrderPaymentTemp, SearchOrderPaymentTemp>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
-                JsonLableTexts = x.JsonLableTexts,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultOrderPaymentTemp, UpdateOrderPaymentTemp>();
-            CreateMap<OrderPaymentTemp, ResultOrderPaymentTemp>().ConvertUsing(x => new ResultOrderPaymentTemp
-            {
-                ID = x.ID,
-                ResNum = x.ResNum,
-                Token = x.Token,
-                Amount = x.Amount,
-                Visible = x.Visible,
-                Slug = x.Slug,
-
-                ResultJsonLables = x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>(),
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
+            CreateMap<OrderPaymentTemp, ResultOrderPaymentTemp>()
+                .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region RefreshTokenEntity
-            CreateMap<AddRefreshTokenEntity, RefreshTokenEntity>().ConvertUsing(x => new RefreshTokenEntity
-            {
-                Token = x.Token,
-                UserId = x.UserId,
-                DeviceId = x.DeviceId,
-                ExpiryDate = x.ExpiryDate,
-                CreatedAt = x.CreatedAt,
-                IsRevoked = x.IsRevoked,
-                ReplacedByToken = x.ReplacedByToken,
-                RemoteIpAddress = x.RemoteIpAddress,
+            CreateMap<AddRefreshTokenEntity, RefreshTokenEntity>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                JsonLableTexts = x.JsonLableTexts,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateRefreshTokenEntity, RefreshTokenEntity>().ConvertUsing(x => new RefreshTokenEntity
-            {
-                ID = x.ID,
-                Token = x.Token,
-                UserId = x.UserId,
-                DeviceId = x.DeviceId,
-                ExpiryDate = x.ExpiryDate,
-                CreatedAt = x.CreatedAt,
-                IsRevoked = x.IsRevoked,
-                ReplacedByToken = x.ReplacedByToken,
-                RemoteIpAddress = x.RemoteIpAddress,
-                JsonLableTexts = x.JsonLableTexts,
-                Visible = x.Visible,
+            CreateMap<UpdateRefreshTokenEntity, RefreshTokenEntity>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<RefreshTokenEntity, UpdateRefreshTokenEntity>()
+                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
-            CreateMap<RefreshTokenEntity, UpdateRefreshTokenEntity>().ConvertUsing(x => new UpdateRefreshTokenEntity
-            {
-                ID = x.ID,
-                Token = x.Token,
-                UserId = x.UserId,
-                DeviceId = x.DeviceId,
-                ExpiryDate = x.ExpiryDate,
-                CreatedAt = x.CreatedAt,
-                IsRevoked = x.IsRevoked,
-                ReplacedByToken = x.ReplacedByToken,
-                RemoteIpAddress = x.RemoteIpAddress,
-                JsonLableTexts = x.JsonLableTexts,
-                Visible = x.Visible,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultRefreshTokenEntity, UpdateRefreshTokenEntity>();
-            CreateMap<RefreshTokenEntity, ResultRefreshTokenEntity>().ConvertUsing(x => new ResultRefreshTokenEntity
-            {
-                ID = x.ID,
-                Token = x.Token,
-                UserId = x.UserId,
-                DeviceId = x.DeviceId,
-                ExpiryDate = x.ExpiryDate,
-                CreatedAt = x.CreatedAt,
-                IsRevoked = x.IsRevoked,
-                ReplacedByToken = x.ReplacedByToken,
-                RemoteIpAddress = x.RemoteIpAddress,
-                JsonLableTexts = x.JsonLableTexts,
-                Visible = x.Visible,
+            CreateMap<RefreshTokenEntity, ResultRefreshTokenEntity>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-
-            });
 
             #endregion
             #region ProductFeature
-            CreateMap<AddProductFeature, ProductFeature>().ConvertUsing(x => new ProductFeature
-            {
-                Title = x.Title,
-                CategoryID = x.CategoryID,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateProductFeature, ProductFeature>().ConvertUsing(x => new ProductFeature
-            {
-                ID = x.ID,
-                CategoryID = x.CategoryID,
-                Title = x.Title,
-                Visible = x.Visible,
-                IdentityCode = x.IdentityCode,
+            CreateMap<AddProductFeature, ProductFeature>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<UpdateProductFeature, ProductFeature>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<ProductFeature, UpdateProductFeature>().ConvertUsing(x => new UpdateProductFeature
-            {
-                ID = x.ID,
-                Title = x.Title,
-                CategoryID = x.CategoryID,
+            CreateMap<ProductFeature, UpdateProductFeature>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                Visible = x.Visible,
-                IdentityCode = x.IdentityCode,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultProductFeature, UpdateProductFeature>();
-            CreateMap<ProductFeature, ResultProductFeature>().ConvertUsing(x => new ResultProductFeature
-            {
-                ID = x.ID,
-                CategoryID = x.CategoryID,
-                Title = x.Title,
-                Visible = x.Visible,
-
-                IdentityCode = x.IdentityCode,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-                ResultCategory = x.Category != null ? new ResultCategory
+            CreateMap<ProductFeature, ResultProductFeature>()
+                .ForMember(des => des.ResultCategory, s => s.MapFrom(x => x.Category != null ? new ResultCategory
                 {
                     ID = x.Category.ID,
                     Title = x.Category.Title,
@@ -2139,459 +1010,218 @@ namespace MappingProfile.DtoMappingConfigs
                     Description = x.Category.Description,
                     Visible = x.Category.Visible,
 
-                } : new ResultCategory()
+                } : new ResultCategory()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
 
             #endregion
             #region ProductFeatureValue
-            CreateMap<AddProductFeatureValue, ProductFeatureValue>().ConvertUsing(x => new ProductFeatureValue
-            {
-                ProductFeatureID = x.ProductFeatureID,
-                ProductID = x.ProductID,
-                Value = x.Value,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateProductFeatureValue, ProductFeatureValue>().ConvertUsing(x => new ProductFeatureValue
-            {
-                ID = x.ID,
-                ProductFeatureID = x.ProductFeatureID,
-                ProductID = x.ProductID,
-                Value = x.Value,
-                Visible = x.Visible,
-                IdentityCode = x.IdentityCode,
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<AddProductFeatureValue, ProductFeatureValue>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-            });
-            CreateMap<ProductFeatureValue, UpdateProductFeatureValue>().ConvertUsing(x => new UpdateProductFeatureValue
-            {
-                ID = x.ID,
-                ProductFeatureID = x.ProductFeatureID,
-                ProductID = x.ProductID,
-                Value = x.Value,
-                Visible = x.Visible,
-                IdentityCode = x.IdentityCode,
+            CreateMap<UpdateProductFeatureValue, ProductFeatureValue>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-                ResultProductFeature = x.ProductFeature != null ? new ResultProductFeature
+            CreateMap<ProductFeatureValue, UpdateProductFeatureValue>()
+                .ForMember(des => des.ResultProductFeature, s => s.MapFrom(x => x.ProductFeature != null ? new ResultProductFeature
                 {
                     ID = x.ProductFeature.ID,
                     Title = x.ProductFeature.Title,
                     Visible = x.ProductFeature.Visible,
 
-                } : new ResultProductFeature(),
-            });
+                } : new ResultProductFeature()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
             CreateMap<ResultProductFeatureValue, UpdateProductFeatureValue>();
-            CreateMap<ProductFeatureValue, ResultProductFeatureValue>().ConvertUsing(x => new ResultProductFeatureValue
-            {
-                ID = x.ID,
-                ProductFeatureID = x.ProductFeatureID,
-                ProductID = x.ProductID,
-                Value = x.Value,
-                Visible = x.Visible,
-                IdentityCode = x.IdentityCode,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-                ResultProduct = x.Product != null ? new ResultProduct
+            CreateMap<ProductFeatureValue, ResultProductFeatureValue>()
+                .ForMember(des => des.ResultProduct, s => s.MapFrom(x => x.Product != null ? new ResultProduct
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
                     Description = x.Product.Description,
                     Visible = x.Product.Visible,
 
-                } : new ResultProduct(),
-                ResultProductFeature = x.ProductFeature != null ? new ResultProductFeature
+                } : new ResultProduct()))
+                .ForMember(des => des.ResultProductFeature, s => s.MapFrom(x => x.ProductFeature != null ? new ResultProductFeature
                 {
                     ID = x.ProductFeature.ID,
                     Title = x.ProductFeature.Title,
                     Visible = x.ProductFeature.Visible,
 
-                } : new ResultProductFeature(),
-
-            });
+                } : new ResultProductFeature()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region PricingRule
-            CreateMap<AddPricingRule, PricingRule>().ConvertUsing(x => new PricingRule
-            {
-                ProductID = x.ProductID,
-                Price = x.Price,
-                MinQuantity = x.MinQuantity,
-                RoleID = x.RoleID,
-                RuleType = x.RuleType,
-                Title = x.Title,
-                FromDate = DateFunctions.ConvertDateStringToInt(x.FromDate),
-                ToDate = DateFunctions.ConvertDateStringToInt(x.ToDate),
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdatePricingRule, PricingRule>().ConvertUsing(x => new PricingRule
-            {
-                ID = x.ID,
-                ProductID = x.ProductID,
-                Price = x.Price,
-                MinQuantity = x.MinQuantity,
-                RoleID = x.RoleID,
-                RuleType = x.RuleType,
-                Title = x.Title,
-                FromDate = DateFunctions.ConvertDateStringToInt(x.FromDate),
-                ToDate = DateFunctions.ConvertDateStringToInt(x.ToDate),
-                Visible = x.Visible,
+            CreateMap<AddPricingRule, PricingRule>()
+                .ForMember(des => des.FromDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.FromDate)))
+                .ForMember(des => des.ToDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.ToDate)))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<UpdatePricingRule, PricingRule>()
+                .ForMember(des => des.FromDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.FromDate)))
+                .ForMember(des => des.ToDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.ToDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<PricingRule, UpdatePricingRule>().ConvertUsing(x => new UpdatePricingRule
-            {
-                ID = x.ID,
-                ProductID = x.ProductID,
-                Price = x.Price,
-                MinQuantity = x.MinQuantity,
-                RoleID = x.RoleID,
-                RuleType = (int)x.RuleType,
-                Title = x.Title,
-                FromDate = DateFunctions.ConvertDateIntToString(x.FromDate),
-                ToDate = DateFunctions.ConvertDateIntToString(x.ToDate),
-                Visible = x.Visible,
+            CreateMap<PricingRule, UpdatePricingRule>()
+                .ForMember(des => des.RuleType, s => s.MapFrom(x => (int)x.RuleType))
+                .ForMember(des => des.FromDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.FromDate)))
+                .ForMember(des => des.ToDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.ToDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultPricingRule, UpdatePricingRule>();
-            CreateMap<PricingRule, ResultPricingRule>().ConvertUsing(x => new ResultPricingRule
-            {
-                ID = x.ID,
-                ProductID = x.ProductID,
-                Price = x.Price,
-                MinQuantity = x.MinQuantity,
-                RoleID = x.RoleID,
-                RuleType = EnumConstant.GetTitleRuleType(x.RuleType),
-                RuleType2 = x.RuleType,
-                Title = x.Title,
-                FromDate = DateFunctions.ConvertDateIntToString(x.FromDate),
-                ToDate = DateFunctions.ConvertDateIntToString(x.ToDate),
-                Visible = x.Visible,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
+            CreateMap<PricingRule, ResultPricingRule>()
+                .ForMember(des => des.RuleType, s => s.MapFrom(x => EnumConstant.GetTitleRuleType(x.RuleType)))
+                .ForMember(des => des.RuleType2, s => s.MapFrom(x => x.RuleType))
+                .ForMember(des => des.FromDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.FromDate)))
+                .ForMember(des => des.ToDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.ToDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region RawProduct
-            CreateMap<AddRawProduct, RawProduct>().ConvertUsing(x => new RawProduct
-            {
-                Title = x.Title,
-                Visible = x.Visible,
-                Description = x.Description,
+            CreateMap<AddRawProduct, RawProduct>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<UpdateRawProduct, RawProduct>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateRawProduct, RawProduct>().ConvertUsing(x => new RawProduct
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Visible = x.Visible,
-                Description = x.Description,
+            CreateMap<RawProduct, UpdateRawProduct>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<RawProduct, ResultRawProduct>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            }); ;
-            CreateMap<RawProduct, UpdateRawProduct>().ConvertUsing(x => new UpdateRawProduct
-            {
-                ID = x.ID,
-                Title = x.Title,
-
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-
-            });
-            CreateMap<RawProduct, ResultRawProduct>().ConvertUsing(x => new ResultRawProduct
-            {
-                ID = x.ID,
-                Title = x.Title,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-            });
             #endregion
             #region RawProductStore
-            CreateMap<AddRawProductStore, RawProductStore>().ConvertUsing(x => new RawProductStore
-            {
-                RawProductID = x.RawProductID,
-                MessurmentType = (int)x.MessurmentType,
-                Amount = x.Amount,
-                Price = x.Price,
-                Visible = x.Visible,
-                BuyDate = DateFunctions.ConvertDateStringToInt(x.BuyDate),
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<AddRawProductStore, RawProductStore>()
+                 .ForMember(des => des.MessurmentType, s => s.MapFrom(x => (int)x.MessurmentType))
+                 .ForMember(des => des.BuyDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.BuyDate)))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-            });
-            CreateMap<UpdateRawProductStore, RawProductStore>().ConvertUsing(x => new RawProductStore
-            {
-                ID = x.ID,
-                RawProductID = x.RawProductID,
-                MessurmentType = (int)x.MessurmentType,
-                Amount = x.Amount,
-                Price = x.Price,
-                Visible = x.Visible,
-                BuyDate = DateFunctions.ConvertDateStringToInt(x.BuyDate),
+            CreateMap<UpdateRawProductStore, RawProductStore>()
+                .ForMember(des => des.MessurmentType, s => s.MapFrom(x => (int)x.MessurmentType))
+                .ForMember(des => des.BuyDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.BuyDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<RawProductStore, UpdateRawProductStore>()
+                .ForMember(des => des.MessurmentType, s => s.MapFrom(x => (int)x.MessurmentType))
+                .ForMember(des => des.BuyDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.BuyDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            }); ;
-            CreateMap<RawProductStore, UpdateRawProductStore>().ConvertUsing(x => new UpdateRawProductStore
-            {
-                ID = x.ID,
-                RawProductID = x.RawProductID,
-                MessurmentType = (int)x.MessurmentType,
-                Amount = x.Amount,
-                Price = x.Price,
-                Visible = x.Visible,
-                BuyDate = DateFunctions.ConvertDateIntToString(x.BuyDate),
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-
-            });
-            CreateMap<RawProductStore, ResultRawProductStore>().ConvertUsing(x => new ResultRawProductStore
-            {
-                ID = x.ID,
-                RawProductID = x.RawProductID,
-                MessurmentType = Dto.Enum.EnumConstant.GetTitleMessurmentType((MessurmentType)x.MessurmentType),
-                MessurmentType2 = (MessurmentType)x.MessurmentType,
-                Amount = x.Amount,
-                Price = x.Price,
-                SumPrice = x.Amount * x.Price,
-                SliceCount = x.RawProductStore_Products.Count > 0 ? (int)x.RawProductStore_Products.Sum(k => k.Count) : 0,
-                Visible = x.Visible,
-                BuyDate = DateFunctions.ConvertDateIntToString(x.BuyDate),
-
-                ResultRawProduct = new ResultRawProduct
+            CreateMap<RawProductStore, ResultRawProductStore>()
+                .ForMember(des => des.MessurmentType, s => s.MapFrom(x => Dto.Enum.EnumConstant.GetTitleMessurmentType((MessurmentType)x.MessurmentType)))
+                .ForMember(des => des.MessurmentType2, s => s.MapFrom(x => (MessurmentType)x.MessurmentType))
+                .ForMember(des => des.SumPrice, s => s.MapFrom(x => x.Amount * x.Price))
+                .ForMember(des => des.SliceCount, s => s.MapFrom(x => x.RawProductStore_Products.Count > 0 ? (int)x.RawProductStore_Products.Sum(k => k.Count) : 0))
+                .ForMember(des => des.BuyDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.BuyDate)))
+                .ForMember(des => des.ResultRawProduct, s => s.MapFrom(x => new ResultRawProduct
                 {
                     ID = x.RawProduct.ID,
                     Title = x.RawProduct.Title,
                     Description = x.RawProduct.Description,
                     Visible = x.RawProduct.Visible,
 
-                },
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
+                }))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
+
             #endregion
             #region Product_CountAction_CostType
-            CreateMap<AddProduct_CountAction_CostType, Product_CountAction_CostType>().ConvertUsing(x => new Product_CountAction_CostType
-            {
-                PositionID = x.PositionID,
-                ProductID = x.ProductID,
-                CountAction = x.CountAction,
-                Price = x.Price,
-                Visible = x.Visible,
+            CreateMap<AddProduct_CountAction_CostType, Product_CountAction_CostType>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<UpdateProduct_CountAction_CostType, Product_CountAction_CostType>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateProduct_CountAction_CostType, Product_CountAction_CostType>().ConvertUsing(x => new Product_CountAction_CostType
-            {
-                ID = x.ID,
-                PositionID = x.PositionID,
-                ProductID = x.ProductID,
-                CountAction = x.CountAction,
-                Price = x.Price,
-                Visible = x.Visible,
+            CreateMap<Product_CountAction_CostType, UpdateProduct_CountAction_CostType>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-
-            }); ;
-            CreateMap<Product_CountAction_CostType, UpdateProduct_CountAction_CostType>().ConvertUsing(x => new UpdateProduct_CountAction_CostType
-            {
-                ID = x.ID,
-                PositionID = x.PositionID,
-                ProductID = x.ProductID,
-                CountAction = x.CountAction,
-                Price = x.Price,
-                Visible = x.Visible,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-
-            });
-            CreateMap<Product_CountAction_CostType, ResultProduct_CountAction_CostType>().ConvertUsing(x => new ResultProduct_CountAction_CostType
-            {
-                ID = x.ID,
-                PositionID = x.PositionID,
-                ProductID = x.ProductID,
-                CountAction = x.CountAction,
-                Price = x.Price,
-                Visible = x.Visible,
-                ResultPosition = x.Position != null ? new ResultPosition
+            CreateMap<Product_CountAction_CostType, ResultProduct_CountAction_CostType>()
+                .ForMember(des => des.ResultPosition, s => s.MapFrom(x => x.Position != null ? new ResultPosition
                 {
                     ID = x.Position.ID,
                     Title = x.Position.Title,
-                } : new ResultPosition(),
-                ResultProduct = x.Product != null ? new ResultProduct
+                } : new ResultPosition()
+                ))
+                .ForMember(des => des.ResultProduct, s => s.MapFrom(x => x.Product != null ? new ResultProduct
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
                     ProductCode = x.Product.ProductCode,
-                } : new ResultProduct(),
+                } : new ResultProduct()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-            });
             #endregion
             #region RegisterCostRawProductStore
-            CreateMap<AddRegisterCostRawProductStore, RegisterCostRawProductStore>().ConvertUsing(x => new RegisterCostRawProductStore
-            {
-                RawProductStore_ProductID = x.RawProductStore_ProductID,
-                PersonelID = x.PersonelID,
-                Count = x.Count,
-                Price = x.Price,
-                Visible = x.Visible,
+            CreateMap<AddRegisterCostRawProductStore, RegisterCostRawProductStore>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<UpdateRegisterCostRawProductStore, RegisterCostRawProductStore>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateRegisterCostRawProductStore, RegisterCostRawProductStore>().ConvertUsing(x => new RegisterCostRawProductStore
-            {
-                ID = x.ID,
-                RawProductStore_ProductID = x.RawProductStore_ProductID,
-                PersonelID = x.PersonelID,
-
-                Count = x.Count,
-                Price = x.Price,
-                Visible = x.Visible,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-
-            }); ;
-            CreateMap<RegisterCostRawProductStore, UpdateRegisterCostRawProductStore>().ConvertUsing(x => new UpdateRegisterCostRawProductStore
-            {
-                ID = x.ID,
-                RawProductStore_ProductID = x.RawProductStore_ProductID,
-                PersonelID = x.PersonelID,
-
-                Count = x.Count,
-                Price = x.Price,
-                SumPrice = x.Count * x.Price,
-                Visible = x.Visible,
-                ResultPersonel = x.Personel != null ? new ResultPersonel
+            CreateMap<RegisterCostRawProductStore, UpdateRegisterCostRawProductStore>()
+                .ForMember(des => des.SumPrice, s => s.MapFrom(x => x.Count * x.Price))
+                .ForMember(des => des.ResultPersonel, s => s.MapFrom(x => x.Personel != null ? new ResultPersonel
                 {
                     ID = x.Personel.ID,
                     PositionID = x.Personel.PositionID,
                     Name = x.Personel.Name,
                     LastName = x.Personel.LastName,
 
-
-                } : new ResultPersonel(),
-                ResultRawProductStore_Product = x.RawProductStore_Product != null ? new ResultRawProductStore_Product
+                } : new ResultPersonel()))
+                .ForMember(des => des.ResultRawProductStore_Product, s => s.MapFrom(x => x.RawProductStore_Product != null ? new ResultRawProductStore_Product
                 {
                     ID = x.RawProductStore_Product.ID,
                     ProductID = x.RawProductStore_Product.ProductID,
 
-                } : new(),
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
+                } : new()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-            });
-            CreateMap<RegisterCostRawProductStore, ResultRegisterCostRawProductStore>().ConvertUsing(x => new ResultRegisterCostRawProductStore
-            {
-                ID = x.ID,
-                RawProductStore_ProductID = x.RawProductStore_ProductID,
-                PersonelID = x.PersonelID,
-
-                Count = x.Count,
-                Price = x.Price,
-                SumPrice = x.Count * x.Price,
-                Visible = x.Visible,
-                ResultRawProductStore_Product = x.RawProductStore_Product != null ? new ResultRawProductStore_Product
+            CreateMap<RegisterCostRawProductStore, ResultRegisterCostRawProductStore>()
+                .ForMember(des => des.SumPrice, s => s.MapFrom(x => x.Count * x.Price))
+                .ForMember(des => des.ResultRawProductStore_Product, s => s.MapFrom(x => x.RawProductStore_Product != null ? new ResultRawProductStore_Product
                 {
                     ID = x.RawProductStore_Product.ID,
                     RawProductStoreID = x.RawProductStore_Product.RawProductStoreID,
@@ -2605,8 +1235,8 @@ namespace MappingProfile.DtoMappingConfigs
                         ProductCode = x.RawProductStore_Product.Product.ProductCode,
                     } : new ResultProduct(),
 
-                } : new ResultRawProductStore_Product(),
-                ResultPersonel = x.Personel != null ? new ResultPersonel
+                } : new ResultRawProductStore_Product()))
+                .ForMember(des => des.ResultPersonel, s => s.MapFrom(x => x.Personel != null ? new ResultPersonel
                 {
                     ID = x.Personel.ID,
                     Name = x.Personel.Name,
@@ -2623,407 +1253,91 @@ namespace MappingProfile.DtoMappingConfigs
                         ID = x.Personel.Position.ID,
                         Title = x.Personel.Position.Title,
                     } : new(),
-                } : new ResultPersonel(),
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-            });
+                } : new ResultPersonel()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
             #endregion
             #region RawProductStore_Product
-            CreateMap<AddRawProductStore_Product, RawProductStore_Product>().ConvertUsing(x => new RawProductStore_Product
-            {
-                RawProductStoreID = x.RawProductStoreID,
-                ProductID = x.ProductID,
-                Count = x.Count,
-                Visible = x.Visible,
+            CreateMap<AddRawProductStore_Product, RawProductStore_Product>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
+            CreateMap<UpdateRawProductStore_Product, RawProductStore_Product>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<UpdateRawProductStore_Product, RawProductStore_Product>().ConvertUsing(x => new RawProductStore_Product
-            {
-                ID = x.ID,
-                RawProductStoreID = x.RawProductStoreID,
-                ProductID = x.ProductID,
-                Count = x.Count,
-                Visible = x.Visible,
+            CreateMap<RawProductStore_Product, UpdateRawProductStore_Product>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-
-            }); ;
-            CreateMap<RawProductStore_Product, UpdateRawProductStore_Product>().ConvertUsing(x => new UpdateRawProductStore_Product
-            {
-                ID = x.ID,
-                RawProductStoreID = x.RawProductStoreID,
-                ProductID = x.ProductID,
-                Count = x.Count,
-                Visible = x.Visible,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-
-            });
-            CreateMap<RawProductStore_Product, ResultRawProductStore_Product>().ConvertUsing(x => new ResultRawProductStore_Product
-            {
-                ID = x.ID,
-                RawProductStoreID = x.RawProductStoreID,
-                ProductID = x.ProductID,
-                Count = x.Count,
-                Visible = x.Visible,
-                ResultProduct = x.Product != null ? new ResultProduct
+            CreateMap<RawProductStore_Product, ResultRawProductStore_Product>()
+                .ForMember(des => des.ResultProduct, s => s.MapFrom(x => x.Product != null ? new ResultProduct
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
                     ProductCode = x.Product.ProductCode,
-                } : new(),
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-
-            });
+                } : new()
+                ))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region Personel
-            CreateMap<AddPersonel, Personel>().ConvertUsing(x => new Personel
-            {
-                PositionID = x.PositionID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateStringToInt(x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Gender = (int)x.Gender,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                JsonLableTexts = x.JsonLableTexts,
-                Address = x.Address,
-                Description = x.Description,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<AddPersonel, Personel>()
+                .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate == null ? (int?)null : DateFunctions.ConvertDateStringToInt(x.BirthDate)))
+                .ForMember(des => des.Gender, s => s.MapFrom(x => (int)x.Gender))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-            });
-            CreateMap<UpdatePersonel, Personel>().ConvertUsing(x => new Personel
-            {
-                ID = x.ID,
-                PositionID = x.PositionID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateStringToInt(x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Gender = (int)x.Gender,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                JsonLableTexts = x.JsonLableTexts,
-                Address = x.Address,
-                Description = x.Description,
+            CreateMap<UpdatePersonel, Personel>()
+                .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate == null ? (int?)null : DateFunctions.ConvertDateStringToInt(x.BirthDate)))
+                .ForMember(des => des.Gender, s => s.MapFrom(x => (int)x.Gender))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-                RegisterTime = x.RegisterTime,
-                IdentityCode = x.IdentityCode,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<Personel, UpdatePersonel>().ConvertUsing(x => new UpdatePersonel
-            {
-                ID = x.ID,
-                PositionID = x.PositionID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Gender = (Gender)x.Gender,
-                JsonPicture = x.JsonPicture,
-                Visible = x.Visible,
-                Slug = x.Slug,
-                JsonLableTexts = x.JsonLableTexts,
-                Address = x.Address,
-                Description = x.Description,
+            CreateMap<Personel, UpdatePersonel>()
+               .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null))
+               .ForMember(des => des.Gender, s => s.MapFrom(x => (Gender)x.Gender))
+               .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+               .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-
-
-            });
-            CreateMap<Personel, ResultPersonel>().ConvertUsing(x => new ResultPersonel
-            {
-                ID = x.ID,
-                PositionID = x.PositionID,
-                Name = x.Name,
-                LastName = x.LastName,
-                BirthDate = x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null,
-                Mobile = x.Mobile,
-                Gender = EnumConstant.GetTitleGender(x.Gender),
-                JsonPicture = x.JsonPicture,
-                ImageUIrl = GetPathImage(x.JsonPicture),
-                Visible = x.Visible,
-                Slug = x.Slug,
-                Address = x.Address,
-                Description = x.Description,
-                ResultPosition = x.Position != null ? new ResultPosition
-                {
-                    ID = x.Position.ID,
-                    Title = x.Position.Title,
-                } : new(),
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-            });
-            CreateMap<ResultPersonel, UpdatePersonel>();
-
-
+            CreateMap<Personel, ResultPersonel>()
+              .ForMember(des => des.BirthDate, s => s.MapFrom(x => x.BirthDate != null ? DateFunctions.ConvertDateIntToString((int)x.BirthDate) : null))
+              .ForMember(des => des.Gender, s => s.MapFrom(x => EnumConstant.GetTitleGender(x.Gender)))
+              .ForMember(des => des.ImageUIrl, s => s.MapFrom(x => GetPathImage(x.JsonPicture)))
+              .ForMember(des => des.ResultPosition, s => s.MapFrom(x => x.Position != null ? new ResultPosition
+              {
+                  ID = x.Position.ID,
+                  Title = x.Position.Title,
+              } : new()))
+              .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+              .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region FavoritUserProduct
-            CreateMap<AddFavoritUserProduct, FavoritUserProduct>().ConvertUsing(x => new FavoritUserProduct
-            {
-                CustomerID = x.CustomerID,
-                ProductID = x.ProductID,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateFavoritUserProduct, FavoritUserProduct>().ConvertUsing(x => new FavoritUserProduct
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                ProductID = x.ProductID,
-                Visible = x.Visible,
+            CreateMap<AddFavoritUserProduct, FavoritUserProduct>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
+            CreateMap<UpdateFavoritUserProduct, FavoritUserProduct>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
-            });
-            CreateMap<FavoritUserProduct, UpdateFavoritUserProduct>().ConvertUsing(x => new UpdateFavoritUserProduct
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                ProductID = x.ProductID,
-                Visible = x.Visible,
+            CreateMap<FavoritUserProduct, UpdateFavoritUserProduct>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
             CreateMap<ResultFavoritUserProduct, UpdateFavoritUserProduct>();
-            CreateMap<FavoritUserProduct, ResultFavoritUserProduct>().ConvertUsing(x => new ResultFavoritUserProduct
-            {
-                ID = x.ID,
-                CustomerID = x.CustomerID,
-                ProductID = x.ProductID,
-                Visible = x.Visible,
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-                ResultProduct = x.Product != null ? new ResultProduct
-                {
-                    ID = x.Product.ID,
-                    Title = x.Product.Title,
-                    Count = x.Product.Count,
-                    Price = x.Product.Price,
-                    CategoryID = x.Product.CategoryID,
-                    Visible = x.Product.Visible,
-                    JsonPicture = x.Product.JsonPicture,
-                    ShortDescription = x.Product.ShortDescription,
-                    Description = x.Product.Description,
-                    Discount = x.Product.Discount,
-                    Brand = x.Product.Brand,
-                    ProductCode = x.Product.ProductCode,
-                    ProductExistStatus = GetProductExistStatus(x.Product.ProductExistStatus),
-                    ProductExistStatus2 = (ProductExistStatus)x.Product.ProductExistStatus,
-                    SkuCode = x.Product.SkuCode,
-                    ResultUploadFiles = GetResultUploadFiles(x.Product.JsonPicture),
-                    IdentityCode = x.Product.IdentityCode,
-                    RegisterDate = DateFunctions.ConvertDateIntToString(x.Product.RegisterDate),
-                    RegisterTime = x.RegisterTime,
-                    EditDate = DateFunctions.ConvertDateIntToString(x.Product.EditDate),
-                    EditTime = x.Product.EditTime,
-                    ResultCategory = x.Product.Category != null ? new ResultCategory
-                    {
-                        ID = x.Product.Category.ID,
-                        Title = x.Product.Category.Title,
-                        ParentID = x.Product.Category.ParentID,
-                        Description = x.Product.Category.Description,
-                        Visible = x.Product.Category.Visible,
-
-                    } : new ResultCategory(),
-
-                } : new()
-
-            });
-
-            #endregion
-            #region Position
-            CreateMap<AddPosition, Position>().ConvertUsing(x => new Position
-            {
-                Title = x.Title,
-                CostType = (int)x.CostType,
-                Price = x.Price,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = Guid.NewGuid(),
-                RegisterDate = DateFunctions.GetDateNow(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-
-            });
-            CreateMap<UpdatePosition, Position>().ConvertUsing(x => new Position
-            {
-                ID = x.ID,
-                Title = x.Title,
-                CostType = (int)x.CostType,
-                Price = x.Price,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.GetDateNow(),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-
-            }); ;
-            CreateMap<Position, UpdatePosition>().ConvertUsing(x => new UpdatePosition
-            {
-                ID = x.ID,
-                Title = x.Title,
-                CostType = x.CostType.HasValue
-                            ? (int)x.CostType.Value
-                            : null,
-                Price = x.Price,
-                Visible = x.Visible,
-                Description = x.Description,
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-
-            });
-            CreateMap<Position, ResultPosition>().ConvertUsing(x => new ResultPosition
-            {
-                ID = x.ID,
-                Title = x.Title,
-                CostType = GetTitleCostType(x.CostType),
-                CostType2 = x.CostType != null ? (CostType)x.CostType : null,
-                Price = x.Price,
-                Visible = x.Visible,
-                Description = x.Description,
-                ResultProduct_CountAction_CostTypes = x.Product_CountAction_CostTypes != null && x.Product_CountAction_CostTypes.Count > 0 ? x.Product_CountAction_CostTypes.Select(k => new ResultProduct_CountAction_CostType
-                {
-                    ID = k.ID,
-                    PositionID = k.PositionID,
-                    ProductID = k.ProductID,
-                    CountAction = k.CountAction,
-                    Price = k.Price,
-                    Visible = k.Visible,
-                    ResultPosition = k.Position != null ? new ResultPosition
-                    {
-                        ID = k.Position.ID,
-                        Title = k.Position.Title,
-                    } : new ResultPosition(),
-                    ResultProduct = k.Product != null ? new ResultProduct
-                    {
-                        ID = k.Product.ID,
-                        Title = k.Product.Title,
-                    } : new ResultProduct(),
-                }).ToList() : new List<ResultProduct_CountAction_CostType>(),
-
-                IdentityCode = x.IdentityCode,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                RegisterTime = x.RegisterTime,
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                EditTime = x.EditTime,
-            });
-            #endregion
-            #region FavoritUserProduct
-            CreateMap<AddFavoritUserProduct, FavoritUserProduct>().ConvertUsing(x => new FavoritUserProduct
-            {
-                ProductID = x.ProductID,
-                CustomerID = x.CustomerID,
-                JsonLableTexts = x.JsonLableTexts,
-                Visible = x.Visible,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateFavoritUserProduct, FavoritUserProduct>().ConvertUsing(x => new FavoritUserProduct
-            {
-                ID = x.ID,
-                ProductID = x.ProductID,
-                CustomerID = x.CustomerID,
-                JsonLableTexts = x.JsonLableTexts,
-                Visible = x.Visible,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<FavoritUserProduct, UpdateFavoritUserProduct>().ConvertUsing(x => new UpdateFavoritUserProduct
-            {
-                ID = x.ID,
-                ProductID = x.ProductID,
-                CustomerID = x.CustomerID,
-                JsonLableTexts = x.JsonLableTexts,
-                Visible = x.Visible,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<ResultFavoritUserProduct, UpdateFavoritUserProduct>();
-            CreateMap<FavoritUserProduct, ResultFavoritUserProduct>().ConvertUsing(x => new ResultFavoritUserProduct
-            {
-                ID = x.ID,
-                ProductID = x.ProductID,
-                CustomerID = x.CustomerID,
-                JsonLableTexts = x.JsonLableTexts,
-                Visible = x.Visible,
-
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-                ResultProduct = x.Product != null ? new ResultProduct
+            CreateMap<FavoritUserProduct, ResultFavoritUserProduct>()
+                .ForMember(des => des.ResultProduct, s => s.MapFrom(x => x.Product != null ? new ResultProduct
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
@@ -3076,272 +1390,20 @@ namespace MappingProfile.DtoMappingConfigs
                         EditDate = DateFunctions.ConvertDateIntToString(k.EditDate),
 
                     }).ToList() : new List<ResultPricingRule>()
-                } : new ResultProduct(),
-
-
-            });
-
-            #endregion
-            #region ContactUs
-            CreateMap<AddContactUs, ContactUs>().ConvertUsing(x => new ContactUs
-            {
-                FullName = x.FullName,
-                Subject = x.Subject,
-                Message = x.Message,
-                Email = x.Email,
-                Visible = x.Visible,
-                Mobile = x.Mobile,
-                IsRead = x.IsRead,
-                IpAddress = x.IpAddress,
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateContactUs, ContactUs>().ConvertUsing(x => new ContactUs
-            {
-                ID = x.ID,
-                FullName = x.FullName,
-                Subject = x.Subject,
-                Message = x.Message,
-                Email = x.Email,
-                Visible = x.Visible,
-                Mobile = x.Mobile,
-                IsRead = x.IsRead,
-                IpAddress = x.IpAddress,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<ContactUs, UpdateContactUs>().ConvertUsing(x => new UpdateContactUs
-            {
-                ID = x.ID,
-                FullName = x.FullName,
-                Subject = x.Subject,
-                Message = x.Message,
-                Email = x.Email,
-                Visible = x.Visible,
-                Mobile = x.Mobile,
-                IsRead = x.IsRead,
-                IpAddress = x.IpAddress,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<ResultContactUs, UpdateContactUs>();
-            CreateMap<ContactUs, ResultContactUs>().ConvertUsing(x => new ResultContactUs
-            {
-                ID = x.ID,
-                FullName = x.FullName,
-                Subject = x.Subject,
-                Message = x.Message,
-                Email = x.Email,
-                Mobile = x.Mobile,
-                Visible = x.Visible,
-                IsRead = GetIsReadTitle(x.IsRead),
-                IpAddress = x.IpAddress,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-
-            });
-            #endregion
-            #region Faq
-            CreateMap<AddFaq, Faq>().ConvertUsing(x => new Faq
-            {
-                FullName = x.FullName,
-                Subject = x.Subject,
-                Message = x.Message,
-                Visible = x.Visible,
-                Mobile = x.Mobile,
-                IsRead = x.IsRead,
-                IpAddress = x.IpAddress,
-
-                IdentityCode = Guid.NewGuid(),
-                RegisterTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-            });
-            CreateMap<UpdateFaq, Faq>().ConvertUsing(x => new Faq
-            {
-                ID = x.ID,
-                FullName = x.FullName,
-                Subject = x.Subject,
-                Message = x.Message,
-                Visible = x.Visible,
-                Mobile = x.Mobile,
-                IsRead = x.IsRead,
-                IpAddress = x.IpAddress,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second),
-                RegisterDate = DateFunctions.ConvertDateStringToInt(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateStringToInt(GetNewDate()),
-
-            });
-            CreateMap<Faq, UpdateFaq>().ConvertUsing(x => new UpdateFaq
-            {
-                ID = x.ID,
-                FullName = x.FullName,
-                Subject = x.Subject,
-                Message = x.Message,
-                Visible = x.Visible,
-                Mobile = x.Mobile,
-                IsRead = x.IsRead,
-                IpAddress = x.IpAddress,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-            });
-            CreateMap<ResultFaq, UpdateFaq>();
-            CreateMap<Faq, ResultFaq>().ConvertUsing(x => new ResultFaq
-            {
-                ID = x.ID,
-                FullName = x.FullName,
-                Subject = x.Subject,
-                Message = x.Message,
-                Mobile = x.Mobile,
-                Visible = x.Visible,
-                IsRead = GetIsReadTitle(x.IsRead),
-                IpAddress = x.IpAddress,
-
-                RegisterTime = x.RegisterTime,
-                EditTime = x.EditTime,
-                RegisterDate = DateFunctions.ConvertDateIntToString(x.RegisterDate),
-                EditDate = DateFunctions.ConvertDateIntToString(x.EditDate),
-
-
-            });
-            #endregion
-
-
-
-
-
-
-           
-            #region About
-            CreateMap<AddAbout, About>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(Guid.NewGuid().ToString())))
-                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
-                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
-
-            CreateMap<UpdateAbout, About>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
-
-            CreateMap<About, UpdateAbout>()
-                .ForMember(des => des.ResultUploadFiles, s => s.MapFrom(x => GetResultUploadFiles(x.JsonPicture)))
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                } : new ResultProduct()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
-            CreateMap<About, ResultAbout>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
-            #endregion
-            #region City
-            CreateMap<AddCity, City>()
-                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
-                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
-
-            CreateMap<UpdateCity, City>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
-
-            CreateMap<City, UpdateCity>()
-               .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-               .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
-               .ForMember(des => des.ResultProvince, s => s.MapFrom(x => x.Province != null ? new ResultProvince
-               {
-                   ID = x.Province.ID,
-                   Title = x.Province.Title,
-
-               } : new ResultProvince()
-                ));
-            CreateMap<City, ResultCity>()
-              .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-              .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
-              .ForMember(des => des.ResultProvince, s => s.MapFrom(x => x.Province != null ? new ResultProvince
-              {
-                  ID = x.Province.ID,
-                  Title = x.Province.Title,
-
-              } : new ResultProvince()
-                ));
-            #endregion
-            #region Team
-            CreateMap<AddTeam, Team>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(Guid.NewGuid().ToString())))
-                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
-                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
-
-            CreateMap<UpdateTeam, Team>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
-
-            CreateMap<Team, UpdateTeam>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
-
-
-            CreateMap<Team, ResultTeam>()
-                .ForMember(des => des.ResultUploadFiles, s => s.MapFrom(x => GetResultUploadFiles(x.JsonPictures)))
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
-            #endregion
-            #region Position
-            CreateMap<AddPosition, Position>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(Guid.NewGuid().ToString())))
-                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
-                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
-
-            CreateMap<UpdatePosition, Position>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
-
-            CreateMap<Position, UpdatePosition>()
-               .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-               .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
-
-            CreateMap<Position, ResultPosition>()
-              .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-              .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region FavoritUserProduct
             CreateMap<AddFavoritUserProduct, FavoritUserProduct>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(Guid.NewGuid().ToString())))
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
             CreateMap<UpdateFavoritUserProduct, FavoritUserProduct>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
@@ -3378,54 +1440,174 @@ namespace MappingProfile.DtoMappingConfigs
               } : new ResultProduct()
                 ));
             #endregion
+            #region FavoritUserProduct
+            CreateMap<AddFavoritUserProduct, FavoritUserProduct>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<UpdateFavoritUserProduct, FavoritUserProduct>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<FavoritUserProduct, UpdateFavoritUserProduct>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            CreateMap<ResultFavoritUserProduct, UpdateFavoritUserProduct>();
+            CreateMap<FavoritUserProduct, ResultFavoritUserProduct>()
+                .ForMember(des => des.ResultProduct, s => s.MapFrom(x => x.Product != null ? new ResultProduct
+                {
+                    ID = x.Product.ID,
+                    Title = x.Product.Title,
+                    Count = x.Product.Count,
+                    Price = x.Product.Price,
+                    CategoryID = x.Product.CategoryID,
+                    Visible = x.Product.Visible,
+                    JsonPicture = x.Product.JsonPicture,
+                    ShortDescription = x.Product.ShortDescription,
+                    Description = x.Product.Description,
+                    Discount = x.Product.Discount,
+                    Brand = x.Product.Brand,
+                    ProductCode = x.Product.ProductCode,
+                    ProductExistStatus = GetProductExistStatus(x.Product.ProductExistStatus),
+                    ProductExistStatus2 = (ProductExistStatus)x.Product.ProductExistStatus,
+                    SkuCode = x.Product.SkuCode,
+                    ResultUploadFiles = GetResultUploadFiles(x.Product.JsonPicture),
+                    IdentityCode = x.Product.IdentityCode,
+                    RegisterDate = DateFunctions.ConvertDateIntToString(x.Product.RegisterDate),
+                    RegisterTime = x.RegisterTime,
+                    EditDate = DateFunctions.ConvertDateIntToString(x.Product.EditDate),
+                    EditTime = x.Product.EditTime,
+                    ResultCategory = x.Product.Category != null ? new ResultCategory
+                    {
+                        ID = x.Product.Category.ID,
+                        Title = x.Product.Category.Title,
+                        ParentID = x.Product.Category.ParentID,
+                        Description = x.Product.Category.Description,
+                        Visible = x.Product.Category.Visible,
+
+                    } : new ResultCategory(),
+
+                } : new()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            #endregion
+            #region Position
+            CreateMap<AddPosition, Position>()
+                .ForMember(des => des.CostType, s => s.MapFrom(x => (int)x.CostType))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<UpdatePosition, Position>()
+                .ForMember(des => des.CostType, s => s.MapFrom(x => (int)x.CostType))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<Position, UpdatePosition>()
+                .ForMember(des => des.CostType, s => s.MapFrom(x => x.CostType.HasValue
+                            ? (int?)x.CostType.Value
+                            : null))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            CreateMap<Position, ResultPosition>()
+                .ForMember(des => des.CostType, s => s.MapFrom(x => GetTitleCostType(x.CostType)))
+                .ForMember(des => des.CostType2, s => s.MapFrom(x => x.CostType != null ? (CostType?)x.CostType : null))
+                .ForMember(des => des.ResultProduct_CountAction_CostTypes, s => s.MapFrom(x => x.Product_CountAction_CostTypes != null && x.Product_CountAction_CostTypes.Count > 0 ? x.Product_CountAction_CostTypes.Select(k => new ResultProduct_CountAction_CostType
+                {
+                    ID = k.ID,
+                    PositionID = k.PositionID,
+                    ProductID = k.ProductID,
+                    CountAction = k.CountAction,
+                    Price = k.Price,
+                    Visible = k.Visible,
+                    ResultPosition = k.Position != null ? new ResultPosition
+                    {
+                        ID = k.Position.ID,
+                        Title = k.Position.Title,
+                    } : new ResultPosition(),
+                    ResultProduct = k.Product != null ? new ResultProduct
+                    {
+                        ID = k.Product.ID,
+                        Title = k.Product.Title,
+                    } : new ResultProduct(),
+                }).ToList() : new List<ResultProduct_CountAction_CostType>()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            #endregion
             #region ContactUs
             CreateMap<AddContactUs, ContactUs>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(Guid.NewGuid().ToString())))
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
             CreateMap<UpdateContactUs, ContactUs>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<ContactUs, UpdateContactUs>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            CreateMap<ResultContactUs, UpdateContactUs>();
+
+            CreateMap<ContactUs, ResultContactUs>()
+                .ForMember(des => des.IsRead, s => s.MapFrom(x => GetIsReadTitle(x.IsRead)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
+            #endregion
+            #region Team
+            CreateMap<AddTeam, Team>()
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
+            CreateMap<UpdateTeam, Team>()
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
+
+            CreateMap<Team, UpdateTeam>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
-            CreateMap<ContactUs, ResultContactUs>()
-
-                .ForMember(des => des.IsRead, s => s.MapFrom(x => x.IsRead == true ? ("خوانده شده") : ("خوانده نشده")))
-                .ForMember(des => des.IsRead, s => s.MapFrom(x => x.IsRead))
+            CreateMap<Team, ResultTeam>()
+                .ForMember(des => des.ResultUploadFiles, s => s.MapFrom(x => GetResultUploadFiles(x.JsonPictures)))
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region Faq
             CreateMap<AddFaq, Faq>()
-                .ForMember(des => des.IdentityCode, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(Guid.NewGuid().ToString())))
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
             CreateMap<UpdateFaq, Faq>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<Faq, UpdateFaq>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
+            CreateMap<ResultFaq, UpdateFaq>();
             CreateMap<Faq, ResultFaq>()
-
-                .ForMember(des => des.IsRead, s => s.MapFrom(x => x.IsRead == true ? ("خوانده شده") : ("خوانده نشده")))
-                .ForMember(des => des.IsRead, s => s.MapFrom(x => x.IsRead))
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.IsRead, s => s.MapFrom(x => GetIsReadTitle(x.IsRead)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region GroupQuestion
@@ -3434,14 +1616,15 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateGroupQuestion, GroupQuestion>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<GroupQuestion, UpdateGroupQuestion>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
-
 
             CreateMap<GroupQuestion, ResultGroupQuestion>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
@@ -3453,23 +1636,25 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateQuestion, Question>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<Question, UpdateQuestion>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
 
             CreateMap<Question, ResultQuestion>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
                 .ForMember(des => des.ResultGroupQuestion, s => s.MapFrom(x => x.GroupQuestion != null ? new ResultGroupQuestion
                 {
                     Title = x.GroupQuestion.Title
                 } : new ResultGroupQuestion()
-                ));
+                ))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region ProductComment
@@ -3478,9 +1663,11 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateProductComment, ProductComment>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<ProductComment, UpdateProductComment>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
@@ -3513,24 +1700,25 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateTicket, Ticket>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<Ticket, UpdateTicket>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
             CreateMap<Ticket, ResultTicket>()
-                  .ForMember(des => des.TicketPriority, s => s.MapFrom(x => EnumConstant.GetTitleTicketPriority(x.TicketPriority)))
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
+                .ForMember(des => des.TicketPriority, s => s.MapFrom(x => EnumConstant.GetTitleTicketPriority(x.TicketPriority)))
                 .ForMember(des => des.ResultDepartment, s => s.MapFrom(x => x.Department != null ? new ResultDepartment
                 {
                     Title = x.Department.Title
                 } : new ResultDepartment()
-                ));
+                ))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             #endregion
             #region Department
@@ -3539,38 +1727,56 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateDepartment, Department>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<Department, UpdateDepartment>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
             CreateMap<Department, ResultDepartment>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
-           
-            #region Province
-            CreateMap<AddProvince, Province>()
+
+            #region BlogComment
+            CreateMap<AddBlogComment, BlogComment>()
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
-            CreateMap<UpdateProvince, Province>()
+
+            CreateMap<UpdateBlogComment, BlogComment>()
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
 
-            CreateMap<Province, UpdateProvince>()
+            CreateMap<BlogComment, UpdateBlogComment>()
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
+            CreateMap<BlogComment, ResultBlogComment>()
+                .ForMember(des => des.IsVerifiedBuyer, s => s.MapFrom(x => x.IsVerifiedBuyer
+            ? "<span class='inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800'>✓ بله</span>"
+           : "<span class='inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800'>✕ خیر</span>"))
+                .ForMember(des => des.Status, s => s.MapFrom(x => EnumConstant.GetTitleCommentStatus(x.Status)))
+                .ForMember(des => des.Status2, s => s.MapFrom(x => x.Status))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)))
+                .ForMember(des => des.ResultBlog, s => s.MapFrom(x => x.Blog != null ? new ResultBlog
+                {
+                    Title = x.Blog.Title
+                } : new ResultBlog()
+                ))
+            .ForMember(des => des.ResultCustomer, s => s.MapFrom(x => x.Customer != null ? new ResultCustomer
+            {
+                Name = x.Customer.Name
+            } : new ResultCustomer()
+                ));
 
-            CreateMap<Province, ResultProvince>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
+
             #endregion
             #region Trait
             CreateMap<AddTrait, Trait>()
@@ -3578,19 +1784,20 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateTrait, Trait>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<Trait, UpdateTrait>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
             CreateMap<Trait, ResultTrait>()
-                  .ForMember(des => des.DisplayType2, s => s.MapFrom(x => x.DisplayType))
-                  .ForMember(des => des.DisplayType, s => s.MapFrom(x => EnumConstant.GetTitleTraitDisplayType(x.DisplayType)))
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.DisplayType2, s => s.MapFrom(x => x.DisplayType))
+                .ForMember(des => des.DisplayType, s => s.MapFrom(x => EnumConstant.GetTitleTraitDisplayType(x.DisplayType)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region TraitValue
@@ -3599,25 +1806,26 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateTraitValue, TraitValue>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<TraitValue, UpdateTraitValue>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
             CreateMap<TraitValue, ResultTraitValue>()
-                  .ForMember(des => des.ResultTrait, s => s.MapFrom(x => x.Trait!=null?new ResultTrait
+                  .ForMember(des => des.ResultTrait, s => s.MapFrom(x => x.Trait != null ? new ResultTrait
                   {
-                      ID=x.Trait.ID,
-                      Title=x.Trait.Title,
-                      DisplayType= EnumConstant.GetTitleTraitDisplayType(x.Trait.DisplayType),
-                      DisplayType2 =(int)x.Trait.DisplayType,
+                      ID = x.Trait.ID,
+                      Title = x.Trait.Title,
+                      DisplayType = EnumConstant.GetTitleTraitDisplayType(x.Trait.DisplayType),
+                      DisplayType2 = (int)x.Trait.DisplayType,
 
-                  }:new ResultTrait()))
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                  } : new ResultTrait()))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region ProductVariant
@@ -3626,17 +1834,18 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateProductVariant, ProductVariant>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<ProductVariant, UpdateProductVariant>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
             CreateMap<ProductVariant, ResultProductVariant>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region ProductVariantValue
@@ -3645,17 +1854,18 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateProductVariantValue, ProductVariantValue>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<ProductVariantValue, UpdateProductVariantValue>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
-
             CreateMap<ProductVariantValue, ResultProductVariantValue>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
             #region CategoryTrait
@@ -3664,22 +1874,25 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<AddUpdateCategoryTraitSelect, CategoryTrait>()
-                  .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
+                .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+
             CreateMap<UpdateCategoryTrait, CategoryTrait>()
-                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
-                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())));
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(x.RegisterDate)))
+                .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateStringToInt(GetNewDate())))
+                .ForMember(des => des.EditTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)));
 
             CreateMap<CategoryTrait, UpdateCategoryTrait>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
 
             CreateMap<CategoryTrait, ResultCategoryTrait>()
-                  .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
+                .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
         }
