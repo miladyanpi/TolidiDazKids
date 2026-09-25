@@ -276,7 +276,7 @@ namespace Api.Controllers
                                    .GetAllAsync(s => s.CartID == Cart.ID);
                     foreach (var item in CartItems)
                     {
-                        item.Product.Count += item.Quantity;
+                        item.Product.BaseStock += item.Quantity;
                         await _productService.UpdateAsync(item.Product);
                     }
                 }
@@ -356,9 +356,9 @@ namespace Api.Controllers
                 bool flag = false;
                 foreach (var item in CartItems)
                 {
-                    if (item.Quantity > item.Product.Count)
+                    if (item.Quantity > (item.Product.BaseStock??0))
                     {
-                        CountMessage += $"<h6>  {item.Product.Title}=>تعداد سبد خرید({item.Quantity}) بیش از موجودی انبار ({item.Product.Count})</h6><br>";
+                        CountMessage += $"<h6>  {item.Product.Title}=>تعداد سبد خرید({item.Quantity}) بیش از موجودی انبار ({item.Product.BaseStock??0})</h6><br>";
                         flag = true;
                     }
                 }
@@ -431,7 +431,7 @@ namespace Api.Controllers
                     {
                         foreach (var item in listCartItems)
                         {
-                            item.Product.Count = item.Product.Count - item.Quantity;
+                            item.Product.BaseStock = (item.Product.BaseStock??0) - item.Quantity;
                             await _productService.UpdateAsync(item.Product);
                         }
                         var order = new Order
@@ -517,7 +517,7 @@ namespace Api.Controllers
                     #region Order
                     Cart.CartStatus = (int)CartStatus.checked_out;
                     await _CartService.UpdateAsync(Cart);
-                    var price = Cart.CartItems.Sum(s => s.Product.Price * s.Quantity);
+                    var price = Cart.CartItems.Sum(s => (s.Product.BasePrice??0) * s.Quantity);
                     var order = new Order
                     {
                         CustomerID = Cart.CustomerID,
@@ -545,7 +545,7 @@ namespace Api.Controllers
                         OrderID = id,
                         Visible = true,
                         ProductID = item.ProductID,
-                        PriceAtOrder = item.Product.Price,
+                        PriceAtOrder = item.Product.BasePrice??0,
                         Quantity = item.Quantity,
                         RegisterDate = date,
                         EditDate = date,

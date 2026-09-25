@@ -90,10 +90,11 @@
 
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.Title)"></CustomLabel></th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.ResultCategory.Title)"></CustomLabel></th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.SkuCode)"></CustomLabel></th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.Count)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.PricingType)"></CustomLabel></th>
+                        @* <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.SkuCode)"></CustomLabel></th> *@
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.BaseStock)"></CustomLabel></th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.Discount)"></CustomLabel></th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.Price)"></CustomLabel></th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.BasePrice)"></CustomLabel></th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.ViewCount)"></CustomLabel></th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.ProductExistStatus)"></CustomLabel></th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><CustomLabel For="@(() => _ProductService.resultProduct.Visible)"></CustomLabel></th>
@@ -129,19 +130,20 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.ResultCategory.Title</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.SkuCode</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Count</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.PricingType</td>
+                            @* <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.SkuCode</td> *@
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.BaseStock</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Discount.ToString("N0")</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 @if (item.Discount > 0)
                                 {
-                                    Int64 finishPrice = item.Price - item.Discount;
+                                    Int64 finishPrice = (item.BasePrice??0) - item.Discount;
                                     <div class="font-medium">@finishPrice.ToString("N0") <span class="text-xs">تومان</span></div>
-                                    <div class="text-xs text-gray-400 line-through">@item.Price.ToString("N0") تومان</div>
+                                    <div class="text-xs text-gray-400 line-through">@item.BasePrice.?ToString("N0") تومان</div>
                                 }
                                 else
                                 {
-                                    <div class="font-medium">@item.Price.ToString("N0") <span class="text-xs">تومان</span></div>
+                                    <div class="font-medium">@item.BasePrice.?ToString("N0") <span class="text-xs">تومان</span></div>
                                 }
 
 
@@ -187,6 +189,13 @@
                                                     </svg>
 
                                                 </button>
+                                                <button @onclick="@(() => ProductVarient(item.IdentityCode))" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ml-4">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.214-.456c.54-.203 1.11.05 1.37.545l1.296 2.381c.277.506.137 1.127-.327 1.458l-1.048.743c-.313.222-.47.603-.47 1.002s.157.78.47 1.002l1.048.743c.464.33.604.952.327 1.458l-1.296 2.381c-.26.495-.83.748-1.37.545l-1.214-.456c-.355-.133-.75-.072-1.075.124a6.57 6.57 0 0 1-.22.128c-.332.183-.582.495-.644.869l-.214 1.281c-.09.542-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.213.456c-.54.203-1.11-.05-1.37-.545l-1.296-2.381c-.277-.506-.137-1.127.327-1.458l1.048-.743c.313-.222.47-.603.47-1.002s-.157-.78-.47-1.002l-1.048-.743c-.464-.33-.604-.952-.327-1.458l1.296-2.381c.26-.495.83-.748 1.37-.545l1.214.456c.355.133.75.072 1.075-.124.074-.044.147-.087.22-.127.332-.183.582-.495.644-.869l.214-1.281Z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                    </svg>
+                                                </button>
+
                                               @*   <button title="تصاویر" @onclick="@(async () => await ListFiles(item.ID))"
                                                         class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ml-4">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -262,6 +271,10 @@
     {
         _ProductService.pagingModel.Page = page;
         await _ProductService.GetDataAsync();
+    }
+    private void ProductVarient(Guid? GUID)
+    {
+        NavManager.NavigateTo($"/ProductVariant/{GUID}");
     }
     private void Edit(Guid? GUID)
     {

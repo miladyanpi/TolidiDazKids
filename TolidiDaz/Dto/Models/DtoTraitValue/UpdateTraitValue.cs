@@ -11,11 +11,13 @@ namespace  Dto.Models.DtoTraitValue
         public int ID { get; set; }
         [DisplayName("شناسه ویژگی")]
         public int? TraitID { get; set; }
-        [DisplayName("مقادیر")]
+        [DisplayName("مقدار/عنوان")]
         [Required(ErrorMessage = "| الزامی است")]
         public string? Value { get; set; }
-        [DisplayName("نمایش کد رنگ")]
+        [DisplayName("سازنده SKU")]
         [Required(ErrorMessage = "| الزامی است")]
+        public string? Code { get; set; }
+        [DisplayName("نمایش کد رنگ")]
         public string? DisplayColorHex { get; set; }
         
     }

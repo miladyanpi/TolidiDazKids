@@ -110,7 +110,7 @@ namespace Api.Controllers
                                                          status: ResultMessageApi.Error,
                                                          message: ResultMessageApi.AddCartError));
                 }
-                if (cartItem.Quantity > product.Count)
+                if (cartItem.Quantity > (product.BaseStock??0))
                     return BadRequest(new ResponseApiEntity<AddCartItem>
                                                       (entity: null,
                                                       statusCode: ResultMessageApi.ErrorCode,

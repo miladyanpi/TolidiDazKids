@@ -1,10 +1,6 @@
-﻿using Admin.Services;
-using Admin.Services.BaseShareService;
-using Admin.Services.Category;
+﻿using Admin.Services.BaseShareService;
 using CurrieTechnologies.Razor.SweetAlert2;
-using Dto.DtoPaginagion;
 using Dto.Enum;
-using Dto.Models;
 using Dto.Models.Constant;
 using Dto.Models.DtoProduct;
 using Dto.Models.DtoProductFeature;
@@ -14,7 +10,6 @@ using Microsoft.JSInterop;
 using RestSharp;
 using System.ComponentModel;
 using static Dto.Enum.EnumConstant;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Admin.Services.Product
 {
@@ -47,7 +42,13 @@ namespace Admin.Services.Product
         public List<AddProductFeatureValue> AddProductFeatureValues { get; set; } = new List<AddProductFeatureValue>();
         public List<UpdateProductFeatureValue> UpdateProductFeatureValues { get; set; } = new List<UpdateProductFeatureValue>();
         public List<ResultProductFeature> ResultProductFeatures { get; set; } = new List<ResultProductFeature>();
-
+        public List<(int ID, string Title)> ResultPricingTypes { get; set; } = new();
+        public void GetPricingTypes()
+        {
+            ResultPricingTypes = EnumConstant.GetListPricingType();
+            if (ResultPricingTypes.Count > 0)
+                addProduct.PricingType = ResultPricingTypes[0].ID;
+        }
         public async Task GetDataAsync(string? SearchText = "")
         {
             try
@@ -81,7 +82,6 @@ namespace Admin.Services.Product
                 });
             }
         }
-       
         public async Task DeleteAsync(int ID)
         {
             var result1 = await Swal.FireAsync(new SweetAlertOptions
@@ -151,7 +151,7 @@ namespace Admin.Services.Product
                     });
                     return;
                 }
-                if (addProduct.Discount > addProduct.Price)
+                if (addProduct.Discount > (addProduct.BaseStock??0))
                 {
                      await Swal.FireAsync(new SweetAlertOptions
                     {
@@ -162,7 +162,7 @@ namespace Admin.Services.Product
                     });
                     return;
                 }
-                if (addProduct.Price == 0)
+                if ((addProduct.BasePrice??0) == 0 )
                 {
                      await Swal.FireAsync(new SweetAlertOptions
                     {
@@ -174,7 +174,7 @@ namespace Admin.Services.Product
                     return;
 
                 }
-                if (addProduct.Count <= 0)
+                if ((addProduct.BaseStock??0) <= 0)
                 {
                      await Swal.FireAsync(new SweetAlertOptions
                     {
@@ -254,7 +254,7 @@ namespace Admin.Services.Product
                     });
                     return;
                 }
-                if (updateProduct.Discount > updateProduct.Price)
+                if (updateProduct.Discount > (updateProduct.BasePrice??0))
                 {
                      await Swal.FireAsync(new SweetAlertOptions
                     {
@@ -265,7 +265,7 @@ namespace Admin.Services.Product
                     });
                     return;
                 }
-                if (updateProduct.Price == 0)
+                if ((updateProduct.BaseStock??0) == 0)
                 {
                     await Swal.FireAsync(new SweetAlertOptions
                     {
@@ -277,7 +277,7 @@ namespace Admin.Services.Product
                     return;
 
                 }
-                if (updateProduct.Count <= 0)
+                if ((updateProduct.BaseStock??0) <= 0 )
                 {
                     var result2 = await Swal.FireAsync(new SweetAlertOptions
                     {
@@ -336,7 +336,7 @@ namespace Admin.Services.Product
                 });
             }
         }
-        public async Task GetUpdateDataAsync(string guid)
+        public async Task<UpdateProduct> GetUpdateDataAsync(string guid)
         {
             try
             {
@@ -397,6 +397,8 @@ namespace Admin.Services.Product
                     ShowConfirmButton = true,
                 });
             }
+            return updateProduct;
+
         }
     }
 }

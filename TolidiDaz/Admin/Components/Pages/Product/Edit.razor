@@ -36,6 +36,15 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
+                                <CustomLabel For="@(() => _ProductService.updateProduct.PricingType)"></CustomLabel>
+                                <InputSelect @bind-Value="_ProductService.updateProduct.PricingType"  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    @foreach (var item in _ProductService.ResultPricingTypes)
+                                    {
+                                        <option value="@item.ID">@item.Title</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div>
                                 <CustomLabel For="@(() => _ProductService.updateProduct.Title)"></CustomLabel>
                                 <ValidationMessage For="@(() => _ProductService.updateProduct.Title)" class="validate" />
                                 <InputText id="product-name" @bind-Value="_ProductService.updateProduct.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
@@ -64,25 +73,25 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <CustomLabel For="@(() => _ProductService.updateProduct.Price)"></CustomLabel>(تومان)
-                                <ValidationMessage For="@(() => _ProductService.updateProduct.Price)" class="validate" />
-                                <InputNumber id="product-price" @bind-Value="_ProductService.updateProduct.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                <CustomLabel For="@(() => _ProductService.updateProduct.BasePrice)"></CustomLabel>(تومان)
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.BasePrice)" class="validate" />
+                                <InputNumber  @bind-Value="_ProductService.updateProduct.BasePrice" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                             </div>
                             <div>
                                 <CustomLabel For="@(() => _ProductService.updateProduct.Discount)"></CustomLabel>(تومان)
                                 <ValidationMessage For="@(() => _ProductService.updateProduct.Discount)" class="validate" />
-                                <InputNumber id="product-discount" @bind-Value="_ProductService.updateProduct.Discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                <InputNumber  @bind-Value="_ProductService.updateProduct.Discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                             </div>
                             <div>
-                                <CustomLabel For="@(() => _ProductService.updateProduct.Count)"></CustomLabel>
-                                <ValidationMessage For="@(() => _ProductService.updateProduct.Count)" class="validate" />
-                                <InputNumber id="product-stock" @bind-Value="_ProductService.updateProduct.Count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                <CustomLabel For="@(() => _ProductService.updateProduct.BaseStock)"></CustomLabel>
+                                <ValidationMessage For="@(() => _ProductService.updateProduct.BaseStock)" class="validate" />
+                                <InputNumber @bind-Value="_ProductService.updateProduct.BaseStock" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                             </div>
-                            <div>
+                        @*     <div>
                                 <CustomLabel For="@(() => _ProductService.updateProduct.SkuCode)"></CustomLabel>
                                 <ValidationMessage For="@(() => _ProductService.updateProduct.SkuCode)" class="validate" />
                                 <InputText id="product-sku" @bind-Value="_ProductService.updateProduct.SkuCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                            </div>
+                            </div> *@
                             <div class="mb-4">
                                 <CustomLabel For="@(() => _ProductService.updateProduct.Visible)"></CustomLabel>
                                 <InputRadioGroup @bind-Value="_ProductService.updateProduct.ProductExistStatus" Name="stock-status">

@@ -1,5 +1,6 @@
 ﻿@page "/TraitValue/{guid}"
 @using Admin.Services.TraitValue
+@using Dto.Models.DtoTraitValue
 @inject TraitValueService _TraitValueService
 <AccessAdminRoles />
 
@@ -11,11 +12,11 @@
         <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
                 مدیریت مقادیر ویژگی
-               
+
             </h2>
             <p class="text-gray-600 dark:text-gray-400">
                 لیست تمام مقادیر ویژگی
-                
+
             </p>
         </div>
 
@@ -38,9 +39,9 @@
         <div class="px-6 pb-2 border-b border-gray-200 flex-wrap dark:border-gray-700 flex items-center justify-between">
             <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
                 لیست مقادیر ویژگی
-                @if (_TraitValueService.ResultTraitValues?.Any() == true)
+                @if (ResultTraitValues?.Any() == true)
                 {
-                    <span>(@_TraitValueService.ResultTraitValues.FirstOrDefault()?.ResultTrait?.Title)</span>
+                    <span>(@ResultTraitValues.FirstOrDefault()?.ResultTrait?.Title)</span>
                 }
             </h3>
             <Search OnClickcallBack="@(async () => await _TraitValueService.GetDataAsync(guid))" PlaceHolder="جستجو..." />
@@ -56,11 +57,12 @@
                             <CustomLabel For="@(() => _TraitValueService.resultTraitValue.Value)"></CustomLabel>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            <CustomLabel For="@(() => _TraitValueService.resultTraitValue.ResultTrait)"></CustomLabel>
+                            <CustomLabel For="@(() => _TraitValueService.resultTraitValue.Code)"></CustomLabel>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            @* <CustomLabel For="@(() => _TraitValueService.resultTraitValue.DisplayColorHex)"></CustomLabel> *@
+                            <CustomLabel For="@(() => _TraitValueService.resultTraitValue.ResultTrait)"></CustomLabel>
                         </th>
+              
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             <CustomLabel For="@(() => _TraitValueService.resultTraitValue.Visible)"></CustomLabel>
                         </th>
@@ -73,25 +75,29 @@
                     @{
                         decimal i = (_TraitValueService.pagingModel.Page - 1) * _TraitValueService.pagingModel.Take;
                     }
-                    @foreach (var item in _TraitValueService.ResultTraitValues)
+                    @foreach (var item in ResultTraitValues)
                     {
                         i++;
                         decimal k = i;
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Value</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.ResultTrait.Title</td>
-                          
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <span class="me-2">@item.Value</span>
                                 @if (item.ResultTrait.DisplayType2 == (int)EnumConstant.TraitDisplayType.Color)
                                 {
-                                    <span class="p-5" style="background-color:@item.DisplayColorHex">
-                                        @item.DisplayColorHex
+                                    <span class="inline-block w-5 h-5 rounded-full border border-gray-200 shadow-sm align-middle"
+                                          style="background-color: @item.DisplayColorHex;"
+                                          title="@item.DisplayColorHex">
                                     </span>
+
+
                                 }
-                                </td>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Code</td>
+
                           
-                          
+
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <Visible Value="@item.Visible" />
                             </td>
@@ -102,7 +108,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                     </svg>
                                 </button>
-                                <button @onclick="@(async () => await _TraitValueService.DeleteAsync(item.ID))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
+                                <button @onclick="@(async () => await DeleteAsync(item.ID))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                     </svg>
@@ -124,29 +130,30 @@
 @code {
     [Parameter]
     public string? guid { get; set; }
+    public List<ResultTraitValue>? ResultTraitValues = new List<ResultTraitValue>();
+
     protected override async Task OnInitializedAsync()
     {
         bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            await _TraitValueService.GetDataAsync(guid: guid);
+            ResultTraitValues = await _TraitValueService.GetDataAsync(guid: guid);
         }
         else
         {
-
             NavManager.NavigateTo("/TraitValue");
         }
     }
 
-  
+
     private async Task CallBackPagingAsync(decimal page)
     {
         _TraitValueService.pagingModel.Page = page;
-        await _TraitValueService.GetDataAsync(guid: guid);
+        ResultTraitValues = await _TraitValueService.GetDataAsync(guid: guid);
     }
     private void Edit(Guid? GUID)
     {
-        NavManager.NavigateTo($"/UpdateTraitValue/{GUID}");
+        NavManager.NavigateTo($"/UpdateTraitValue/{guid}/{GUID}");
     }
     private void Add()
     {
@@ -155,5 +162,12 @@
         {
             NavManager.NavigateTo($"/InsertTraitValue/{guid}");
         }
+    }
+
+    private async Task DeleteAsync(int ID)
+    {
+        await _TraitValueService.DeleteAsync(ID);
+        ResultTraitValues = await _TraitValueService.GetDataAsync(guid: guid);
+
     }
 }

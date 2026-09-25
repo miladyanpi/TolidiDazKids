@@ -34,7 +34,13 @@ namespace Api.Controllers
                                                            statusCode: ResultMessageApi.ErrorCode,
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.AddError));
-
+            var q=await _TraitValueService.FirstOrDefaultAsync(s=>s.Code== model.Code);
+            if(q  is not null)
+                return BadRequest(new ResponseApiEntity<AddTraitValue>
+                                                           (entity: null,
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: "کد SKU وارد شده تکرای است. اجازه ثبت ندارید"));
             var TraitValue = _mapper.Map<AddTraitValue, TraitValue>(model);
             int id = await _TraitValueService.AddAsync(TraitValue);
 

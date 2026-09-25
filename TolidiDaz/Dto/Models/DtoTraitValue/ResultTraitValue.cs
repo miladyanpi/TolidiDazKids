@@ -13,11 +13,17 @@ namespace  Dto.Models.DtoTraitValue
         public int ID { get; set; }
         [DisplayName("شناسه ویژگی")]
         public int? TraitID { get; set; }
-        [DisplayName("مقادیر")]
+        [DisplayName("مقدار/عنوان")]
         public string? Value { get; set; }
+        [DisplayName("سازنده SKU")]
+        public string? Code { get; set; }
         [DisplayName("نمایش کد رنگ")]
         public string? DisplayColorHex { get; set; }
+        public bool Checked { get; set; }
         [DisplayName("نوع ویژگی")]
         public ResultTrait? ResultTrait { get; set; } = new();
+
+        public bool CodeMissing => string.IsNullOrWhiteSpace(Code);
+
     }
 }

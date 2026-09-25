@@ -30,8 +30,8 @@
                     <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">اطلاعات پایه محصول</h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
 
+                        <div>
                             <CustomLabel For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
                             <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( ()=>  GetCategoryParent2InAdd())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _CategoryService.ResultCategorys1)
@@ -41,6 +41,8 @@
                             </InputSelect>
 
                         </div>
+                        
+
                         <div>
 
                             <CustomLabel  For="@(() => _CategoryService.addCategory.ParentID2)"></CustomLabel>
@@ -61,14 +63,24 @@
                             </InputSelect>
                         </div>
                         <div>
+                            <CustomLabel For="@(() => _ProductService.addProduct.PricingType)"></CustomLabel>
+                            <InputSelect @bind-Value="_ProductService.addProduct.PricingType"  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _ProductService.ResultPricingTypes)
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            </InputSelect>
+
+                        </div>
+                        <div>
                             <CustomLabel For="@(() => _ProductService.addProduct.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductService.addProduct.Title)" class="validate" />
-                            <InputText id="product-name" @bind-Value="_ProductService.addProduct.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText @bind-Value="_ProductService.addProduct.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                         <div>
                             <CustomLabel  For="@(() => _ProductService.addProduct.Brand)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductService.addProduct.Brand)" class="validate" />
-                            <InputText id="product-brand" @bind-Value="_ProductService.addProduct.Brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_ProductService.addProduct.Brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
                         
@@ -92,25 +104,25 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                    
                         <div>
-                            <CustomLabel  For="@(() => _ProductService.addProduct.Price)"></CustomLabel>(تومان)
-                            <ValidationMessage For="@(() => _ProductService.addProduct.Price)" class="validate" />
-                            <InputNumber id="product-price" @bind-Value="_ProductService.addProduct.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <CustomLabel  For="@(() => _ProductService.addProduct.BasePrice)"></CustomLabel>(تومان)
+                            <ValidationMessage For="@(() => _ProductService.addProduct.BasePrice)" class="validate" />
+                            <InputNumber  @bind-Value="_ProductService.addProduct.BasePrice" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                         <div>
                             <CustomLabel  For="@(() => _ProductService.addProduct.Discount)"></CustomLabel>(تومان)
                             <ValidationMessage For="@(() => _ProductService.addProduct.Discount)" class="validate" />
-                            <InputNumber id="product-discount" @bind-Value="_ProductService.addProduct.Discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputNumber  @bind-Value="_ProductService.addProduct.Discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                         <div>
-                            <CustomLabel  For="@(() => _ProductService.addProduct.Count)"></CustomLabel>
-                            <ValidationMessage For="@(() => _ProductService.addProduct.Count)" class="validate" />
-                            <InputNumber id="product-stock" @bind-Value="_ProductService.addProduct.Count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <CustomLabel  For="@(() => _ProductService.addProduct.BaseStock)"></CustomLabel>
+                            <ValidationMessage For="@(() => _ProductService.addProduct.BaseStock)" class="validate" />
+                            <InputNumber  @bind-Value="_ProductService.addProduct.BaseStock" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
-                        <div>
+                     @*    <div>
                             <CustomLabel  For="@(() => _ProductService.addProduct.SkuCode)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductService.addProduct.SkuCode)" class="validate" />
                             <InputText id="product-sku" @bind-Value="_ProductService.addProduct.SkuCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        </div>
+                        </div> *@
                         <div class="mb-4">
                             <CustomLabel  For="@(() => _ProductService.addProduct.ProductExistStatus)"></CustomLabel>
 
@@ -138,7 +150,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <CustomLabel ForId="Visible-stock" For="@(() => _ProductService.addProduct.Visible)"></CustomLabel>
+                            <CustomLabel For="@(() => _ProductService.addProduct.Visible)"></CustomLabel>
                             <InputRadioGroup @bind-Value="_ProductService.addProduct.Visible" Name="status">
                                 <InsertUpdateVisible />
                             </InputRadioGroup>
@@ -187,6 +199,7 @@
     private bool isSubmitting = false;
     protected override async Task OnInitializedAsync()
     {
+        _ProductService.GetPricingTypes();
         await _CategoryService.GetAllDataAsync();
         if (_CategoryService.ResultCategorys1.Count > 0)
         {

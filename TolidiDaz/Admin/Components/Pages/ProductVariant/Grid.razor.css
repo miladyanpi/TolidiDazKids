@@ -1,0 +1,89 @@
+
+.chip-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem .8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 2rem;
+    cursor: pointer;
+    background: #fff;
+    transition: .15s;
+    user-select: none;
+}
+
+    .chip:hover {
+        border-color: #6366f1;
+    }
+
+.chip-on {
+    background: #eef2ff;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 1px #6366f1;
+}
+
+.chip-warn {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.chip-code {
+    font-size: .7rem;
+    color: #6b7280;
+}
+
+.color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,.15);
+}
+
+#variantMatrix thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.row-new td {
+    background: #f0fdf4;
+}
+
+.row-restored td {
+    background: #ecfeff;
+}
+
+#toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: .8rem 1.4rem;
+    border-radius: .6rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: .3s;
+    z-index: 9999;
+}
+
+    #toast.show {
+        opacity: 1;
+    }
+
+.toast-success {
+    background: #16a34a;
+    color: #fff;
+}
+
+.toast-error {
+    background: #dc2626;
+    color: #fff;
+}
+

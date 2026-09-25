@@ -15,6 +15,7 @@ using Admin.Services.Product;
 using Admin.Services.Product_CountAction_CostType;
 using Admin.Services.ProductFeature;
 using Admin.Services.ProductFeatureValue;
+using Admin.Services.ProductVariant;
 using Admin.Services.Province;
 
 
@@ -71,6 +72,7 @@ builder.Services.AddScoped<TraitValueService>();
 builder.Services.AddScoped<CityService>();
 builder.Services.AddScoped<ProvinceService>();
 builder.Services.AddScoped<CategoryTraitService>();
+builder.Services.AddScoped<ProductVariantService>();
 
 builder.Services.AddScoped(typeof(IRootApi<>), typeof(RootApi<>));
 builder.Services.AddScoped<IToastMessage, ToastMessage>();

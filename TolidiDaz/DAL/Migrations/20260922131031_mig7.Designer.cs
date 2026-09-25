@@ -4,6 +4,7 @@ using DAL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260922131031_mig7")]
+    partial class mig7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1667,9 +1670,6 @@ namespace DAL.Migrations
                     b.Property<Guid?>("IdentityCode")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
-
                     b.Property<string>("JsonLableTexts")
                         .HasColumnType("nvarchar(max)");
 
@@ -1684,18 +1684,6 @@ namespace DAL.Migrations
 
                     b.Property<TimeSpan>("RegisterTime")
                         .HasColumnType("time");
-
-                    b.Property<DateTime?>("SaleEndsDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("SalePrice")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("SaleStartsDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Signature")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SkuCode")
                         .HasColumnType("nvarchar(450)");
@@ -2772,7 +2760,7 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayColorHex")
                         .HasColumnType("nvarchar(max)");
@@ -2808,10 +2796,6 @@ namespace DAL.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasFilter("[Code] IS NOT NULL");
 
                     b.HasIndex("TraitID");
 

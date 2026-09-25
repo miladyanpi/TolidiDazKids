@@ -27,26 +27,38 @@ namespace Admin.Services.TraitValue
         public UpdateTraitValue? updateTraitValue { get; set; } = new();
         public AddTraitValue? addTraitValue { get; set; } = new();
         public ResultTraitValue resultTraitValue { get; set; } = new();
-        public List<ResultTraitValue>? ResultTraitValues= new List<ResultTraitValue>();
-        public async Task GetDataAsync(string? SearchText = "",string? guid=null)
+        public async Task<List<ResultTraitValue>> GetDataAsync(string? SearchText = "",string? guid=null)
         {
+            var ResultTraitValues = new List<ResultTraitValue>();
             try
             {
                 this.guid = guid;
                 var resdata = await _RootApiResultTraitValues.RunMethodApi($"TraitValues/Data?guid={guid}", SetPaging(SearchText), method: Method.Post);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultTraitValues = resdata.Entities.ToList() ?? [];
+                     ResultTraitValues = resdata.Entities.ToList() ?? [];
                     SetPerPage(resdata.CountAllRecordTable);
                     NotifyStateChanged();
                 }
+
             }
             catch (Exception ex)
             {
+                await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "پیام",
+                    Text = ResultMessageApi.ErrorDisconnectApi,
+                    Icon = ResultMessageApi.Error,
+                    ShowConfirmButton = true,
+                });
             }
+            return ResultTraitValues;
+
         }
-        public async Task GetAllDataAsync()
+        public async Task<List<ResultTraitValue>> GetAllDataAsync()
         {
+            var ResultTraitValues = new List<ResultTraitValue>();
+
             try
             {
                 var resdata = await _RootApiResultTraitValues.RunMethodApi($"TraitValues/All", null, method: Method.Get);
@@ -66,6 +78,7 @@ namespace Admin.Services.TraitValue
                     ShowConfirmButton = true,
                 });
             }
+            return ResultTraitValues;
         }
         public async Task DeleteAsync(int ID)
         {
@@ -172,6 +185,7 @@ namespace Admin.Services.TraitValue
                 if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
+                    await GetDataAsync(guid: guid);
                 }
                 else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
                 {

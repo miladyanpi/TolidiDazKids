@@ -1,4 +1,5 @@
 ﻿using Dto.Models.Base;
+using Dto.Models.DtoTraitValue;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using static Dto.Enum.EnumConstant;
@@ -17,5 +18,6 @@ namespace  Dto.Models.DtoTrait
         [DisplayName("نوع")]
         public string? DisplayType { get; set; }
         public int? DisplayType2 { get; set; }
+        public List<ResultTraitValue>? ResultTraitValues { get; set; }
     }
 }

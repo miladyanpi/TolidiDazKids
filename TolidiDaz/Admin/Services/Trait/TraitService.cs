@@ -61,8 +61,9 @@ namespace Admin.Services.Trait
                 });
             }
         }
-        public async Task GetAllDataAsync()
+        public async Task<List<ResultTrait>> GetAllDataAsync()
         {
+
             try
             {
                 var resdata = await _RootApiResultTraits.RunMethodApi($"Traits/All", null, method: Method.Get);
@@ -82,6 +83,7 @@ namespace Admin.Services.Trait
                     ShowConfirmButton = true,
                 });
             }
+            return ResultTraits;
         }
         public async Task DeleteAsync(int ID)
         {

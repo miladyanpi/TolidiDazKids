@@ -107,7 +107,7 @@
                         </th> *@
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ردیف</th>
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><CustomLabel For="@(() => resultFavoritUserProduct.ResultProduct.Title)"></CustomLabel></th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><CustomLabel For="@(() => resultFavoritUserProduct.ResultProduct.Price)"></CustomLabel></th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><CustomLabel For="@(() => resultFavoritUserProduct.ResultProduct.BasePrice)"></CustomLabel></th>
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">وضعیت</th>
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">عملیات</th>
                     </tr>
@@ -182,7 +182,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 <div class="flex space-x-3">
-                                    @if (item.ResultProduct.ProductExistStatus2 == EnumConstant.ProductExistStatus.Existent && item.ResultProduct.Count > 0)
+                                    @if (item.ResultProduct.ProductExistStatus2 == EnumConstant.ProductExistStatus.Existent && (item.ResultProduct.BaseStock??0) > 0)
                                     {
                                         <button @onclick="@(async () => await AddToCart(item.ResultProduct.ID))" class="text-primary dark:text-primary-dark hover:text-primary/80 dark:hover:text-primary-dark/80">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

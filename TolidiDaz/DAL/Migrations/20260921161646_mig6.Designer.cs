@@ -4,6 +4,7 @@ using DAL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260921161646_mig6")]
+    partial class mig6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -574,10 +577,9 @@ namespace DAL.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("TraitID");
+                    b.HasIndex("CategoryID");
 
-                    b.HasIndex("CategoryID", "TraitID")
-                        .IsUnique();
+                    b.HasIndex("TraitID");
 
                     b.ToTable("CategoryTrait");
                 });
@@ -1414,16 +1416,13 @@ namespace DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<long?>("BasePrice")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("BaseStock")
-                        .HasColumnType("int");
-
                     b.Property<string>("Brand")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("CategoryID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Count")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -1447,7 +1446,10 @@ namespace DAL.Migrations
                     b.Property<string>("JsonPicture")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PricingType")
+                    b.Property<long>("Price")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("PricingType")
                         .HasColumnType("int");
 
                     b.Property<string>("ProductCode")
@@ -1463,6 +1465,9 @@ namespace DAL.Migrations
                         .HasColumnType("time");
 
                     b.Property<string>("ShortDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SkuCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
@@ -1658,6 +1663,9 @@ namespace DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
                     b.Property<int>("EditDate")
                         .HasColumnType("int");
 
@@ -1666,9 +1674,6 @@ namespace DAL.Migrations
 
                     b.Property<Guid?>("IdentityCode")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
 
                     b.Property<string>("JsonLableTexts")
                         .HasColumnType("nvarchar(max)");
@@ -1685,26 +1690,11 @@ namespace DAL.Migrations
                     b.Property<TimeSpan>("RegisterTime")
                         .HasColumnType("time");
 
-                    b.Property<DateTime?>("SaleEndsDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("SalePrice")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("SaleStartsDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Signature")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SkuCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
 
                     b.Property<bool>("Visible")
                         .HasColumnType("bit");
@@ -1712,10 +1702,6 @@ namespace DAL.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("ProductID");
-
-                    b.HasIndex("SkuCode")
-                        .IsUnique()
-                        .HasFilter("[SkuCode] IS NOT NULL");
 
                     b.ToTable("ProductVariant");
                 });
@@ -1760,10 +1746,9 @@ namespace DAL.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("TraitValueID");
+                    b.HasIndex("ProductVariantID");
 
-                    b.HasIndex("ProductVariantID", "TraitValueID")
-                        .IsUnique();
+                    b.HasIndex("TraitValueID");
 
                     b.ToTable("ProductVariantValue");
                 });
@@ -2771,9 +2756,6 @@ namespace DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("DisplayColorHex")
                         .HasColumnType("nvarchar(max)");
 
@@ -2808,10 +2790,6 @@ namespace DAL.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasFilter("[Code] IS NOT NULL");
 
                     b.HasIndex("TraitID");
 

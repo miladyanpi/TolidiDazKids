@@ -8,6 +8,7 @@ using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ServicesLibrary.Services.ProductSrv;
 using ServicesLibrary.Services.ProductVariantSrv;
 using System.Linq.Expressions;
 
@@ -18,6 +19,7 @@ namespace Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProductVariantController(
         IProductVariantService _ProductVariantService,
+        IProductService _ProductService,
         IMapper _mapper
         )
         : ControllerBase
@@ -32,13 +34,6 @@ namespace Api.Controllers
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.AddError));
 
-           var q=await _ProductVariantService.FirstOrDefaultAsync(s => s.ProductID == model.ProductID && s.ProductID == model.ProductID);
-            if(q != null)
-                return BadRequest(new ResponseApiEntity<AddProductVariant>
-                                                           (entity: null,
-                                                           statusCode: ResultMessageApi.ErrorCode,
-                                                           status: ResultMessageApi.Error,
-                                                           message: ResultMessageApi.DataRepeatError));
 
             var ProductVariant = _mapper.Map<AddProductVariant, ProductVariant>(model);
             int id = await _ProductVariantService.AddAsync(ProductVariant);
@@ -128,7 +123,7 @@ namespace Api.Controllers
                     var search = @params.SearchText;
 
                     predicate = x =>
-                        (x.Count.ToString() ?? "").Contains(search);
+                        (x.Stock.ToString() ?? "").Contains(search);
                 }
 
                 var count = await _ProductVariantService.GetCountAllAsync(predicate);
@@ -186,7 +181,44 @@ namespace Api.Controllers
 
         }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpGet("ProductVariants/All")]
+        public async Task<IActionResult> GetProductVariantsAll([FromQuery] string? ProductGuid)
+        {
+            if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultProductVariant>
+                                                           (entities: new List<ResultProductVariant>(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.GetError));
+            bool isValid = Guid.TryParse(ProductGuid, out Guid gid);
+            if (!isValid)
+                return BadRequest(new ResponseApiEntities<ResultProductVariant>
+                                                            (entities: new List<ResultProductVariant>(),
+                                                            statusCode: ResultMessageApi.ErrorCode,
+                                                            status: ResultMessageApi.Error,
+                                                            message: ResultMessageApi.GetError));
 
+            var q = await _ProductService.FirstOrDefaultAsync(s => s.IdentityCode.ToString() == ProductGuid);
+            if (q == null)
+                return BadRequest(new ResponseApiEntities<ResultProductVariant>
+                                                          (entities: new List<ResultProductVariant>(),
+                                                          statusCode: ResultMessageApi.ErrorCode,
+                                                          status: ResultMessageApi.Error,
+                                                          message: ResultMessageApi.GetError));
+
+            var ProductVariants = await _ProductVariantService
+                                .GetAllAsync(s => s.ProductID == q.ID);
+
+            var mappedProductVariants = _mapper.Map<ICollection<ResultProductVariant>>(ProductVariants);
+
+            return Ok(new ResponseApiEntities<ResultProductVariant>
+                                                            (entities: mappedProductVariants,
+                                                            status: ResultMessageApi.Success,
+                                                            statusCode: ResultMessageApi.SuccessCode,
+                                                            message: ResultMessageApi.GetOk,
+                                                            countAllRecordTable: ProductVariants.Count()));
+
+        }
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("ProductVariants/{id}")]
         public async Task<IActionResult> GetProductVariantById([FromRoute] int id)
         {
@@ -216,29 +248,6 @@ namespace Api.Controllers
 
         }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
-
-        [HttpGet("ProductVariants/By")]
-        public async Task<IActionResult> GetProductVariantsAll([FromQuery] int? ProductID)
-        {
-            if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<ResultProductVariant>
-                                                           (entities: new List<ResultProductVariant>(),
-                                                           statusCode: ResultMessageApi.ErrorCode,
-                                                           status: ResultMessageApi.Error,
-                                                           message: ResultMessageApi.GetError));
-
-            var ProductVariant =
-                await _ProductVariantService
-                                .FirstOrDefaultAsync(s => s.ProductID == ProductID&&s.ProductID== ProductID);
-
-            var mappedProductVariants = _mapper.Map<ResultProductVariant>(ProductVariant);
-
-            return Ok(new ResponseApiEntity<ResultProductVariant>
-                                                            (entity: mappedProductVariants,
-                                                            status: ResultMessageApi.Success,
-                                                            statusCode: ResultMessageApi.SuccessCode,
-                                                            message: ResultMessageApi.GetOk));
-
-        }
 
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpGet("ProductVariants/ByGuid/{guid}")]

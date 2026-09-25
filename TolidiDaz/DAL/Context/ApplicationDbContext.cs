@@ -116,6 +116,12 @@ namespace DAL.Context
             builder.ApplyConfiguration(new ProductVariantMap());
             builder.ApplyConfiguration(new ProductVariantValueMap());
             builder.ApplyConfiguration(new CategoryTraitMap());
+
+            builder.Entity<ProductVariantValue>()
+                   .HasIndex(x => new { x.ProductVariantID, x.TraitValueID }).IsUnique();
+
+            builder.Entity<CategoryTrait>()
+                .HasIndex(x => new { x.CategoryID, x.TraitID }).IsUnique();
         }
         public override int SaveChanges()
         {

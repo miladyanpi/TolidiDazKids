@@ -9,6 +9,7 @@ using Dto.Models.DtoCategory;
 using Dto.Models.ResponseApi;
 using Microsoft.JSInterop;
 using RestSharp;
+using static Dto.Enum.EnumConstant;
 
 namespace Admin.Services.Category
 {
@@ -33,6 +34,7 @@ namespace Admin.Services.Category
         public List<ResultCategory>? ResultCategorys1 = new List<ResultCategory>();
         public List<ResultCategory>? ResultCategorys2 { get; set; } = new List<ResultCategory>();
         public List<ResultCategory>? ResultCategorys3 { get; set; } = new List<ResultCategory>();
+       
         public async Task GetDataAsync(string? SearchText = "")
         {
             try

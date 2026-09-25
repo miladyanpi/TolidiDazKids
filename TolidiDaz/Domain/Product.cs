@@ -1,4 +1,5 @@
-﻿using static Dto.Enum.EnumConstant;
+﻿using Microsoft.EntityFrameworkCore;
+using static Dto.Enum.EnumConstant;
 
 namespace Domain
 {
@@ -8,14 +9,15 @@ namespace Domain
         /// <summary>
         /// نوع قیمت گذاری
         /// </summary>
-        public PricingType? PricingType { get; set; }
+        public PricingType PricingType { get; set; }
         public string? ProductCode { get; set; }
         public string? Title { get; set; }
         public string? Brand { get; set; }
-        public string? SkuCode { get; set; }
-        public Int64 Price { get; set; }
+        //public string? SkuCode { get; set; }
+        //public Int64 Price { get; set; }
+        public Int64? BasePrice { get; set; }//add
         public Int64 Discount { get; set; }
-        public int Count { get; set; }
+        public int? BaseStock { get; set; }
         public int? ProductExistStatus { get; set; }
         public string? JsonPicture { get; set; }
         public string? ShortDescription { get; set; }

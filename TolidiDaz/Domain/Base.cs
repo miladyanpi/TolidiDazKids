@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Update.Internal;
+using System.ComponentModel.DataAnnotations;
 using Utility;
 
 namespace Domain
@@ -21,6 +22,6 @@ namespace Domain
         public string? JsonLableTexts { get; set; }
         public bool Visible { get; set; }
         public string? Slug { get; set; }
-
+        //[Timestamp] public uint RowVersion { get; set; }
     }
 }

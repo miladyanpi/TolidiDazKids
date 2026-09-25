@@ -811,12 +811,12 @@ namespace Dto.Enum
             VariantBase = 2     // قیمت‌گذاری بر اساس تنوع (ویژگی‌محور مثل رنگ، سایز و...)
         }
 
-        public static List<(int? Id, string Title)> GetListPricingType()
+        public static List<(int Id, string Title)> GetListPricingType()
         {
-            return new List<(int?, string)>
+            return new List<(int, string)>
             {
-                ((int?)PricingType.Simple, "ساده"),
-                ((int?)PricingType.VariantBase, "بر اساس تنوع")
+                ((int)PricingType.Simple, "ساده"),
+                ((int)PricingType.VariantBase, "بر اساس تنوع")
             };
         }
 

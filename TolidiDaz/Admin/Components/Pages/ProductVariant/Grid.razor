@@ -1,114 +1,655 @@
-﻿@page "/ProductVariant"
+﻿@page "/ProductVariant/{ProductGuid}"
+@using Admin.Services.Product
 @using Admin.Services.ProductVariant
+@using Admin.Services.Trait
+@using Dto.Models.DtoProduct
+@using Dto.Models.DtoProductVariant
+@using Dto.Models.DtoTrait
+@using Dto.Models.DtoTraitValue
+@using static Dto.Enum.EnumConstant
+
 @inject ProductVariantService _ProductVariantService
-<AccessAdminRoles />
+@inject ProductService _ProductService
+@inject TraitService _TraitService
+@inject NavigationManager NavManager
 
+<div class="container pb-5" style="overflow:scroll">
 
-<main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
-    <!-- header page -->
-    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">مدیریت مقادیر ویژگی</h2>
-            <p class="text-gray-600 dark:text-gray-400">لیست تمام مقادیر ویژگی</p>
-        </div>
-        <div class="mt-4 md:mt-0">
-            <a href="/InsertProductVariant" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                </svg>
-                مقادیر ویژگی جدید
-            </a>
-        </div>
-    </div>
-
-    <!-- Users list -->
-    <div class="bg-white py-6 space-y-4 dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 overflow-hidden border border-gray-200 dark:border-gray-700">
-        <div class="px-6 pb-2 border-b border-gray-200 flex-wrap dark:border-gray-700 flex items-center justify-between">
-            <h3 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary after:rounded-lg">
-                لیست مقادیر ویژگی 
-            </h3>
-            <Search OnClickcallBack="@_ProductVariantService.GetDataAsync" PlaceHolder="جستجو..." />
-        </div>
-
-        <!-- Users table -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-right">
-                <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            <CustomLabel For="@(() => _ProductVariantService.resultProductVariant.Price)"></CustomLabel>
-                        </th>
-                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            <CustomLabel For="@(() => _ProductVariantService.resultProductVariant.ResultProduct)"></CustomLabel>
-                        </th>
-                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            <CustomLabel For="@(() => _ProductVariantService.resultProductVariant.Count)"></CustomLabel>
-                        </th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            <CustomLabel For="@(() => _ProductVariantService.resultProductVariant.Visible)"></CustomLabel>
-                        </th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider text-left">
-                            عملیات
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                    @{
-                        decimal i = (_ProductVariantService.pagingModel.Page - 1) * _ProductVariantService.pagingModel.Take;
-                    }
-                    @foreach (var item in _ProductVariantService.ResultProductVariants)
+    @* ═══════════════ هدر ═══════════════ *@
+    <header class="mb-4">
+        <div class="header-title">
+            <h2>
+                <span class="icon-box"><i class="fa-solid fa-layer-group"></i></span>
+                ماتریس تولید واریانت‌ها
+            </h2>
+            @if (_model is not null)
+            {
+                <p class="mt-2">
+                    <strong>@_model.Title</strong>
+                    @if (_model.ResultCategory is not null)
                     {
-                        i++;
-                        decimal k = i;
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Price</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.ResultProduct.Title</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Count</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <Visible Value="@item.Visible" />
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                             
-                                <button @onclick="@(() => Edit(item.IdentityCode))" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ml-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                                    </svg>
-                                </button>
-                                <button @onclick="@(async () => await _ProductVariantService.DeleteAsync(item.ID))" class="text-secondary-600 hover:text-secondary-900 dark:text-secondary-50 dark:hover:text-secondary-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
+                        <span class="badge bg-secondary me-1">@_model.ResultCategory.Title</span>
                     }
-                </tbody>
+                    <span class="badge bg-info text-dark">کد: @(_model.ProductCode ?? "— تعیین نشده —")</span>
+                </p>
+            }
+        </div>
+    </header>
 
-            </table>
+    @if (_error is not null)
+    {
+        <div class="alert alert-danger shadow-sm">@_error</div>
+    }
+    else if (_model is not null && _model.PricingType != (int)PricingType.VariantBase)
+    {
+        <div class="alert alert-warning shadow-sm">
+            این محصول «ساده» است. برای استفاده از ماتریس واریانت، ابتدا نوع قیمت‌گذاری را در ویرایش محصول روی VariantBased قرار دهید.
+        </div>
+    }
+    else if (_model is not null)
+    {
+        @* هشدار ProductCode — پیش‌نیاز SKU *@
+        @if (string.IsNullOrWhiteSpace(_model.ProductCode))
+        {
+            <div class="alert alert-warning shadow-sm">
+                ⚠ این محصول <strong>ProductCode</strong> ندارد؛ تولید SKU خودکار متوقف می‌شود. ابتدا کد محصول را در فرم ویرایش محصول تکمیل فرمایید.
+            </div>
+        }
+
+        @* ═══════════════ گام ۱: انتخاب مقادیر ویژگی‌ها ═══════════════ *@
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <strong><i class="fa-solid fa-tags text-primary"></i> گام ۱ — انتخاب مقادیر ویژگی‌ها</strong>
+                <span class="text-muted" style="font-size:12px">
+                    منبع: ویژگی‌های متصل به محصول
+                </span>
+            </div>
+            <div class="card-body">
+                @if (ResultTraits is null || ResultTraits.Count == 0)
+                {
+                    <div class="text-muted text-center py-3">هیچ ویژگی‌ای (Trait) برای این محصول یا دسته‌بندی یافت نشد.</div>
+                }
+                else
+                {
+                    @foreach (var trait in ResultTraits)
+                    {
+                        <div class="trait-row mb-3 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong class="text-dark">@trait.Title</strong>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-primary btn-xs"
+                                            @onclick="() => ToggleAllValues(trait, true)">
+                                        انتخاب همه
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-xs"
+                                            @onclick="() => ToggleAllValues(trait, false)">
+                                        پاک کردن
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="chip-wrap d-flex flex-wrap gap-2">
+                                @foreach (var val in trait.ResultTraitValues)
+                                {
+                                    var v = val; // Capture for lambda
+                                    <label class="chip d-inline-flex align-items-center gap-1 p-2 border rounded cursor-pointer @(v.Checked ? "bg-primary text-white" : "bg-white")">
+                                        <input type="checkbox" @bind="v.Checked" @bind:after="RebuildRows" class="form-check-input me-1" />
+                                        @if (trait.DisplayType2 == (int)TraitDisplayType.Color && !string.IsNullOrEmpty(v.DisplayColorHex))
+                                        {
+                                            <span class="color-dot rounded-circle d-inline-block border" style="background:@v.DisplayColorHex; width:14px; height:14px;"></span>
+                                        }
+                                        <span>@v.Value</span>
+                                        @if (string.IsNullOrWhiteSpace(v.Code))
+                                        {
+                                            <span class="text-warning fw-bold" title="این مقدار Code ندارد و در SKU نمی‌نشیند">⚠</span>
+                                        }
+                                        else
+                                        {
+                                            <code class="chip-code @(v.Checked ? "text-white-50" : "text-muted")">@v.Code</code>
+                                        }
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
         </div>
 
-        <!-- Pagination -->
-        <Pagination pagingModel="_ProductVariantService.pagingModel" OnClickcallBack="@CallBackPagingAsync" />
-    </div>
-</main>
+        @* ═══════════════ گام ۲: پیش‌فرض‌ها ═══════════════ *@
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-white py-3"><strong><i class="fa-solid fa-sliders text-primary"></i> گام ۲ — مقادیر پیش‌فرض</strong></div>
+            <div class="card-body d-flex gap-3 align-items-end flex-wrap">
+                <div>
+                    <label class="form-label font-monospace">قیمت پیش‌فرض (تومان)</label>
+                    <input type="number" class="form-control" @bind="_defaultPrice" />
+                </div>
+                <div>
+                    <label class="form-label font-monospace">موجودی پیش‌فرض</label>
+                    <input type="number" class="form-control" @bind="_defaultStock" />
+                </div>
+                <button type="button" class="btn btn-outline-primary"
+                        @onclick="ApplyDefaultsToAll" disabled="@(!_rows.Any(r => !r.ExistsInDb))">
+                    اعمال بر ردیف‌های جدید
+                </button>
+            </div>
+        </div>
 
+        @* ═══════════════ گام ۳: ماتریس ترکیب‌ها ═══════════════ *@
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+                <strong><i class="fa-solid fa-table-cells text-primary"></i> گام ۳ — ماتریس تنوع‌ها</strong>
+                <div>
+                    <span class="badge bg-primary">@_rows.Count ترکیب</span>
+                    <span class="badge bg-success">@_rows.Count(r => r.Status == "جدید") جدید</span>
+                    <span class="badge bg-info text-dark">@_rows.Count(r => r.Status == "بازفعال") بازفعال</span>
+                    <span class="badge bg-danger">@_toArchive.Count آرشیو می‌شود</span>
+                </div>
+            </div>
+
+            @if (_rows.Count == 0)
+            {
+                <div class="card-body text-center text-muted py-5">
+                    از گام ۱ حداقل یک مقدار از هر ویژگی را تیک بزنید تا ترکیب‌های کارتزینی ساخته شوند.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive" >
+                    <table class="table table-hover align-middle mb-0" id="variantMatrix">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:70px">ردیف</th>
+                                <th>ترکیب</th>
+                                <th>SKU</th>
+                                <th style="width:170px">قیمت (تومان)</th>
+                                <th style="width:130px">موجودی</th>
+                                <th style="width:110px">وضعیت</th>
+                                <th style="width:60px">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var rowCounter = 1;
+                            }
+                            @foreach (var row in _rows)
+                            {
+                                var r = row;
+                                <tr @key="r.Signature" class="@RowClass(r)">
+                                    <td>@(rowCounter++)</td>
+                                    <td>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            @foreach (var chip in r.Chips)
+                                            {
+                                                <span class="badge bg-light text-dark border d-flex align-items-center gap-1">
+                                                    @if (!string.IsNullOrEmpty(chip.DisplayColorHex))
+                                                    {
+                                                        <span class="color-dot rounded-circle border" style="background:@chip.DisplayColorHex; width:10px; height:10px;"></span>
+                                                    }
+                                                    @chip.Value
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (r.SkuPreview is null)
+                                        {
+                                            <span class="text-danger fw-bold">⚠ Code ناقص</span>
+                                        }
+                                        else
+                                        {
+                                            <code>@r.SkuPreview</code>
+                                        }
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm @(!r.ExistsInDb ? "" : "border-primary")"
+                                               @bind="r.Price" @bind:after="() => r.PriceTouched = true" />
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm"
+                                               @bind="r.Stock" @bind:after="() => r.StockTouched = true" />
+                                    </td>
+                                    <td>
+                                        <span class="badge @StatusBadge(r.Status)">@r.Status</span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="حذف این ترکیب از ماتریس"
+                                                @onclick="() => ExcludeCombo(r.Signature)">
+                                            ✕
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @* پیش‌نمایش آرشیوها — شفافیت قبل از ذخیره *@
+        @if (_toArchive.Any())
+        {
+            <div class="alert alert-warning shadow-sm">
+                <strong><i class="fa-solid fa-triangle-exclamation"></i> با این ذخیره، واریانت‌های زیر آرشیو می‌شوند</strong> (SKU و تاریخچه‌شان در پایگاه داده حفظ می‌شود):
+                <ul class="mb-0 mt-2">
+                    @foreach (var s in _toArchive)
+                    {
+                        <li><code>@s.SkuCode</code> (قیمت: @s.Price.ToString("N0") تومان)</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @* ═══════════════ ذخیره ═══════════════ *@
+        <div class="d-flex justify-content-end gap-2 mb-4">
+            <button type="button" class="btn btn-secondary px-4" @onclick="BackToEdit">
+                انصراف
+            </button>
+            <button type="button" class="btn btn-primary px-5 shadow-sm" @onclick="HandleSubmit" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    <span>در حال ذخیره...</span>
+                }
+                else
+                {
+                    <span><i class="fa-solid fa-floppy-disk me-1"></i> ذخیره نهایی ماتریس</span>
+                }
+            </button>
+        </div>
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(_toast))
+{
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+        <div class="toast show align-items-center text-white @_toastBg border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @_toast
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
+    [Parameter] public string? ProductGuid { get; set; }
 
+    private UpdateProduct? _model;
+    private List<ResultProductVariant?> _existingDbVariants = new();
+    private List<VariantRowDto> _rows = new();
+    private List<ExistingVariantDto> _toArchive = new();
+    private List<ResultTrait>? ResultTraits = new List<ResultTrait>();
+
+
+    private long _defaultPrice = 0;
+    private int _defaultStock = 0;
+    private bool isSubmitting = false;
+    private string? _error;
+    private string _toast = "";
+    private string _toastBg = "bg-success";
+
+    private void BackToEdit()
+    {
+        if (_model is not null)
+            NavManager.NavigateTo($"/Products/Edit/{_model.ID}");
+        else
+            NavManager.NavigateTo("/Products");
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        await _ProductVariantService.GetDataAsync();
+        try
+        {
+            if (string.IsNullOrWhiteSpace(ProductGuid))
+            {
+                _error = "شناسه محصول نامعتبر است.";
+                return;
+            }
+
+            // واکشی داده‌های محصول
+            _model = await _ProductService.GetUpdateDataAsync(ProductGuid);
+            if (_model is null) { _error = "محصول یافت نشد."; return; }
+            if (_model.PricingType != (int)PricingType.VariantBase) return;
+            if (_model.CategoryID is null) { _error = "ابتدا دسته‌بندی محصول را تعیین کنید."; return; }
+
+            // واکشی واریانت‌های ذخیره‌شده از دیتابیس
+            var variants = await _ProductVariantService.GetAllDataAsync(ProductGuid);
+            _existingDbVariants = variants ?? new List<ResultProductVariant>();
+            ResultTraits = await _TraitService.GetAllDataAsync();
+            // همگام‌سازی ExistingVariants در مدل بر اساس داده‌های واکشی‌شده
+            // if (_model.ExistingVariants is null || _model.ExistingVariants.Count == 0)
+            // {
+            //     _model.ExistingVariants = _existingDbVariants.Select(v => new ExistingVariantDto
+            //     {
+            //         Id = v.ID,
+            //         Signature = v.Signature,
+            //         SkuCode = v.SkuCode,
+            //         Price = v.Price,
+            //         Stock = v.Stock,
+            //         IsArchived = v.IsArchived
+            //     }).ToList();
+            // }
+
+            // پیش‌تیک زدن TraitValueها بر اساس واریانت‌های فعال در دیتابیس
+            PrecheckActiveValues();
+
+            // ساخت اولیه سطرهای ماتریس
+            RebuildRows();
+        }
+        catch (Exception ex)
+        {
+            _error = $"خطا در بارگذاری اولیه: {ex.Message}";
+        }
     }
-    private async Task CallBackPagingAsync(decimal page)
+
+    private void PrecheckActiveValues()
     {
-        _ProductVariantService.pagingModel.Page = page;
-        await _ProductVariantService.GetDataAsync();
+        if (ResultTraits is null || _existingDbVariants is null) return;
+
+        var activeSigs = _existingDbVariants
+            .Where(v => !v.IsArchived && !string.IsNullOrWhiteSpace(v.Signature))
+            .Select(v => v.Signature!)
+            .ToList();
+
+        if (!activeSigs.Any()) return;
+
+        var activeValueIds = new HashSet<int>();
+        foreach (var sig in activeSigs)
+        {
+            var parts = sig.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var part in parts)
+            {
+                if (int.TryParse(part, out var id))
+                    activeValueIds.Add(id);
+            }
+        }
+
+        foreach (var trait in ResultTraits)
+        {
+            foreach (var val in trait.ResultTraitValues)
+            {
+                val.Checked = activeValueIds.Contains(val.ID);
+            }
+        }
     }
-    private void Edit(Guid? GUID)
+
+    // ───────── ساخت ترکیب‌های کارتزینی ─────────
+    private void RebuildRows()
     {
-        NavManager.NavigateTo($"/UpdateProductVariant/{GUID}");
+        if (ResultTraits is null) return;
+
+        var previous = _rows.ToDictionary(r => r.Signature, r => r);
+        var existingBySig = (_existingDbVariants ?? new())
+            .Where(v => !string.IsNullOrEmpty(v.Signature))
+            .ToDictionary(v => v.Signature!, v => v);
+
+        // واکشی گروه‌های مقادیر تیک‌خورده
+        var groups = ResultTraits
+            .OrderBy(t => t.ID)
+            .Select(t => t.ResultTraitValues.Where(v => v.Checked).ToList())
+            .Where(g => g.Count > 0)
+            .ToList();
+
+        var combos = new List<List<ResultTraitValue>>();
+        if (groups.Count > 0 && groups.Count == ResultTraits.Count(t => t.ResultTraitValues.Any(v => v.Checked)))
+        {
+            IEnumerable<List<ResultTraitValue>> acc = groups[0].Select(v => new List<ResultTraitValue> { v });
+            for (var gi = 1; gi < groups.Count; gi++)
+            {
+                var g = groups[gi];
+                acc = acc.SelectMany(prefix => g.Select(v => new List<ResultTraitValue>(prefix) { v }));
+            }
+            combos = acc.ToList();
+        }
+
+        var rows = new List<VariantRowDto>();
+        foreach (var combo in combos)
+        {
+            var sig = BuildSignature(combo);
+            if (previous.TryGetValue(sig, out var old))
+            {
+                rows.Add(old); // حفظ مقادیر ویرایش‌شده کاربر
+                continue;
+            }
+
+            if (existingBySig.TryGetValue(sig, out var ex))
+            {
+                rows.Add(new VariantRowDto
+                {
+                    Signature = sig,
+                    VariantId = ex.ID,
+                    DbSku = ex.SkuCode,
+                    ExistsInDb = true,
+                    WasArchived = ex.IsArchived,
+                    Status = ex.IsArchived ? "بازفعال" : "موجود",
+                    Chips = combo,
+                    SkuPreview = ex.SkuCode,
+                    Price = ex.Price,
+                    Stock = ex.Stock
+                });
+            }
+            else
+            {
+                rows.Add(new VariantRowDto
+                {
+                    Signature = sig,
+                    Chips = combo,
+                    ExistsInDb = false,
+                    WasArchived = false,
+                    Status = "جدید",
+                    SkuPreview = BuildSkuPreview(combo),
+                    Price = _defaultPrice,
+                    Stock = _defaultStock
+                });
+            }
+        }
+        _rows = rows;
+
+        // واریانت‌هایی که تیک ترکیب آن‌ها برداشته شده و باید آرشیو شوند
+        var keepSigs = rows.Select(r => r.Signature).ToHashSet();
+        var _toArchive2 = (_existingDbVariants ?? new())
+            .Where(v => !v.IsArchived && !keepSigs.Contains(v.Signature ?? ""))
+            .ToList();
+        foreach (var item in _toArchive2)
+        {
+            _toArchive.Add(new ExistingVariantDto
+                {
+                    Id = item.ID,
+                    IsArchived = item.IsArchived,
+                    Price = item.Price,
+                    Signature = item.Signature,
+                    SkuCode = item.SkuCode,
+                    Stock = item.Stock,
+                });
+        }
     }
+
+    private string BuildSignature(List<ResultTraitValue> combo) =>
+        string.Join("|", combo.OrderBy(v => v.TraitID).Select(v => v.ID));
+
+    private string? BuildSkuPreview(List<ResultTraitValue> combo)
+    {
+        if (string.IsNullOrWhiteSpace(_model?.ProductCode)) return null;
+        var codes = combo.OrderBy(v => v.TraitID).Select(v => v.Code).ToList();
+        if (codes.Any(string.IsNullOrWhiteSpace)) return null;
+        return $"{_model.ProductCode.Trim().ToUpperInvariant()}-{string.Join("-", codes.Select(c => c.Trim()))}";
+    }
+
+    // ───────── اکشن‌های UI ─────────
+    private void ToggleAllValues(ResultTrait trait, bool state)
+    {
+        foreach (var val in trait.ResultTraitValues)
+        {
+            val.Checked = state;
+        }
+        RebuildRows();
+    }
+
+    private void ExcludeCombo(string signature)
+    {
+        var row = _rows.FirstOrDefault(r => r.Signature == signature);
+        if (row is null || ResultTraits is null) return;
+
+        foreach (var chip in row.Chips)
+        {
+            var trait = ResultTraits.FirstOrDefault(t => t.ID == chip.TraitID);
+            if (trait is null) continue;
+            var others = trait.ResultTraitValues.Count(v => v.Checked && v.ID != chip.ID);
+            if (others == 0) chip.Checked = false;
+        }
+        RebuildRows();
+    }
+
+    private void ApplyDefaultsToAll()
+    {
+        foreach (var r in _rows.Where(r => !r.ExistsInDb))
+        {
+            r.Price = _defaultPrice;
+            r.PriceTouched = true;
+            r.Stock = _defaultStock;
+            r.StockTouched = true;
+        }
+    }
+
+    private string RowClass(VariantRowDto r) => r.Status switch
+    {
+        "جدید" => "table-success bg-opacity-25",
+        "بازفعال" => "table-info bg-opacity-25",
+        _ => ""
+    };
+
+    private string StatusBadge(string s) => s switch
+    {
+        "جدید" => "bg-success",
+        "بازفعال" => "bg-info text-dark",
+        _ => "bg-secondary"
+    };
+
+    // ───────── ذخیره و همگام‌سازی با API ─────────
+    private async Task HandleSubmit()
+    {
+        if (isSubmitting) return;
+
+        var invalid = _rows.Where(r => r.SkuPreview is null).ToList();
+        if (invalid.Any())
+        {
+            await ShowToast("⚠ برخی ترکیب‌ها Code معتبر ندارند؛ ابتدا مقادیر ویژگی را کامل کنید.", "bg-danger");
+            return;
+        }
+        if (_rows.Any(r => r.Price <= 0))
+        {
+            await ShowToast("⚠ قیمت تمام ردیف‌ها باید بزرگ‌تر از صفر باشد.", "bg-warning text-dark");
+            return;
+        }
+
+        try
+        {
+            isSubmitting = true;
+
+            int addedCount = 0;
+            int updatedCount = 0;
+            int archivedCount = 0;
+
+            // ۱) آرشیو کردن واریانت‌های حذف‌شده از ترکیب
+            foreach (var arch in _toArchive)
+            {
+                _ProductVariantService.updateProductVariant = new UpdateProductVariant
+                {
+                    ID = arch.Id,
+                    IsArchived = true,
+                    Price = arch.Price,
+                    Stock = arch.Stock
+                };
+                await _ProductVariantService.UpdateAsync();
+                archivedCount++;
+            }
+
+            // ۲) ایجاد واریانت‌های جدید
+            foreach (var r in _rows.Where(r => !r.ExistsInDb))
+            {
+                _ProductVariantService.addProductVariant = new AddProductVariant
+                {
+                    ProductID = _model!.ID,
+                    Signature = r.Signature,
+                    SkuCode = r.SkuPreview!,
+                    Price = r.Price,
+                    Stock = r.Stock,
+                    IsArchived = false
+                };
+                await _ProductVariantService.AddAsync();
+                addedCount++;
+            }
+
+            // ۳) به‌روزرسانی واریانت‌های موجود (بازفعال‌سازی یا تغییر قیمت/موجودی)
+            foreach (var r in _rows.Where(r => r.ExistsInDb))
+            {
+                if (r.WasArchived || r.PriceTouched || r.StockTouched)
+                {
+                    _ProductVariantService.updateProductVariant = new UpdateProductVariant
+                    {
+                        ID = r.VariantId!.Value,
+                        IsArchived = false,
+                        Price = r.Price,
+                        Stock = r.Stock
+                    };
+                    await _ProductVariantService.UpdateAsync();
+                    updatedCount++;
+                }
+            }
+
+            await ShowToast($"✅ ذخیره موفق — جدید: {addedCount} | به‌روزرسانی: {updatedCount} | آرشیو: {archivedCount}", "bg-success");
+
+            // بازخوانی کامل داده‌ها بعد از ذخیره
+            await OnInitializedAsync();
+        }
+        catch (Exception ex)
+        {
+            await ShowToast($"⛔ خطا در ذخیره ماتریس: {ex.Message}", "bg-danger");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task ShowToast(string msg, string bgClass)
+    {
+        _toast = msg;
+        _toastBg = bgClass;
+        StateHasChanged();
+        await Task.Delay(4000);
+        _toast = "";
+        StateHasChanged();
+    }
+
+    // ───────── کلاس‌های کمکی درون‌کامپوننتی ─────────
+    public class VariantRowDto
+    {
+        public string Signature { get; set; } = "";
+        public int? VariantId { get; set; }
+        public string? DbSku { get; set; }
+        public bool ExistsInDb { get; set; }
+        public bool WasArchived { get; set; }
+        public string Status { get; set; } = "موجود";
+        public List<ResultTraitValue> Chips { get; set; } = new();
+        public string? SkuPreview { get; set; }
+        public long Price { get; set; }
+        public int Stock { get; set; }
+        public bool PriceTouched { get; set; }
+        public bool StockTouched { get; set; }
+    }
+
+    public class ExistingVariantDto
+    {
+        public int Id { get; set; }
+        public string? Signature { get; set; }
+        public string? SkuCode { get; set; }
+        public long Price { get; set; }
+        public int Stock { get; set; }
+        public bool IsArchived { get; set; }
+    }
+   
+
 }

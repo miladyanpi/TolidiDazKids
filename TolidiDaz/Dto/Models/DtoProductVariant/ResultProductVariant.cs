@@ -11,12 +11,22 @@ namespace  Dto.Models.DtoProductVariant
         public int ID { get; set; }
         [DisplayName("محصول")]
         public int? ProductID { get; set; }
-        [DisplayName("کد")]
+        [DisplayName("کد انبار SKU")]
         public string? SkuCode { get; set; }
+        [DisplayName("امضا")]
+        public string? Signature { get; set; }
         [DisplayName("هزینه")]
         public Int64 Price { get; set; }
-        [DisplayName("تعداد محصول")]
-        public int Count { get; set; }
+        [DisplayName("موجودی محصول")]
+        public int Stock { get; set; }
+        [DisplayName("مبلغ تخفیف")]//null = این کالا حراج نیست
+        public Int64? SalePrice { get; set; }
+        [DisplayName("تاریخ شروع تخفیف")]
+        public DateTime? SaleStartsDate { get; set; }
+        [DisplayName("تاریخ پایان تخفیف")]
+        public DateTime? SaleEndsDate { get; set; }
+        [DisplayName("بایگانی")]
+        public bool IsArchived { get; set; }
         public ResultProduct? ResultProduct { get; set; }
     }
 }

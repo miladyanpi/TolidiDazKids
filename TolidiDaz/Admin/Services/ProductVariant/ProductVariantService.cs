@@ -27,8 +27,9 @@ namespace Admin.Services.ProductVariant
         public UpdateProductVariant? updateProductVariant { get; set; } = new();
         public AddProductVariant? addProductVariant { get; set; } = new();
         public ResultProductVariant resultProductVariant { get; set; } = new();
-        public List<ResultProductVariant>? ResultProductVariants= new List<ResultProductVariant>();
-        public async Task GetDataAsync(string? SearchText = "")
+         public   List<ResultProductVariant>? ResultProductVariants = new List<ResultProductVariant>();
+
+        public async Task<List<ResultProductVariant>> GetDataAsync(string? SearchText = "")
         {
             try
             {
@@ -50,12 +51,14 @@ namespace Admin.Services.ProductVariant
                     ShowConfirmButton = true,
                 });
             }
+            return ResultProductVariants;
         }
-        public async Task GetAllDataAsync(string? SearchText = "")
+        public async Task<List<ResultProductVariant>> GetAllDataAsync(string? ProductGuid)
         {
+
             try
             {
-                var resdata = await _RootApiResultProductVariants.RunMethodApi($"ProductVariants/All", null, method: Method.Get);
+                var resdata = await _RootApiResultProductVariants.RunMethodApi($"ProductVariants/All?ProductGuid={ProductGuid}", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
                     ResultProductVariants = resdata.Entities.ToList();
@@ -72,6 +75,7 @@ namespace Admin.Services.ProductVariant
                     ShowConfirmButton = true,
                 });
             }
+            return ResultProductVariants;
         }
         public async Task DeleteAsync(int ID)
         {

@@ -243,7 +243,7 @@ namespace PublicTolidiAyhan.Controllers
             {
                 foreach (var item in CartItems)
                 {
-                    item.Product.Count += item.Quantity;
+                    item.Product.BaseStock += item.Quantity;
                     await _ProductService.UpdateAsync(item.Product);
                 }
                 var message = PaymentSepStatuseResponse.GetMessagePaymentSepStatuseResponse(
@@ -397,7 +397,7 @@ namespace PublicTolidiAyhan.Controllers
                 OrderID = order.ID,
                 Visible = true,
                 ProductID = item.ProductID,
-                PriceAtOrder = item.Product == null ? 0 : item.Product.Price,
+                PriceAtOrder = item.Product == null ? 0 : (item.Product.BasePrice??0),
                 Quantity = item.Quantity,
                 RegisterDate = date,
                 EditDate = date,

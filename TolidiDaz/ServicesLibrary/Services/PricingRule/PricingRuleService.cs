@@ -46,7 +46,7 @@ namespace ServicesLibrary.Services.PricingRuleSrv
 
             // 3️⃣ تعداد خرید
             if(rules == null)
-                    return product.Price;
+                    return product.BasePrice??0;
             var ResulrRuls1 = rules
                 .Where(r =>
                     r.RuleType2 == (int)RuleType.Quantity &&
@@ -68,7 +68,7 @@ namespace ServicesLibrary.Services.PricingRuleSrv
             //    return rule.Price;
             //// 5️⃣ قیمت پایه
             Notify();
-            return product.Price;
+            return product.BasePrice??0;
         }
         public List<(Int64 Price, string Message)> GetAllPrice(ResultProduct product,int ProductCountInCount, List<string> Roles, bool isLogged)
         {

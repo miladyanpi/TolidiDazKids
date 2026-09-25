@@ -181,11 +181,14 @@ namespace MappingProfile.DtoMappingConfigs
                 ));
 
             CreateMap<Product, ResultProduct>()
+                 .ForMember(des => des.PricingType, s => s.MapFrom(x => EnumConstant.GetTitlePricingType(x.PricingType)))
+                 .ForMember(des => des.PricingType2, s => s.MapFrom(x => x.PricingType))
                  .ForMember(des => des.ProductExistStatus, s => s.MapFrom(x => GetProductExistStatus(x.ProductExistStatus)))
                  .ForMember(des => des.ProductExistStatus2, s => s.MapFrom(x => (ProductExistStatus)x.ProductExistStatus))
                  .ForMember(des => des.ResultUploadFiles, s => s.MapFrom(x => GetResultUploadFiles(x.JsonPicture)))
                  .ForMember(des => des.RatingAverage, s => s.MapFrom(x => CalCulatorAverageRatingProductComment(x.ProductComments)))
                  .ForMember(des => des.ProductCommentCount, s => s.MapFrom(x => x.ProductComments != null ? x.ProductComments.Count() : 0))
+                 .ForMember(des => des.ResultProductVariants, s => s.MapFrom(x => x.ProductVariants))
                  .ForMember(des => des.ResultCategory, s => s.MapFrom(x => x.Category != null ? new ResultCategory
                  {
                      ID = x.Category.ID,
@@ -451,7 +454,7 @@ namespace MappingProfile.DtoMappingConfigs
                     ID = x.Product.ID,
                     Title = x.Product.Title,
                     Description = x.Product.Description,
-                    Price = x.Product.Price,
+                    BasePrice = x.Product.BasePrice,
                     IdentityCode = x.Product.IdentityCode,
                     ResultUploadFiles = GetResultUploadFiles(x.Product.JsonPicture),
                 } : new ResultProduct()))
@@ -483,9 +486,9 @@ namespace MappingProfile.DtoMappingConfigs
             CreateMap<Cart, ResultCart>()
                 .ForMember(des => des.CartStatus, s => s.MapFrom(x => GetCartStatus(x.CartStatus)))
                 .ForMember(des => des.CartStatus2, s => s.MapFrom(x => (CartStatus)x.CartStatus))
-                .ForMember(des => des.TotalAmount, s => s.MapFrom(x => x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Price * s.Quantity) : 0))
+                .ForMember(des => des.TotalAmount, s => s.MapFrom(x => x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.BasePrice * s.Quantity) : 0))
                 .ForMember(des => des.Discount, s => s.MapFrom(x => x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Discount * s.Quantity) : 0))
-                .ForMember(des => des.FinalAmount, s => s.MapFrom(x => x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.Price * s.Quantity) - x.CartItems.Sum(s => s.Product.Discount * s.Quantity) : 0))
+                .ForMember(des => des.FinalAmount, s => s.MapFrom(x => x.CartItems != null && x.CartItems.Count > 0 ? x.CartItems.Sum(s => s.Product.BasePrice * s.Quantity) - x.CartItems.Sum(s => s.Product.Discount * s.Quantity) : 0))
                 .ForMember(des => des.CountCartItems, s => s.MapFrom(x => x.CartItems != null ? x.CartItems.Count : 0))
                 .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
                 .ForMember(des => des.ResultCustomer, s => s.MapFrom(x => x.Customer != null ? new ResultCustomer
@@ -527,14 +530,14 @@ namespace MappingProfile.DtoMappingConfigs
 
             CreateMap<ResultCartItem, UpdateCartItem>();
             CreateMap<CartItem, ResultCartItem>()
-                .ForMember(des => des.TotalAmount, s => s.MapFrom(x => x.Product != null ? x.Product.Price * x.Quantity : 0))
+                .ForMember(des => des.TotalAmount, s => s.MapFrom(x => x.Product != null ? x.Product.BasePrice * x.Quantity : 0))
                 .ForMember(des => des.ResultJsonLables, s => s.MapFrom(x => x.JsonLableTexts != null ? JsonConvert.DeserializeObject<List<ResultJsonLable>>(x.JsonLableTexts) : new List<ResultJsonLable>()))
                 .ForMember(des => des.ResultProduct, s => s.MapFrom(x => x.Product != null ? new ResultProduct
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
                     Description = x.Product.Description,
-                    Price = x.Product.Price,
+                    BasePrice = x.Product.BasePrice,
                     Discount = x.Product.Discount,
                     ProductCode = x.Product.ProductCode,
                     IdentityCode = x.Product.IdentityCode,
@@ -1341,8 +1344,8 @@ namespace MappingProfile.DtoMappingConfigs
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
-                    Count = x.Product.Count,
-                    Price = x.Product.Price,
+                    BaseStock = x.Product.BaseStock??0,
+                    BasePrice = x.Product.BasePrice??0,
                     CategoryID = x.Product.CategoryID,
                     Visible = x.Product.Visible,
                     JsonPicture = x.Product.JsonPicture,
@@ -1353,7 +1356,6 @@ namespace MappingProfile.DtoMappingConfigs
                     ProductCode = x.Product.ProductCode,
                     ProductExistStatus = GetProductExistStatus(x.Product.ProductExistStatus),
                     ProductExistStatus2 = (ProductExistStatus)x.Product.ProductExistStatus,
-                    SkuCode = x.Product.SkuCode,
                     ResultUploadFiles = GetResultUploadFiles(x.Product.JsonPicture),
                     IdentityCode = x.Product.IdentityCode,
                     RegisterDate = DateFunctions.ConvertDateIntToString(x.Product.RegisterDate),
@@ -1418,8 +1420,8 @@ namespace MappingProfile.DtoMappingConfigs
               {
                   ID = x.Product.ID,
                   Title = x.Product.Title,
-                  Count = x.Product.Count,
-                  Price = x.Product.Price,
+                  BaseStock = x.Product.BaseStock??0,
+                  BasePrice = x.Product.BasePrice??0,
                   CategoryID = x.Product.CategoryID,
                   Visible = x.Product.Visible,
                   JsonPicture = x.Product.JsonPicture,
@@ -1430,7 +1432,6 @@ namespace MappingProfile.DtoMappingConfigs
                   ProductCode = x.Product.ProductCode,
                   ProductExistStatus = GetProductExistStatus(x.Product.ProductExistStatus),
                   ProductExistStatus2 = (ProductExistStatus)x.Product.ProductExistStatus,
-                  SkuCode = x.Product.SkuCode,
                   ResultUploadFiles = GetResultUploadFiles(x.Product.JsonPicture),
                   IdentityCode = x.Product.IdentityCode,
                   RegisterDate = DateFunctions.ConvertDateIntToString(x.Product.RegisterDate),
@@ -1462,8 +1463,8 @@ namespace MappingProfile.DtoMappingConfigs
                 {
                     ID = x.Product.ID,
                     Title = x.Product.Title,
-                    Count = x.Product.Count,
-                    Price = x.Product.Price,
+                    BaseStock = x.Product.BaseStock??0,
+                    BasePrice = x.Product.BasePrice??0,
                     CategoryID = x.Product.CategoryID,
                     Visible = x.Product.Visible,
                     JsonPicture = x.Product.JsonPicture,
@@ -1474,7 +1475,6 @@ namespace MappingProfile.DtoMappingConfigs
                     ProductCode = x.Product.ProductCode,
                     ProductExistStatus = GetProductExistStatus(x.Product.ProductExistStatus),
                     ProductExistStatus2 = (ProductExistStatus)x.Product.ProductExistStatus,
-                    SkuCode = x.Product.SkuCode,
                     ResultUploadFiles = GetResultUploadFiles(x.Product.JsonPicture),
                     IdentityCode = x.Product.IdentityCode,
                     RegisterDate = DateFunctions.ConvertDateIntToString(x.Product.RegisterDate),
@@ -1741,7 +1741,6 @@ namespace MappingProfile.DtoMappingConfigs
                   .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
             #endregion
-
             #region BlogComment
             CreateMap<AddBlogComment, BlogComment>()
                 .ForMember(des => des.RegisterTime, s => s.MapFrom(x => new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)))
@@ -1795,6 +1794,7 @@ namespace MappingProfile.DtoMappingConfigs
                 .ForMember(des => des.EditDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.EditDate)));
 
             CreateMap<Trait, ResultTrait>()
+                .ForMember(des => des.ResultTraitValues, s => s.MapFrom(x => x.TraitValues ))
                 .ForMember(des => des.DisplayType2, s => s.MapFrom(x => x.DisplayType))
                 .ForMember(des => des.DisplayType, s => s.MapFrom(x => EnumConstant.GetTitleTraitDisplayType(x.DisplayType)))
                 .ForMember(des => des.RegisterDate, s => s.MapFrom(x => DateFunctions.ConvertDateIntToString(x.RegisterDate)))

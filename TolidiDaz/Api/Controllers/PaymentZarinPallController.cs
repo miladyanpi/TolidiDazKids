@@ -309,7 +309,7 @@ namespace Api.Controllers
 
            
           
-            var Price = CartItems.Sum(s => s.Product.Price * s.Quantity);
+            var Price = CartItems.Sum(s => (s.Product.BasePrice??0) * s.Quantity);
             var maxOrderCode = await _OrderService.GetMaxAsync<long>(s => s.OrderCode);
 
             if(paymentMethod==PaymentMethod.ZarrinPalPaymentGateway)
@@ -370,7 +370,7 @@ namespace Api.Controllers
                 #region Order
                 Cart.CartStatus = (int)CartStatus.checked_out;
                 await _CartService.UpdateAsync(Cart);
-                var price = Cart.CartItems.Sum(s => s.Product.Price * s.Quantity);
+                var price = Cart.CartItems.Sum(s => (s.Product.BasePrice??0) * s.Quantity);
                 var order = new Order
                 {
                     CustomerID = Cart.CustomerID,
@@ -398,7 +398,7 @@ namespace Api.Controllers
                     OrderID = id,
                     Visible = true,
                     ProductID = item.ProductID,
-                    PriceAtOrder = item.Product.Price,
+                    PriceAtOrder = item.Product.BasePrice??0,
                     Quantity = item.Quantity,
                     RegisterDate = date,
                     EditDate = date,
@@ -500,7 +500,7 @@ namespace Api.Controllers
 
            
             
-            var Price = CartItems.Sum(s => s.Product.Price * s.Quantity);
+            var Price = CartItems.Sum(s => (s.Product.BasePrice??0) * s.Quantity);
             var client = _httpClientFactory.CreateClient();
 
             var url = "https://payment.zarinpal.com/pg/v4/payment/verify.json";
@@ -550,7 +550,7 @@ namespace Api.Controllers
 
             Cart.CartStatus = (int)CartStatus.checked_out;
             await _CartService.UpdateAsync(Cart);
-            var price = Cart.CartItems.Sum(s => s.Product.Price * s.Quantity);
+            var price = Cart.CartItems.Sum(s => (s.Product.BasePrice??0) * s.Quantity);
             var order = new Order
             {
                 CustomerID = Cart.CustomerID,
@@ -578,7 +578,7 @@ namespace Api.Controllers
                 OrderID = id,
                 Visible = true,
                 ProductID = item.ProductID,
-                PriceAtOrder = item.Product.Price,
+                PriceAtOrder = item.Product.BasePrice??0,
                 Quantity = item.Quantity,
                 RegisterDate = date,
                 EditDate = date,
