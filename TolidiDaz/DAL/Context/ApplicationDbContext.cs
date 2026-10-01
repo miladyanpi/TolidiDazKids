@@ -122,6 +122,11 @@ namespace DAL.Context
 
             builder.Entity<CategoryTrait>()
                 .HasIndex(x => new { x.CategoryID, x.TraitID }).IsUnique();
+
+            builder.Entity<ProductVariant>()
+            .HasIndex(v => v.SkuCode)
+            .IsUnique()
+            .HasFilter("[SkuCode] IS NOT NULL");
         }
         public override int SaveChanges()
         {

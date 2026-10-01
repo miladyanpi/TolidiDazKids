@@ -7,6 +7,7 @@ using Dto.Models.DtoProductVariant;
 using Dto.Models.ResponseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using ServicesLibrary.Services.ProductSrv;
 using ServicesLibrary.Services.ProductVariantSrv;
@@ -53,6 +54,36 @@ namespace Api.Controllers
                                                            message: ResultMessageApi.AddError));
         }
         [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPost("ProductVariants/AddRange")]
+        public async Task<IActionResult> AddRange([FromBody] List<AddProductVariantRow> models)
+        {
+            if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<AddProductVariantRow>
+                                                           (entities: new List<AddProductVariantRow>(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.AddError,
+                                                           countAllRecordTable:0));
+
+
+            var ProductVariants = _mapper.Map<List<ProductVariant>>(models);
+            var ids = await _ProductVariantService.AddRangeAsync(ProductVariants);
+
+            if (ids.Count() > 0)
+                return Ok(new ResponseApiEntities<AddProductVariantRow>
+                                                               (entities: models,
+                                                               statusCode: ResultMessageApi.SuccessCode,
+                                                               status: ResultMessageApi.Success,
+                                                               message: ResultMessageApi.AddOk,
+                                                              countAllRecordTable: ids.Count()));
+            else
+                return BadRequest(new ResponseApiEntities<AddProductVariantRow>
+                                                           (entities: new List<AddProductVariantRow>(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.AddError,
+                                                            countAllRecordTable: ids.Count()));
+        }
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
         [HttpPatch("ProductVariants")]
         public async Task<IActionResult> Update([FromBody] UpdateProductVariant model)
         {
@@ -77,6 +108,104 @@ namespace Api.Controllers
             else
                 return BadRequest(new ResponseApiEntity<UpdateProductVariant>
                                                            (entity: new UpdateProductVariant(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.UpdateError));
+        }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPatch("ProductVariants/JsonPatch/{ID}")]
+        public async Task<IActionResult> UpdateJsonPatch([FromBody]  JsonPatchDocument<AddProductVariantRow> model,int ID)
+        {
+            if (!ModelState.IsValid) return BadRequest(new ResponseApiEntity<AddProductVariantRow>
+                                                           (entity: new AddProductVariantRow(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.UpdateError));
+
+            var q = await _ProductVariantService.GetByIdAsync(ID);
+            if (q == null)
+                return BadRequest(new ResponseApiEntity<AddProductVariantRow>
+                                                           (entity: new AddProductVariantRow(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.UpdateError));
+
+            var ProductVariant = _mapper.Map<AddProductVariantRow>(q);
+            model.ApplyTo(ProductVariant);
+            _mapper.Map(ProductVariant, q);
+            var upd = await _ProductVariantService.UpdateAsync(q);
+            if (upd > 0)
+            {
+                return Ok(new ResponseApiEntity<AddProductVariantRow>
+                                                             (entity: new AddProductVariantRow(),
+                                                             statusCode: ResultMessageApi.SuccessCode,
+                                                             status: ResultMessageApi.Success,
+                                                             message: ResultMessageApi.UpdateOk));
+            }
+
+            else
+                return BadRequest(new ResponseApiEntity<AddProductVariantRow>
+                                                           (entity: new AddProductVariantRow(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.UpdateError));
+        }
+
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPatch("ProductVariants/UpdateRange")]
+        public async Task<IActionResult> UpdateRange([FromBody] List<UpdateProductVariant> models)
+        {
+            if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<UpdateProductVariant>
+                                                           (entities: new List<UpdateProductVariant>(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.UpdateError));
+
+
+            var ProductVariants = _mapper.Map<List<ProductVariant>>(models);
+            var c = await _ProductVariantService.UpdateRangeAsync(ProductVariants);
+            if (c > 0)
+            {
+                return Ok(new ResponseApiEntities<UpdateProductVariant>
+                                                             (entities:new List<UpdateProductVariant>(),
+                                                             statusCode: ResultMessageApi.SuccessCode,
+                                                             status: ResultMessageApi.Success,
+                                                             message: ResultMessageApi.UpdateOk));
+            }
+
+            else
+                return BadRequest(new ResponseApiEntities<UpdateProductVariant>
+                                                           (entities: new List<UpdateProductVariant>(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.UpdateError));
+        }
+        [Authorize(Roles = ConstantRoles.SuperAdminName + "," + ConstantRoles.AdminName)]
+        [HttpPatch("ProductVariants/UpdateRange2")]
+        public async Task<IActionResult> UpdateRange2([FromBody] List<AddProductVariantRow> models)
+        {
+            if (!ModelState.IsValid) return BadRequest(new ResponseApiEntities<AddProductVariantRow>
+                                                           (entities: new List<AddProductVariantRow>(),
+                                                           statusCode: ResultMessageApi.ErrorCode,
+                                                           status: ResultMessageApi.Error,
+                                                           message: ResultMessageApi.UpdateError));
+
+
+            var ProductVariants = _mapper.Map<List<ProductVariant>>(models);
+            var c = await _ProductVariantService.UpdateRangeAsync(ProductVariants);
+            if (c > 0)
+            {
+                return Ok(new ResponseApiEntities<AddProductVariantRow>
+                                                             (entities: new List<AddProductVariantRow>(),
+                                                             statusCode: ResultMessageApi.SuccessCode,
+                                                             status: ResultMessageApi.Success,
+                                                             message: ResultMessageApi.UpdateOk));
+            }
+
+            else
+                return BadRequest(new ResponseApiEntities<AddProductVariantRow>
+                                                           (entities: new List<AddProductVariantRow>(),
                                                            statusCode: ResultMessageApi.ErrorCode,
                                                            status: ResultMessageApi.Error,
                                                            message: ResultMessageApi.UpdateError));

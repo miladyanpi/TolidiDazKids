@@ -5,6 +5,7 @@ using Dto.DtoPaginagion;
 using Dto.Enum;
 using Dto.Models;
 using Dto.Models.Constant;
+using Dto.Models.DtoJsonPatch;
 using Dto.Models.DtoProductVariant;
 using Dto.Models.DtoProvince;
 using Dto.Models.ResponseApi;
@@ -16,9 +17,13 @@ namespace Admin.Services.ProductVariant
 
     public class ProductVariantService(
         IRootApi<ResponseApiEntities<ResultProductVariant>> _RootApiResultProductVariants,
+        IRootApi<ResponseApiEntities<UpdateProductVariant>> _RootApiUpdateProductVariants,
         IRootApi<ResponseApiEntity<ResultProductVariant>> RootApiResultProductVariant,
         IRootApi<ResponseApiEntity<AddProductVariant>> RootApiAddProductVariant,
+        IRootApi<ResponseApiEntities<AddProductVariant>> RootApiAddProductVariants,
+        IRootApi<ResponseApiEntities<AddProductVariantRow>> RootApiAddProductVariantRows,
         IRootApi<ResponseApiEntity<UpdateProductVariant>> RootApiUpdateProductVariant,
+        IRootApi<ResponseApiEntities<UpdateProductVariant>> RootApiUpdateProductVariants,
         IRootApi<ResponseApiEntities<ResultProvince>> RootApiResultProvinces,
         IJSRuntime JS,
         SweetAlertService Swal
@@ -27,8 +32,8 @@ namespace Admin.Services.ProductVariant
         public UpdateProductVariant? updateProductVariant { get; set; } = new();
         public AddProductVariant? addProductVariant { get; set; } = new();
         public ResultProductVariant resultProductVariant { get; set; } = new();
-         public   List<ResultProductVariant>? ResultProductVariants = new List<ResultProductVariant>();
-
+        public   List<ResultProductVariant>? ResultProductVariants = new List<ResultProductVariant>();
+        public   List<UpdateProductVariant>? UpdateProductVariants = new List<UpdateProductVariant>();
         public async Task<List<ResultProductVariant>> GetDataAsync(string? SearchText = "")
         {
             try
@@ -43,25 +48,25 @@ namespace Admin.Services.ProductVariant
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "پیام",
-                    Text = ex.ToString(),
-                    Icon = ResultMessageApi.Error,
-                    ShowConfirmButton = true,
-                });
+                //await Swal.FireAsync(new SweetAlertOptions
+                //{
+                //    Title = "پیام",
+                //    Text = ex.ToString(),
+                //    Icon = ResultMessageApi.Error,
+                //    ShowConfirmButton = true,
+                //});
             }
             return ResultProductVariants;
         }
-        public async Task<List<ResultProductVariant>> GetAllDataAsync(string? ProductGuid)
+        public async Task<List<UpdateProductVariant>> GetAllDataAsync(string? ProductGuid)
         {
 
             try
             {
-                var resdata = await _RootApiResultProductVariants.RunMethodApi($"ProductVariants/All?ProductGuid={ProductGuid}", null, method: Method.Get);
+                var resdata = await _RootApiUpdateProductVariants.RunMethodApi($"ProductVariants/All?ProductGuid={ProductGuid}", null, method: Method.Get);
                 if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    ResultProductVariants = resdata.Entities.ToList();
+                    UpdateProductVariants = resdata.Entities.ToList();
                     NotifyStateChanged();
                 }
             }
@@ -75,7 +80,7 @@ namespace Admin.Services.ProductVariant
                     ShowConfirmButton = true,
                 });
             }
-            return ResultProductVariants;
+            return UpdateProductVariants;
         }
         public async Task DeleteAsync(int ID)
         {
@@ -140,36 +145,78 @@ namespace Admin.Services.ProductVariant
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
                     addProductVariant = new();
                 }
-                else if (resdata != null && resdata.Status == ResultMessageApi.Error)
-                {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "پیام",
-                        Text = resdata.Message,
-                        Icon = resdata.Status,
-                        ShowConfirmButton = true,
-                    });
-                }
-                else
-                {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "پیام",
-                        Text = ResultMessageApi.ErrorDisconnectApi,
-                        Icon = ResultMessageApi.Error,
-                        ShowConfirmButton = true,
-                    });
-                }
+                //else if (resdata != null && resdata.Status == ResultMessageApi.Error)
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = resdata.Message,
+                //        Icon = resdata.Status,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+                //else
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = ResultMessageApi.ErrorDisconnectApi,
+                //        Icon = ResultMessageApi.Error,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
+                //await Swal.FireAsync(new SweetAlertOptions
+                //{
+                //    Title = "پیام",
+                //    Text = ex.ToString(),
+                //    Icon = ResultMessageApi.Error,
+                //    ShowConfirmButton = true,
+                //});
+            }
+        }
+        public async Task AddRangeAsync(List<AddProductVariantRow> AddProductVariantRows)
+        {
+            try
+            {
+                var resdata = await RootApiAddProductVariants.RunMethodApi("ProductVariants/Addrange", AddProductVariantRows, method: Method.Post);
+                if (resdata != null && resdata.Status == ResultMessageApi.Success)
                 {
-                    Title = "پیام",
-                    Text = ex.ToString(),
-                    Icon = ResultMessageApi.Error,
-                    ShowConfirmButton = true,
-                });
+                    await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdata.Message, resdata.Status);
+                    addProductVariant = new();
+                }
+                //else if (resdata != null && resdata.Status == ResultMessageApi.Error)
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = resdata.Message,
+                //        Icon = resdata.Status,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+                //else
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = ResultMessageApi.ErrorDisconnectApi,
+                //        Icon = ResultMessageApi.Error,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+            }
+            catch (Exception ex)
+            {
+                //await Swal.FireAsync(new SweetAlertOptions
+                //{
+                //    Title = "پیام",
+                //    Text = ex.ToString(),
+                //    Icon = ResultMessageApi.Error,
+                //    ShowConfirmButton = true,
+                //});
             }
         }
         public async Task UpdateAsync()
@@ -181,36 +228,118 @@ namespace Admin.Services.ProductVariant
                 {
                     await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
                 }
-                else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
-                {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "پیام",
-                        Text = resdataEdit.Message,
-                        Icon = resdataEdit.Status,
-                        ShowConfirmButton = true,
-                    });
-                }
-                else
-                {
-                    var result2 = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "پیام",
-                        Text = ResultMessageApi.ErrorDisconnectApi,
-                        Icon = ResultMessageApi.Error,
-                        ShowConfirmButton = true,
-                    });
-                }
+                //else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = resdataEdit.Message,
+                //        Icon = resdataEdit.Status,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+                //else
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = ResultMessageApi.ErrorDisconnectApi,
+                //        Icon = ResultMessageApi.Error,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
+                //await Swal.FireAsync(new SweetAlertOptions
+                //{
+                //    Title = "پیام",
+                //    Text = ex.ToString(),
+                //    Icon = ResultMessageApi.Error,
+                //    ShowConfirmButton = true,
+                //});
+            }
+        }
+        public async Task UpdateRangeAsync(List<UpdateProductVariant> UpdateProductVariants)
+        {
+            try
+            {
+                var resdataEdit = await RootApiUpdateProductVariant.RunMethodApi("ProductVariants/UpdateRange", UpdateProductVariants, method: Method.Patch);
+                if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    Title = "پیام",
-                    Text = ex.ToString(),
-                    Icon = ResultMessageApi.Error,
-                    ShowConfirmButton = true,
-                });
+                    await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
+                }
+                //else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = resdataEdit.Message,
+                //        Icon = resdataEdit.Status,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+                //else
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = ResultMessageApi.ErrorDisconnectApi,
+                //        Icon = ResultMessageApi.Error,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+            }
+            catch (Exception ex)
+            {
+                //await Swal.FireAsync(new SweetAlertOptions
+                //{
+                //    Title = "پیام",
+                //    Text = ex.ToString(),
+                //    Icon = ResultMessageApi.Error,
+                //    ShowConfirmButton = true,
+                //});
+            }
+        }
+        public async Task UpdateRangeAsync2(List<AddProductVariantRow> AddProductVariantRows)
+        {
+            try
+            {
+                var resdataEdit = await RootApiAddProductVariantRows.RunMethodApi("ProductVariants/UpdateRange2", AddProductVariantRows, method: Method.Patch);
+                if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
+                {
+                    await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
+                }
+                //else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = resdataEdit.Message,
+                //        Icon = resdataEdit.Status,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+                //else
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = ResultMessageApi.ErrorDisconnectApi,
+                //        Icon = ResultMessageApi.Error,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+            }
+            catch (Exception ex)
+            {
+                //await Swal.FireAsync(new SweetAlertOptions
+                //{
+                //    Title = "پیام",
+                //    Text = ex.ToString(),
+                //    Icon = ResultMessageApi.Error,
+                //    ShowConfirmButton = true,
+                //});
             }
         }
         public async Task GetUpdateDataAsync(string guid)
@@ -226,13 +355,64 @@ namespace Admin.Services.ProductVariant
             }
             catch (Exception ex)
             {
-                await Swal.FireAsync(new SweetAlertOptions
+                //await Swal.FireAsync(new SweetAlertOptions
+                //{
+                //    Title = "پیام",
+                //    Text = ex.ToString(),
+                //    Icon = ResultMessageApi.Error,
+                //    ShowConfirmButton = true,
+                //});
+            }
+        }
+
+        public async Task UpdateSetIsArchive(bool IsArchive,int ID)
+        {
+            var body = new List<JsonPatch>();
+            var IsArchiveModel = new JsonPatch
+            {
+                op = "replace",
+                path = nameof(AddProductVariantRow.IsArchived),
+                value= IsArchive,
+            };
+            body.Add(IsArchiveModel);
+
+            try
+            {
+                var resdataEdit = await RootApiAddProductVariantRows.RunMethodApi($"ProductVariants/JsonPatch/{ID}", body, method: Method.Patch);
+                if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Success)
                 {
-                    Title = "پیام",
-                    Text = ex.ToString(),
-                    Icon = ResultMessageApi.Error,
-                    ShowConfirmButton = true,
-                });
+                    await JS.InvokeVoidAsync(ToastConstant.FunctionJavasScriptName, resdataEdit.Message, resdataEdit.Status);
+                }
+                //else if (resdataEdit != null && resdataEdit.Status == ResultMessageApi.Error)
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = resdataEdit.Message,
+                //        Icon = resdataEdit.Status,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+                //else
+                //{
+                //    var result2 = await Swal.FireAsync(new SweetAlertOptions
+                //    {
+                //        Title = "پیام",
+                //        Text = ResultMessageApi.ErrorDisconnectApi,
+                //        Icon = ResultMessageApi.Error,
+                //        ShowConfirmButton = true,
+                //    });
+                //}
+            }
+            catch (Exception ex)
+            {
+                //await Swal.FireAsync(new SweetAlertOptions
+                //{
+                //    Title = "پیام",
+                //    Text = ex.ToString(),
+                //    Icon = ResultMessageApi.Error,
+                //    ShowConfirmButton = true,
+                //});
             }
         }
     }

@@ -10,12 +10,14 @@ namespace Domain.Mapping
             builder.HasOne(x => x.ProductVariant)
            .WithMany(x => x.ProductVariantValues)
            .HasForeignKey(x => x.ProductVariantID)
-           .OnDelete(DeleteBehavior.Restrict);
+           .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(x => x.TraitValue)
            .WithMany(x => x.ProductVariantValues)
            .HasForeignKey(x => x.TraitValueID)
            .OnDelete(DeleteBehavior.Restrict);
+
+      
         }
 
     }

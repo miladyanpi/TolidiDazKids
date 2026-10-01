@@ -12,6 +12,7 @@ namespace Domain
     //  504	   100	         SET-A1115-CREAM-XL	     950,000	       8
     /// </summary>
     [Index(nameof(SkuCode), IsUnique = true)]
+    [Index(nameof(ProductID), nameof(Signature), IsUnique = true)]
     public class ProductVariant:Base
     {
         public int ProductID { get; set; }

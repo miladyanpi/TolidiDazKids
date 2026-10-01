@@ -11,6 +11,8 @@ namespace Domain.Mapping
            .WithMany(x => x.ProductVariants)
            .HasForeignKey(x => x.ProductID)
            .OnDelete(DeleteBehavior.Restrict);
+
+        
         }
 
     }

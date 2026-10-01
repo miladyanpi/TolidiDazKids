@@ -1,89 +1,844 @@
+/* ═══════════════ متغیرها — روی ریشه‌ی کامپوننت، نه :root ═══════════════
+   در فایل‌های .razor.css بلازور :root را scope می‌کند و متغیرها از دست می‌روند.
+   .vp-page و .vp-toast-host توسط کامپوننت رندر می‌شوند و اسکوپ می‌گیرند.
+   :root را هم نگه می‌داریم تا اگر روزی این فایل را سراسری کردید، باز هم کار کند. */
+:root,
+.vp-page,
+.vp-toast-host {
+    --vp-primary: #0d6efd;
+    --vp-primary-rgb: 13, 110, 253;
+    --vp-secondary: #6c757d;
+    --vp-success: #198754;
+    --vp-danger: #dc3545;
+    --vp-warning: #ffc107;
+    --vp-info: #0dcaf0;
+    --vp-ink: #1f2937;
+    --vp-muted: #6b7280;
+    --vp-border: #e9ecef;
+    --vp-surface: #ffffff;
+    --vp-surface-alt: #f8f9fa;
+    --vp-radius: .65rem;
+    --vp-shadow-sm: 0 1px 3px rgba(16,24,40,.07), 0 1px 2px rgba(16,24,40,.05);
+    --vp-shadow: 0 10px 22px -8px rgba(16,24,40,.14);
+    --vp-font-mono: SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.vp-page, .vp-page *, .vp-toast-host, .vp-toast-host * {
+    box-sizing: border-box;
+}
 
-.chip-wrap {
+/* ═══════════════ صفحه ═══════════════ */
+.vp-page {
+    direction: rtl;
+    width: 100%;
+    margin-inline: auto;
+    padding: 1rem .75rem 3rem;
+    overflow-x: auto;
+    font-size: .95rem;
+    color: var(--vp-ink);
+}
+
+/* ═══════════════ هدر ═══════════════ */
+.vp-header {
+    margin-bottom: 1.5rem;
+}
+
+    .vp-header h2 {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        margin: 0 0 .35rem;
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+.vp-icon-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    flex-shrink: 0;
+    border-radius: .8rem;
+    background: linear-gradient(135deg, #e7f1ff, #d2e5ff);
+    color: var(--vp-primary);
+    font-size: 1.1rem;
+    box-shadow: var(--vp-shadow-sm);
+}
+
+.vp-subtitle {
+    margin: .5rem 0 0;
+    color: #374151;
+}
+
+/* ═══════════════ بج‌ها ═══════════════ */
+.vp-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .4em .7em;
+    font-size: .75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: .45rem;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+    .vp-badge + .vp-badge {
+        margin-inline-start: .35rem;
+    }
+
+.vp-badge-primary {
+    background: var(--vp-primary);
+    color: #fff;
+}
+
+.vp-badge-secondary {
+    background: var(--vp-secondary);
+    color: #fff;
+}
+
+.vp-badge-success {
+    background: var(--vp-success);
+    color: #fff;
+}
+
+.vp-badge-danger {
+    background: var(--vp-danger);
+    color: #fff;
+}
+
+.vp-badge-info {
+    background: var(--vp-info);
+    color: #000;
+}
+
+.vp-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* ═══════════════ هشدارها ═══════════════ */
+.vp-alert {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid transparent;
+    border-radius: var(--vp-radius);
+    box-shadow: var(--vp-shadow-sm);
+    line-height: 1.8;
+}
+
+.vp-alert-danger {
+    background: #f8d7da;
+    border-color: #f5c2c7;
+    color: #842029;
+}
+
+.vp-alert-warning {
+    background: #fff3cd;
+    border-color: #ffecb5;
+    color: #664d03;
+}
+
+.vp-alert ul {
+    margin: .5rem 0 0;
+    padding-inline-start: 1.25rem;
+}
+
+.vp-alert code {
+    font-family: var(--vp-font-mono);
+    font-size: .85em;
+    background: rgba(0,0,0,.06);
+    padding: .15rem .4rem;
+    border-radius: .3rem;
+}
+
+/* ═══════════════ کارت ═══════════════ */
+.vp-card {
+    background: var(--vp-surface);
+    border: 1px solid rgba(0,0,0,.04);
+    border-radius: var(--vp-radius);
+    box-shadow: var(--vp-shadow-sm);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.vp-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid var(--vp-border);
+}
+
+    .vp-card-header strong {
+        color: #111827;
+    }
+
+    .vp-card-header i {
+        color: var(--vp-primary);
+        margin-inline-end: .35rem;
+    }
+
+.vp-card-body {
+    padding: 1.25rem;
+}
+
+.vp-card-note {
+    font-size: .75rem;
+    color: var(--vp-muted);
+}
+
+.vp-card-empty {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--vp-muted);
+}
+
+/* ═══════════════ ردیف ویژگی (گام ۱) ═══════════════ */
+.vp-trait-row {
+    background: var(--vp-surface-alt);
+    border: 1px solid var(--vp-border);
+    border-radius: var(--vp-radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+    .vp-trait-row:last-child {
+        margin-bottom: 0;
+    }
+
+.vp-trait-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: .75rem;
+}
+
+.vp-trait-title {
+    color: #111827;
+}
+
+/* ═══════════════ دکمه‌ها ═══════════════ */
+.vp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    font-family: inherit;
+    font-size: .875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    padding: .4rem .85rem;
+    border: 1px solid transparent;
+    border-radius: .45rem;
+    background: transparent;
+    color: var(--vp-ink);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s ease;
+}
+
+    .vp-btn:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 .2rem rgba(var(--vp-primary-rgb),.25);
+    }
+
+    .vp-btn:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+.vp-btn-xs {
+    padding: .2rem .55rem;
+    font-size: .75rem;
+    border-radius: .35rem;
+}
+
+.vp-btn-outline-primary {
+    color: var(--vp-primary);
+    border-color: var(--vp-primary);
+    background: #fff;
+}
+
+    .vp-btn-outline-primary:hover:not(:disabled) {
+        color: #fff;
+        background: var(--vp-primary);
+    }
+
+.vp-btn-outline-secondary {
+    color: var(--vp-secondary);
+    border-color: var(--vp-secondary);
+    background: #fff;
+}
+
+    .vp-btn-outline-secondary:hover:not(:disabled) {
+        color: #fff;
+        background: var(--vp-secondary);
+    }
+
+.vp-btn-group {
+    display: inline-flex;
+}
+
+    .vp-btn-group > .vp-btn:not(:first-child) {
+        margin-inline-start: -1px;
+    }
+
+    .vp-btn-group > .vp-btn:first-child {
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+    }
+
+    .vp-btn-group > .vp-btn:last-child {
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+    }
+
+    /* هاور سبز — با اولویت کامل تا روی outline-primary هم اعمال شود */
+    .vp-btn-group > .vp-btn:hover:not(:disabled) {
+        position: relative;
+        z-index: 2;
+        background-color: #d6f9df !important;
+        border-color: #a7f3d0 !important;
+        color: #064e3b !important;
+    }
+
+/* ═══════════════ چیپ‌های انتخاب مقدار — نسخه مقاوم ═══════════════ */
+.vp-chip-wrap {
     display: flex;
     flex-wrap: wrap;
     gap: .5rem;
 }
 
-.chip {
+label.vp-chip {
     display: inline-flex;
     align-items: center;
     gap: .4rem;
-    padding: .45rem .8rem;
-    border: 1px solid #d1d5db;
-    border-radius: 2rem;
+    padding: .45rem .75rem;
+    background-color: #fff;
+    border: 1px solid var(--vp-border);
+    border-radius: .55rem;
+    font-size: .85rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--vp-ink);
     cursor: pointer;
-    background: #fff;
-    transition: .15s;
     user-select: none;
+    margin: 0;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
 }
 
-    .chip:hover {
-        border-color: #6366f1;
+    label.vp-chip:hover {
+        border-color: rgba(var(--vp-primary-rgb), .6);
+        box-shadow: 0 0 0 3px rgba(var(--vp-primary-rgb), .12);
     }
 
-.chip-on {
-    background: #eef2ff;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 1px #6366f1;
+    /* ─── حالت انتخاب‌شده ───
+       هم با کلاس Blazor و هم با :has() کنترل می‌شود تا حتی اگر کلاس
+       اعمال نشد، رنگ با وضعیت چک‌باکس سینک بماند.
+       !important برای غلبه بر قوانین قالب ادمین (مثل .card-body label) است. */
+    label.vp-chip.vp-chip--selected,
+    label.vp-chip:has(input[type="checkbox"]:checked) {
+        background-color: var(--vp-primary) !important;
+        border-color: var(--vp-primary) !important;
+        color: #fff !important;
+    }
+
+        label.vp-chip.vp-chip--selected:hover,
+        label.vp-chip:has(input[type="checkbox"]:checked):hover {
+            background-color: #0b5ed7 !important;
+            border-color: #0b5ed7 !important;
+        }
+
+/* ─── چک‌باکس کاملاً دست‌ساز ───
+       appearance:none یعنی هیچ CSS سراسری (Tailwind Preflight / قالب)
+       نمی‌تواند شکلش را تغییر دهد؛ تیک را خودمان با SVG رسم می‌کنیم. */
+.vp-chip input[type="checkbox"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    width: 1.05rem !important;
+    height: 1.05rem !important;
+    min-width: 1.05rem;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1.5px solid #b6c2d2 !important;
+    border-radius: .32rem !important;
+    background-color: #fff !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 100% 100% !important;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color .15s, border-color .15s, box-shadow .15s;
 }
 
-.chip-warn {
-    border-color: #f59e0b;
-    background: #fffbeb;
+    .vp-chip input[type="checkbox"]:hover {
+        border-color: var(--vp-primary) !important;
+        box-shadow: 0 0 0 3px rgba(var(--vp-primary-rgb), .15);
+    }
+
+    .vp-chip input[type="checkbox"]:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 .2rem rgba(var(--vp-primary-rgb), .3);
+    }
+
+    .vp-chip input[type="checkbox"]:checked {
+        background-color: var(--vp-primary) !important;
+        border-color: var(--vp-primary) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+    }
+
+/* ─── داخل چیپ آبی: چک‌باکس سفید با تیک آبی ─── */
+label.vp-chip.vp-chip--selected input[type="checkbox"],
+label.vp-chip:has(input[type="checkbox"]:checked) input[type="checkbox"] {
+    background-color: #fff !important;
+    border-color: #fff !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%230d6efd' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
 }
 
-.chip-code {
-    font-size: .7rem;
-    color: #6b7280;
+/* ─── کد و آیکن هشدار داخل چیپ ─── */
+.vp-chip-code {
+    font-family: var(--vp-font-mono);
+    font-size: .72em;
+    color: var(--vp-muted);
+    background: rgba(0,0,0,.05);
+    padding: .05rem .35rem;
+    border-radius: .3rem;
+}
+
+label.vp-chip.vp-chip--selected .vp-chip-code,
+label.vp-chip:has(input[type="checkbox"]:checked) .vp-chip-code {
+    color: rgba(255,255,255,.85) !important;
+    background: rgba(255,255,255,.18);
+}
+
+.vp-chip-warn {
+    color: #b45309;
+    font-weight: 700;
+}
+
+label.vp-chip.vp-chip--selected .vp-chip-warn,
+label.vp-chip:has(input[type="checkbox"]:checked) .vp-chip-warn {
+    color: #fde047 !important;
 }
 
 .color-dot {
+    display: inline-block;
     width: 14px;
     height: 14px;
+    flex-shrink: 0;
     border-radius: 50%;
-    display: inline-block;
-    border: 1px solid rgba(0,0,0,.15);
+    border: 1px solid rgba(0,0,0,.2);
+    box-shadow: inset 0 0 2px rgba(0,0,0,.15);
 }
 
-#variantMatrix thead th {
-    position: sticky;
-    top: 0;
-    z-index: 5;
+/* ═══════════════ فرم (گام ۲) ═══════════════ */
+.vp-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
 }
 
-.row-new td {
-    background: #f0fdf4;
+.vp-field {
+    flex: 1 1 210px;
+    min-width: 200px;
+    max-width: 280px;
 }
 
-.row-restored td {
-    background: #ecfeff;
-}
-
-#toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: .8rem 1.4rem;
-    border-radius: .6rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: .3s;
-    z-index: 9999;
-}
-
-    #toast.show {
-        opacity: 1;
+    .vp-field label {
+        display: block;
+        margin-bottom: .4rem;
+        font-family: var(--vp-font-mono);
+        font-size: .82rem;
+        color: #374151;
     }
 
-.toast-success {
-    background: #16a34a;
-    color: #fff;
+.vp-input {
+    display: block;
+    width: 100%;
+    padding: .45rem .75rem;
+    font-family: inherit;
+    font-size: .9rem;
+    color: #111827;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: .45rem;
+    transition: border-color .15s, box-shadow .15s;
 }
 
-.toast-error {
-    background: #dc2626;
+    .vp-input:focus {
+        outline: 0;
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 .25rem rgba(var(--vp-primary-rgb),.25);
+    }
+
+/* ═══════════════ ماتریس (گام ۳) ═══════════════ */
+.vp-table-wrap {
+    overflow: auto;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--vp-radius);
+    box-shadow: var(--vp-shadow-sm);
+}
+
+.vp-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: right;
+}
+
+    .vp-table thead th {
+        background: #f9fafb;
+        padding: .85rem 1.1rem;
+        font-size: .72rem;
+        font-weight: 700;
+        color: #6b7280;
+        white-space: nowrap;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .vp-table tbody td {
+        padding: .85rem 1.1rem;
+        font-size: .875rem;
+        color: #111827;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+    }
+
+    .vp-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .vp-table tbody tr {
+        transition: background .15s;
+    }
+
+        .vp-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .vp-table tbody tr.vp-row-new {
+            background: #f0fdf6;
+        }
+
+            .vp-table tbody tr.vp-row-new:hover {
+                background: #e2f9ec;
+            }
+
+        .vp-table tbody tr.vp-row-reactive {
+            background: #f0f9ff;
+        }
+
+            .vp-table tbody tr.vp-row-reactive:hover {
+                background: #e0f2fe;
+            }
+
+.vp-col-index {
+    width: 56px;
+    color: #6b7280 !important;
+    font-weight: 600;
+}
+
+.vp-col-price {
+    width: 170px;
+}
+
+.vp-col-stock {
+    width: 130px;
+}
+
+.vp-col-status {
+    width: 110px;
+    text-align: center;
+}
+
+.vp-col-actions {
+    width: 95px;
+    text-align: left;
+}
+
+/* چیپ ترکیب داخل جدول */
+.vp-combo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem;
+}
+
+.vp-combo-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .28rem .6rem;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: .45rem;
+    font-size: .75rem;
+    font-weight: 500;
+    color: #1f2937;
+    white-space: nowrap;
+}
+
+.vp-combo-dot {
+    display: inline-block;
+    width: .7rem;
+    height: .7rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 1px solid #d1d5db;
+}
+
+/* SKU */
+.dir-ltr {
+    direction: ltr;
+    unicode-bidi: isolate;
+}
+
+.vp-sku {
+    display: inline-block;
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-family: var(--vp-font-mono);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    padding: .3rem .55rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: .4rem;
+    color: var(--vp-primary);
+}
+
+.vp-sku-missing {
+    display: inline-flex;
+    align-items: center;
+    font-size: .72rem;
+    font-weight: 600;
+    color: #e11d48;
+    background: #fff1f2;
+    padding: .3rem .55rem;
+    border-radius: .4rem;
+    white-space: nowrap;
+}
+
+/* اینپوت قیمت/موجودی داخل سلول‌ها */
+.vp-cell-input {
+    width: 100%;
+    padding: .42rem .65rem;
+    font-family: inherit;
+    font-size: .85rem;
+    color: #111827;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: .5rem;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+    .vp-cell-input:focus {
+        outline: 0;
+        border-color: var(--vp-primary);
+        box-shadow: 0 0 0 3px rgba(var(--vp-primary-rgb),.2);
+    }
+
+.vp-cell-input--existing {
+    border-color: var(--vp-primary);
+    box-shadow: 0 0 0 1px var(--vp-primary);
+}
+
+/* پیل وضعیت */
+.vp-status {
+    display: inline-flex;
+    align-items: center;
+    padding: .3rem .7rem;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.badgNew {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.badgReActive {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.badgExists {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.btn-archive {
+    background: none;
+    border: 0;
+    padding: .15rem .3rem;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: transform .15s, filter .15s;
+}
+
+    .btn-archive:hover {
+        transform: translateY(-1px);
+        filter: brightness(.95);
+    }
+
+    .btn-archive:focus-visible {
+        outline: 2px solid var(--vp-primary);
+        outline-offset: 2px;
+    }
+
+/* ═══════════════ دکمه‌های ذخیره / بازگشت ═══════════════ */
+.vp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    margin: 1.5rem 0 1rem;
+    justify-content:space-between;
+}
+
+.vp-btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    font-family: inherit;
+    font-size: .9rem;
+    font-weight: 600;
     color: #fff;
+    background: var(--vp-primary);
+    border: 0;
+    border-radius: .6rem;
+    padding: .65rem 1.6rem;
+    cursor: pointer;
+    box-shadow: var(--vp-shadow-sm);
+    transition: opacity .15s, transform .1s;
+}
+
+    .vp-btn-save:hover:not(:disabled) {
+        opacity: .9;
+    }
+
+    .vp-btn-save:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+    .vp-btn-save:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+
+.vp-btn-back {
+    display: inline-flex;
+    align-items: center;
+    font-family: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: #dc3545;
+    border: 0;
+    border-radius: .6rem;
+    padding: .65rem 1.6rem;
+    cursor: pointer;
+    box-shadow: var(--vp-shadow-sm);
+    transition: background .15s;
+}
+
+    .vp-btn-back:hover {
+        background: #f1626d;
+    }
+
+.vp-spinner {
+    width: 1rem;
+    height: 1rem;
+    animation: vp-spin .8s linear infinite;
+}
+
+    .vp-spinner .opacity-25 {
+        opacity: .25;
+    }
+
+    .vp-spinner .opacity-75 {
+        opacity: .75;
+    }
+
+@keyframes vp-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ═══════════════ توست ═══════════════ */
+.vp-toast-host {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1080;
+    direction: rtl;
+}
+
+.vp-toast {
+    min-width: 300px;
+    max-width: 380px;
+    padding: .9rem 1.15rem;
+    border-radius: .6rem;
+    color: #fff;
+    font-size: .9rem;
+    line-height: 1.7;
+    box-shadow: 0 .5rem 1.25rem rgba(0,0,0,.2);
+    animation: vp-toast-in .25s ease;
+}
+
+.vp-toast-success {
+    background: var(--vp-success);
+}
+
+.vp-toast-danger {
+    background: var(--vp-danger);
+}
+
+.vp-toast-warning {
+    background: var(--vp-warning);
+    color: #212529;
+}
+
+@keyframes vp-toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ═══════════════ ریسپانسیو ═══════════════ */
+@media (max-width: 768px) {
+    .vp-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .vp-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .vp-table thead th, .vp-table tbody td {
+        padding: .7rem .75rem;
+    }
 }
 

@@ -259,7 +259,7 @@ namespace Api.Controllers
 
 
         }
-
+        [NonAction]
         public async Task ClearOrderExpiredPayment(string JobId)
         {
             var orders = await _OrderService.GetAllAsync(s =>
