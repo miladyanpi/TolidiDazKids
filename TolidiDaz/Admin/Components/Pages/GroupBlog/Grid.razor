@@ -40,6 +40,8 @@
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             <CustomLabel For="@(() => _GroupBlogService.resultGroupBlog.Title)"></CustomLabel>
                         </th>
+                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                             <CustomLabel For="@(() => _GroupBlogService.resultGroupBlog.Visible)"></CustomLabel></th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider text-left">
                             عملیات
                         </th>
@@ -56,6 +58,7 @@
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@k</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@item.Title</td>
+                             <td class="px-6 py-4 whitespace-nowrap"> <Visible Value="@item.Visible" /> </td>
                             <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
                              
                                 <button @onclick="@(() => Edit(item.IdentityCode))" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ml-4">
