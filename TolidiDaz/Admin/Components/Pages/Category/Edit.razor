@@ -1,6 +1,5 @@
 ﻿@page "/UpdateCategory/{guid}"
 @using Admin.Services.Category
-
 @inject CategoryService _CategoryService
 
 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
@@ -38,20 +37,19 @@
                     <!-- Category Info -->
                     <div class="space-y-4">
                         <div>
-                            <CustomLabel ForId="category-name" For="@(() => _CategoryService.updateCategory.Title)"></CustomLabel>
+                            <CustomLabel  For="@(() => _CategoryService.updateCategory.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _CategoryService.updateCategory.Title)" class="validate" />
-                            <InputText id="category-name" @bind-Value="_CategoryService.updateCategory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_CategoryService.updateCategory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
                         <div>
-                            <CustomLabel ForId="category-slug" For="@(() => _CategoryService.updateCategory.Slug)"></CustomLabel>
+                            <CustomLabel  For="@(() => _CategoryService.updateCategory.Slug)"></CustomLabel>
                             <ValidationMessage For="@(() => _CategoryService.updateCategory.Slug)" class="validate" />
-                            <InputText id="category-slug" @bind-Value="_CategoryService.updateCategory.Slug" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_CategoryService.updateCategory.Slug" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
                         <div>
-
-                            <CustomLabel ForId="category-parent" For="@(() => _CategoryService.updateCategory.ParentID1)"></CustomLabel>
+                            <CustomLabel  For="@(() => _CategoryService.updateCategory.ParentID1)"></CustomLabel>
                             <ValidationMessage For="@(() => _CategoryService.updateCategory.ParentID1)" class="validate" />
                             <InputSelect @bind-Value="_CategoryService.updateCategory.ParentID1" @bind-Value:after="@( () =>  _CategoryService.GetCategoryParent2InUpdate())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 <option value="0">بدون والد (دسته اصلی)</option>
@@ -60,13 +58,11 @@
                                     <option value="@item.ID">@item.Title</option>
                                 }
                             </InputSelect>
-
                         </div> 
                         @if (_CategoryService.updateCategory.ParentID1 > 0)
                         {
                             <div>
-
-                                <CustomLabel ForId="category-parent" For="@(() => _CategoryService.updateCategory.ParentID2)"></CustomLabel>
+                                <CustomLabel  For="@(() => _CategoryService.updateCategory.ParentID2)"></CustomLabel>
                                 <ValidationMessage For="@(() => _CategoryService.updateCategory.ParentID2)" class="validate" />
                                 <InputSelect @bind-Value="_CategoryService.updateCategory.ParentID2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                     <option value="0">بدون والد (دسته اصلی)</option>
@@ -75,7 +71,6 @@
                                         <option value="@item.ID">@item.Title</option>
                                     }
                                 </InputSelect>
-
                             </div>
                         }
                         else
@@ -83,19 +78,15 @@
                             <div></div>
                         }
                     </div>
-
-
                     <!-- Settings -->
                     <div class="space-y-4">
                         <div >
-
-                            <CustomLabel ForId="category-description" For="@(() => _CategoryService.updateCategory.Description)"></CustomLabel>
-                            <InputTextArea @bind-Value="_CategoryService.updateCategory.Description" id="category-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-
+                            <CustomLabel  For="@(() => _CategoryService.updateCategory.Description)"></CustomLabel>
+                            <InputTextArea @bind-Value="_CategoryService.updateCategory.Description"  rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
                         <div class="mb-4">
-                            <CustomLabel ForId="Visible-stock" For="@(() => _CategoryService.updateCategory.Visible)"></CustomLabel>
+                            <CustomLabel  For="@(() => _CategoryService.updateCategory.Visible)"></CustomLabel>
 
                             <InputRadioGroup @bind-Value="_CategoryService.updateCategory.Visible" Name="status">
                                 <InsertUpdateVisible/>

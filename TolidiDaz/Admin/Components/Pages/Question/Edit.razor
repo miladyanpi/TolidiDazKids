@@ -38,7 +38,7 @@
                     <!-- Question Info -->
                     <div class="space-y-4">
                         <div>
-                            <CustomLabel ForId="category-parent" For="@(() => _QuestionService.updateQuestion.GroupQuestionID)"></CustomLabel>
+                            <CustomLabel  For="@(() => _QuestionService.updateQuestion.GroupQuestionID)"></CustomLabel>
                             <ValidationMessage For="@(() => _QuestionService.updateQuestion.GroupQuestionID)" class="validate" />
                             <InputSelect @bind-Value=" _QuestionService.updateQuestion.GroupQuestionID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _QuestionService.ResultQuestions)
@@ -48,24 +48,24 @@
                             </InputSelect>
                         </div>
                         <div>
-                            <CustomLabel ForId="Question-Title" For="@(() => _QuestionService.updateQuestion.Title)"></CustomLabel>
+                            <CustomLabel  For="@(() => _QuestionService.updateQuestion.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _QuestionService.updateQuestion.Title)" class="validate" />
-                            <InputText id="Question-Title" @bind-Value="_QuestionService.updateQuestion.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_QuestionService.updateQuestion.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                         <div>
-                            <CustomLabel ForId="Question-Title" For="@(() => _QuestionService.updateQuestion.SubTitle)"></CustomLabel>
+                            <CustomLabel  For="@(() => _QuestionService.updateQuestion.SubTitle)"></CustomLabel>
                             <ValidationMessage For="@(() => _QuestionService.updateQuestion.SubTitle)" class="validate" />
-                            <InputText id="Question-Title" @bind-Value="_QuestionService.updateQuestion.SubTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_QuestionService.updateQuestion.SubTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                     </div>
                     <!-- Settings -->
                     <div class="space-y-4">
-                        <CustomLabel ForId="Question-description" For="@(() => _QuestionService.updateQuestion.Description)"></CustomLabel>
+                        <CustomLabel  For="@(() => _QuestionService.updateQuestion.Description)"></CustomLabel>
                         @* <InputTextArea @bind-Value="updateQuestion.Description" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" /> *@
                         <TextEditor @bind-Value="_QuestionService.updateQuestion.Description" />
                     </div>
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _QuestionService.updateQuestion.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => _QuestionService.updateQuestion.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="_QuestionService.updateQuestion.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

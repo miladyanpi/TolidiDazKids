@@ -26,7 +26,7 @@
                 <!-- Category Info -->
                 <div class="space-y-4">
                     <div>
-                        <CustomLabel ForId="category-parent" For="@(() => _QuestionService.addQuestion.GroupQuestionID)"></CustomLabel>
+                        <CustomLabel  For="@(() => _QuestionService.addQuestion.GroupQuestionID)"></CustomLabel>
                         <ValidationMessage For="@(() => _QuestionService.addQuestion.GroupQuestionID)" class="validate" />
                         <InputSelect @bind-Value=" _QuestionService.addQuestion.GroupQuestionID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             @foreach (var item in _QuestionService.ResultQuestions)
@@ -36,26 +36,26 @@
                         </InputSelect>
                     </div>
                     <div>
-                        <CustomLabel ForId="Question-Title" For="@(() => _QuestionService.addQuestion.Title)"></CustomLabel>
+                        <CustomLabel  For="@(() => _QuestionService.addQuestion.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => _QuestionService.addQuestion.Title)" class="validate" />
-                        <InputText id="Question-Title" @bind-Value="_QuestionService.addQuestion.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_QuestionService.addQuestion.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="Question-Title" For="@(() => _QuestionService.addQuestion.SubTitle)"></CustomLabel>
+                        <CustomLabel  For="@(() => _QuestionService.addQuestion.SubTitle)"></CustomLabel>
                         <ValidationMessage For="@(() => _QuestionService.addQuestion.SubTitle)" class="validate" />
-                        <InputText id="Question-Title" @bind-Value="_QuestionService.addQuestion.SubTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_QuestionService.addQuestion.SubTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                 </div>
 
                 <!-- Settings -->
                 <div class="space-y-4">
                     <div class="space-y-4">
-                        <CustomLabel ForId="Question-description" For="@(() => _QuestionService.addQuestion.Description)"></CustomLabel>
+                        <CustomLabel  For="@(() => _QuestionService.addQuestion.Description)"></CustomLabel>
                         @* <InputTextArea @bind-Value="addQuestion.Description" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" /> *@
                         <TextEditor @bind-Value="_QuestionService.addQuestion.Description" />
                     </div>
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _QuestionService.addQuestion.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => _QuestionService.addQuestion.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="_QuestionService.addQuestion.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

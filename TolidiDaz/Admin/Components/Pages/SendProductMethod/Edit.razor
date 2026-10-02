@@ -37,19 +37,19 @@
                     <!-- SendProductMethod Info -->
                     <div class="space-y-4">
                         <div>
-                            <CustomLabel ForId="SendProductMethod-Title" For="@(() => _SendProductMethodService.updateSendProductMethod.Title)"></CustomLabel>
+                            <CustomLabel  For="@(() => _SendProductMethodService.updateSendProductMethod.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _SendProductMethodService.updateSendProductMethod.Title)" class="validate" />
-                            <InputText id="SendProductMethod-Title" @bind-Value="_SendProductMethodService.updateSendProductMethod.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_SendProductMethodService.updateSendProductMethod.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                     </div>
                     <!-- Settings -->
                     <div class="space-y-4">
-                        <CustomLabel ForId="SendProductMethod-description" For="@(() => _SendProductMethodService.updateSendProductMethod.Description)"></CustomLabel>
+                        <CustomLabel  For="@(() => _SendProductMethodService.updateSendProductMethod.Description)"></CustomLabel>
                         @* <InputTextArea @bind-Value="updateSendProductMethod.Description" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" /> *@
                         <TextEditor @bind-Value="_SendProductMethodService.updateSendProductMethod.Description" />
                     </div>
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _SendProductMethodService.updateSendProductMethod.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => _SendProductMethodService.updateSendProductMethod.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="_SendProductMethodService.updateSendProductMethod.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

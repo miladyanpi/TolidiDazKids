@@ -1,6 +1,7 @@
-﻿@page "/UpdateProductFeature/{guid}"
+﻿@* @page "/UpdateProductFeature/{guid}"
 @using Admin.Services.Category
 @using Admin.Services.ProductFeature
+
 @inject ProductFeatureService _ProductFeatureService
 @inject CategoryService _CategoryService
 <AccessAdminRoles />
@@ -9,14 +10,14 @@
     <!-- header page -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">ویرایش مشخصات محصول</h2>
-            <p class="text-gray-600 dark:text-gray-400">اطلاعات مشخصات محصول را ویرایش نمایید</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">ویرایش مشخصات ویژگی</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات مشخصات ویژگی را ویرایش نمایید</p>
         </div>
         <BackButton UrlPage="ProductFeature" />
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="_ProductFeatureService.updateProductFeature" OnValidSubmit="HandleSubmit" FormName="AddForm">
+    <EditForm Model="_ProductFeatureService.updateProductFeature" OnValidSubmit="_ProductFeatureService.UpdateAsync" FormName="AddForm">
         <DataAnnotationsValidator />
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -36,7 +37,6 @@
                                     <option value="@item.ID">@item.Title</option>
                                 }
                             </InputSelect>
-
                         </div>
                         <div>
 
@@ -62,7 +62,14 @@
                         </div>
                     </div>
                 </div>
-                 <SaveButton Disabled="@isSubmitting"/>
+
+             
+
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                        ذخیره دسته‌بندی
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -73,25 +80,31 @@
 
     [Parameter]
     public string? guid { get; set; }
-    private bool isLoading = true;
-    private bool isSubmitting = false;
+
     protected override async Task OnParametersSetAsync()
     {
+        _ProductFeatureService.OnChange += HandleStateChange;
+        _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
 
-         bool isValid = Guid.TryParse(guid, out _);
+        bool isValid = Guid.TryParse(guid, out _);
         if (isValid)
         {
-            isLoading = true;
             await _ProductFeatureService.GetUpdateDataAsync(guid);
-            isLoading = false;
-        }
-        else
-        {
-       
-            NavManager.NavigateTo("/ProductFeature");
         }
     }
+    private async void HandleStateChange()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _ProductFeatureService.OnChange -= HandleStateChange;
+        _CategoryService.OnChange -= HandleStateChange;
+    }
+
+
     private async Task GetCategoryParent2InUpdate()
     {
         _CategoryService.GetCategoryParent2InUpdate();
@@ -104,17 +117,4 @@
             _ProductFeatureService.updateProductFeature.CategoryID = null;
         }
     }
-     private async Task HandleSubmit()
-    {
-        if (isSubmitting) return;
-        try
-        {
-            isSubmitting = true;
-            await _ProductFeatureService.UpdateAsync();
-        }
-        finally
-        {
-            isSubmitting = false;
-        }
-    }
-}
+} *@

@@ -2,7 +2,6 @@
 @using Dto.Models.DtoAccount
 @using Dto.Models.DtoPricingRule
 @inject SweetAlertService Swal
-
 @inject IToastMessage JS
 @inject IRootApi<ResponseApiEntity<UpdatePricingRule>> RootApiUpdatePricingRule
 @inject IRootApi<ResponseApiEntities<ResultRole>> RootApiResultRoles
@@ -41,7 +40,7 @@
                 <div class="space-y-4">
                     <div>
 
-                        <CustomLabel ForId="updatePricingRule-RoleID" For="@(() => updatePricingRule.RoleID)"></CustomLabel>
+                        <CustomLabel  For="@(() => updatePricingRule.RoleID)"></CustomLabel>
                         <ValidationMessage For="@(() => updatePricingRule.RoleID)" class="validate" />
                         <InputSelect @bind-Value=" updatePricingRule.RoleID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             @foreach (var item in ResultRoles)
@@ -52,7 +51,7 @@
 
                     </div>
                     <div>
-                        <CustomLabel ForId="updatePricingRule-RuleType" For="@(() => updatePricingRule.RuleType)"></CustomLabel>
+                        <CustomLabel  For="@(() => updatePricingRule.RuleType)"></CustomLabel>
                         <InputSelect @bind-Value="updatePricingRule.RuleType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             @foreach (var item in RoleTypes)
                             {
@@ -61,14 +60,14 @@
                         </InputSelect>
                     </div>
                     <div>
-                        <CustomLabel ForId="PricingRule-MinQuantity" For="@(() => updatePricingRule.MinQuantity)"></CustomLabel>
+                        <CustomLabel  For="@(() => updatePricingRule.MinQuantity)"></CustomLabel>
                         <ValidationMessage For="@(() => updatePricingRule.MinQuantity)" class="validate" />
-                        <InputNumber id="PricingRule-MinQuantity" @bind-Value="updatePricingRule.MinQuantity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputNumber  @bind-Value="updatePricingRule.MinQuantity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="PricingRule-Price" For="@(() => updatePricingRule.Price)"></CustomLabel>
+                        <CustomLabel  For="@(() => updatePricingRule.Price)"></CustomLabel>
                         <ValidationMessage For="@(() => updatePricingRule.Price)" class="validate" />
-                        <InputNumber id="PricingRule-LastName" @bind-Value="updatePricingRule.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputNumber  @bind-Value="updatePricingRule.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
 
                     <div class="form-group ">

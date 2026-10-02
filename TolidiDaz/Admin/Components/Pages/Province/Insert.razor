@@ -24,9 +24,9 @@
                 <!-- Category Info -->
                 <div class="space-y-4">
                     <div>
-                        <CustomLabel ForId="Province-name" For="@(() => _ProvinceService.addProvince.Title)"></CustomLabel>
+                        <CustomLabel  For="@(() => _ProvinceService.addProvince.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => _ProvinceService.addProvince.Title)" class="validate" />
-                        <InputText id="Province-name" @bind-Value="_ProvinceService.addProvince.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_ProvinceService.addProvince.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                 </div>
                 <!-- Settings -->

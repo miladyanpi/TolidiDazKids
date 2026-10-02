@@ -1,6 +1,5 @@
 ﻿@page "/UpdateGroupBlog/{guid}"
 @using Admin.Services.GroupBlog
-
 @inject GroupBlogService _GroupBlogService
 <AccessAdminRoles />
 
@@ -40,15 +39,15 @@
 
 
                         <div>
-                            <CustomLabel ForId="GroupBlog-Title" For="@(() => _GroupBlogService.updateGroupBlog.Title)"></CustomLabel>
+                            <CustomLabel  For="@(() => _GroupBlogService.updateGroupBlog.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _GroupBlogService.updateGroupBlog.Title)" class="validate" />
-                            <InputText id="GroupBlog-Title" @bind-Value="_GroupBlogService.updateGroupBlog.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_GroupBlogService.updateGroupBlog.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                     </div>
                     <!-- Settings -->
                     <div class="space-y-4">
                         <div class="mb-4">
-                            <CustomLabel ForId="Visible-stock" For="@(() => _GroupBlogService.updateGroupBlog.Visible)"></CustomLabel>
+                            <CustomLabel  For="@(() => _GroupBlogService.updateGroupBlog.Visible)"></CustomLabel>
                             <InputRadioGroup @bind-Value="_GroupBlogService.updateGroupBlog.Visible" Name="status">
                                 <InsertUpdateVisible />
                             </InputRadioGroup>

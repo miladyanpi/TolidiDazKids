@@ -38,7 +38,7 @@
                     <!-- Ticket Info -->
                     <div class="space-y-4">
                         <div>
-                            <CustomLabel ForId="category-parent" For="@(() => _TicketService.updateTicket.DepartmentID)"></CustomLabel>
+                            <CustomLabel  For="@(() => _TicketService.updateTicket.DepartmentID)"></CustomLabel>
                             <ValidationMessage For="@(() => _TicketService.updateTicket.DepartmentID)" class="validate" />
                             <InputSelect @bind-Value=" _TicketService.updateTicket.DepartmentID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _TicketService.ResultTickets)
@@ -48,19 +48,19 @@
                             </InputSelect>
                         </div>
                         <div>
-                            <CustomLabel ForId="Ticket-Title" For="@(() => _TicketService.updateTicket.Title)"></CustomLabel>
+                            <CustomLabel  For="@(() => _TicketService.updateTicket.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _TicketService.updateTicket.Title)" class="validate" />
-                            <InputText id="Ticket-Title" @bind-Value="_TicketService.updateTicket.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_TicketService.updateTicket.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                     </div>
                     <!-- Settings -->
                     <div class="space-y-4">
-                        <CustomLabel ForId="Ticket-description" For="@(() => _TicketService.updateTicket.Description)"></CustomLabel>
+                        <CustomLabel  For="@(() => _TicketService.updateTicket.Description)"></CustomLabel>
                         @* <InputTextArea @bind-Value="updateTicket.Description" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" /> *@
                         <TextEditor @bind-Value="_TicketService.updateTicket.Description" />
                     </div>
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _TicketService.updateTicket.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => _TicketService.updateTicket.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="_TicketService.updateTicket.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

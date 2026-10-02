@@ -40,7 +40,7 @@
             <div class="px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
                     <div>
-                        <CustomLabel ForId="_pricingRuleService-addPricingRule-RuleType" For="@(() => _pricingRuleService.addPricingRule.RuleType)"></CustomLabel>
+                        <CustomLabel  For="@(() => _pricingRuleService.addPricingRule.RuleType)"></CustomLabel>
                         <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.RuleType)" class="validate" />
                         <InputSelect @bind-Value="_pricingRuleService.addPricingRule.RuleType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             @foreach (var item in _pricingRuleService.RoleTypes)
@@ -52,7 +52,7 @@
                     @if (_pricingRuleService.addPricingRule.RuleType != (int)RuleType.Quantity && _pricingRuleService.addPricingRule.RuleType != (int)RuleType.Date)
                     {
                         <div>
-                            <CustomLabel ForId="_pricingRuleService.addPricingRule-RoleID" For="@(() => _pricingRuleService.addPricingRule.RoleID)"></CustomLabel>
+                            <CustomLabel  For="@(() => _pricingRuleService.addPricingRule.RoleID)"></CustomLabel>
                             <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.RoleID)" class="validate" />
                             <InputSelect @bind-Value=" _pricingRuleService.addPricingRule.RoleID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _pricingRuleService.ResultRoles)
@@ -67,23 +67,23 @@
                     @if (_pricingRuleService.addPricingRule.RuleType != (int)RuleType.Date && _pricingRuleService.addPricingRule.RuleType != (int)RuleType.Group)
                     {
                         <div>
-                            <CustomLabel ForId="PricingRule-MinQuantity" For="@(() => _pricingRuleService.addPricingRule.MinQuantity)"></CustomLabel>
+                            <CustomLabel  For="@(() => _pricingRuleService.addPricingRule.MinQuantity)"></CustomLabel>
                             <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.MinQuantity)" class="validate" />
-                            <InputNumber id="PricingRule-MinQuantity" @bind-Value="_pricingRuleService.addPricingRule.MinQuantity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputNumber  @bind-Value="_pricingRuleService.addPricingRule.MinQuantity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                     }
                    
                     <div>
-                        <CustomLabel ForId="PricingRule-Price" For="@(() => _pricingRuleService.addPricingRule.Price)"></CustomLabel>
+                        <CustomLabel  For="@(() => _pricingRuleService.addPricingRule.Price)"></CustomLabel>
                         <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.Price)" class="validate" />
-                        <InputNumber id="PricingRule-LastName" @bind-Value="_pricingRuleService.addPricingRule.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputNumber  @bind-Value="_pricingRuleService.addPricingRule.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     @if (_pricingRuleService.addPricingRule.RuleType == (int)RuleType.Date)
                     {
                         <div>
-                            <CustomLabel ForId="PricingRule-Price" For="@(() => _pricingRuleService.addPricingRule.Title)"></CustomLabel>
+                            <CustomLabel  For="@(() => _pricingRuleService.addPricingRule.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _pricingRuleService.addPricingRule.Title)" class="validate" />
-                            <InputText id="PricingRule-LastName" @bind-Value="_pricingRuleService.addPricingRule.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_pricingRuleService.addPricingRule.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                         <div class="form-group ">
                             <CustomLabel For="@(() => _pricingRuleService.addPricingRule.FromDate)"></CustomLabel>

@@ -40,35 +40,32 @@
 
                     
                     <div>
-                        <CustomLabel ForId="AdvertisementSingle-Title" For="@(() => addAdvertisementSingle.Title)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisementSingle.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => addAdvertisementSingle.Title)" class="validate" />
-                        <InputText id="AdvertisementSingle-Title" @bind-Value="addAdvertisementSingle.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="addAdvertisementSingle.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="AdvertisementSingle-SiteName" For="@(() => addAdvertisementSingle.SiteName)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisementSingle.SiteName)"></CustomLabel>
                         <ValidationMessage For="@(() => addAdvertisementSingle.SiteName)" class="validate" />
-                        <InputText id="AdvertisementSingle-SiteName" @bind-Value="addAdvertisementSingle.SiteName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="addAdvertisementSingle.SiteName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="AdvertisementSingle-SiteUrl" For="@(() => addAdvertisementSingle.SiteUrl)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisementSingle.SiteUrl)"></CustomLabel>
                         <ValidationMessage For="@(() => addAdvertisementSingle.SiteUrl)" class="validate" />
-                        <InputText id="AdvertisementSingle-SiteUrl" @bind-Value="addAdvertisementSingle.SiteUrl" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="addAdvertisementSingle.SiteUrl" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
-
-
 
                 </div>
-
 
                 <!-- Settings -->
                 <div class="space-y-4">
                    
                     <div>
-                        <CustomLabel ForId="AdvertisementSingle-description" For="@(() => addAdvertisementSingle.Description)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisementSingle.Description)"></CustomLabel>
                         <InputTextArea @bind-Value="addAdvertisementSingle.Description" id="AdvertisementSingle-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => addAdvertisementSingle.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisementSingle.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="addAdvertisementSingle.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

@@ -37,7 +37,7 @@
                     <!-- ProductVariant Info -->
                     <div class="space-y-4">
                         <div>
-                            <CustomLabel ForId="category-parent" For="@(() => _ProductVariantService.updateProductVariant.ProductID)"></CustomLabel>
+                            <CustomLabel  For="@(() => _ProductVariantService.updateProductVariant.ProductID)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductVariantService.updateProductVariant.ProductID)" class="validate" />
                             <InputSelect @bind-Value=" _ProductVariantService.updateProductVariant.ProductID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _ProductVariantService.ResultProductVariants)
@@ -47,19 +47,25 @@
                             </InputSelect>
                         </div>
                         <div>
+<<<<<<< Updated upstream
                             <CustomLabel ForId="ProductVariant-Title" For="@(() => _ProductVariantService.updateProductVariant.Stock)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductVariantService.updateProductVariant.Stock)" class="validate" />
                             <InputNumber id="ProductVariant-Title" @bind-Value="_ProductVariantService.updateProductVariant.Stock" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+=======
+                            <CustomLabel  For="@(() => _ProductVariantService.updateProductVariant.Count)"></CustomLabel>
+                            <ValidationMessage For="@(() => _ProductVariantService.updateProductVariant.Count)" class="validate" />
+                            <InputNumber  @bind-Value="_ProductVariantService.updateProductVariant.Count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+>>>>>>> Stashed changes
                         </div>
                         <div>
-                            <CustomLabel ForId="ProductVariant-Title" For="@(() => _ProductVariantService.updateProductVariant.Price)"></CustomLabel>
+                            <CustomLabel  For="@(() => _ProductVariantService.updateProductVariant.Price)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductVariantService.updateProductVariant.Price)" class="validate" />
-                            <InputNumber id="ProductVariant-Title" @bind-Value="_ProductVariantService.updateProductVariant.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputNumber  @bind-Value="_ProductVariantService.updateProductVariant.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                     </div>
                     <!-- Settings -->
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _ProductVariantService.updateProductVariant.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => _ProductVariantService.updateProductVariant.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="_ProductVariantService.updateProductVariant.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

@@ -39,12 +39,10 @@
                                     <option value="@item.ID">@item.Title</option>
                                 }
                             </InputSelect>
-
                         </div>
                         
 
                         <div>
-
                             <CustomLabel  For="@(() => _CategoryService.addCategory.ParentID2)"></CustomLabel>
                             <InputSelect @bind-Value="_CategoryService.addCategory.ParentID2" @bind-Value:after="@( () => GetCategoryParent3InAdd())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _CategoryService.ResultCategorys2)
@@ -75,7 +73,11 @@
                         <div>
                             <CustomLabel For="@(() => _ProductService.addProduct.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductService.addProduct.Title)" class="validate" />
+<<<<<<< Updated upstream
                             <InputText @bind-Value="_ProductService.addProduct.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+=======
+                            <InputText  @bind-Value="_ProductService.addProduct.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+>>>>>>> Stashed changes
                         </div>
                         <div>
                             <CustomLabel  For="@(() => _ProductService.addProduct.Brand)"></CustomLabel>
@@ -83,10 +85,7 @@
                             <InputText  @bind-Value="_ProductService.addProduct.Brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
-                        
-                     
                     </div>
-                  
                     <div class="row">
                         <CustomLabel  For="@(() => _ProductService.addProduct.ShortDescription)"></CustomLabel>
                         <TextEditor @bind-Value="_ProductService.addProduct.ShortDescription" />
@@ -102,11 +101,16 @@
                     <h3 class="font-bold text-lg mb-6 relative pb-4 before:absolute before:right-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary-600 after:absolute after:w-40 after:h-2 after:bottom-0 after:right-4 after:bg-primary-600 after:rounded-lg">قیمت‌گذاری و موجودی</h3>
                  
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   
                         <div>
+<<<<<<< Updated upstream
                             <CustomLabel  For="@(() => _ProductService.addProduct.BasePrice)"></CustomLabel>(تومان)
                             <ValidationMessage For="@(() => _ProductService.addProduct.BasePrice)" class="validate" />
                             <InputNumber  @bind-Value="_ProductService.addProduct.BasePrice" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+=======
+                            <CustomLabel  For="@(() => _ProductService.addProduct.Price)"></CustomLabel>(تومان)
+                            <ValidationMessage For="@(() => _ProductService.addProduct.Price)" class="validate" />
+                            <InputNumber  @bind-Value="_ProductService.addProduct.Price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+>>>>>>> Stashed changes
                         </div>
                         <div>
                             <CustomLabel  For="@(() => _ProductService.addProduct.Discount)"></CustomLabel>(تومان)
@@ -114,15 +118,26 @@
                             <InputNumber  @bind-Value="_ProductService.addProduct.Discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                         <div>
+<<<<<<< Updated upstream
                             <CustomLabel  For="@(() => _ProductService.addProduct.BaseStock)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductService.addProduct.BaseStock)" class="validate" />
                             <InputNumber  @bind-Value="_ProductService.addProduct.BaseStock" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+=======
+                            <CustomLabel  For="@(() => _ProductService.addProduct.Count)"></CustomLabel>
+                            <ValidationMessage For="@(() => _ProductService.addProduct.Count)" class="validate" />
+                            <InputNumber  @bind-Value="_ProductService.addProduct.Count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+>>>>>>> Stashed changes
                         </div>
                      @*    <div>
                             <CustomLabel  For="@(() => _ProductService.addProduct.SkuCode)"></CustomLabel>
                             <ValidationMessage For="@(() => _ProductService.addProduct.SkuCode)" class="validate" />
+<<<<<<< Updated upstream
                             <InputText id="product-sku" @bind-Value="_ProductService.addProduct.SkuCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div> *@
+=======
+                            <InputText  @bind-Value="_ProductService.addProduct.SkuCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+>>>>>>> Stashed changes
                         <div class="mb-4">
                             <CustomLabel  For="@(() => _ProductService.addProduct.ProductExistStatus)"></CustomLabel>
 
@@ -131,7 +146,7 @@
 
                                     <div class="flex items-center">
                                         <InputRadio Value="@Dto.Enum.EnumConstant.ProductExistStatus.Existent"
-                                                    id="in-stock"
+                                                    
                                                     class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
                                         <label for="in-stock" class="ml-3 block text-sm text-gray-700 dark:text-gray-300 ms-1">موجود</label>
                                     </div>
@@ -157,7 +172,6 @@
                             <ValidationMessage For="@(() => _ProductService.addProduct.Visible)" class="validate" />
                         </div>
                     </div>
-
                    
                 </div>
 

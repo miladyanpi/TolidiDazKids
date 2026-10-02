@@ -40,18 +40,18 @@
 
 
                     <div>
-                        <CustomLabel ForId="Team-name" For="@(() => _TeamService.updateTeam.Name)"></CustomLabel>
+                        <CustomLabel  For="@(() => _TeamService.updateTeam.Name)"></CustomLabel>
                         <ValidationMessage For="@(() => _TeamService.updateTeam.Name)" class="validate" />
-                        <InputText id="Team-name" @bind-Value="_TeamService.updateTeam.Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_TeamService.updateTeam.Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="Team-name" For="@(() => _TeamService.updateTeam.Title)"></CustomLabel>
+                        <CustomLabel  For="@(() => _TeamService.updateTeam.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => _TeamService.updateTeam.Title)" class="validate" />
-                        <InputText id="Team-name" @bind-Value="_TeamService.updateTeam.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_TeamService.updateTeam.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
 
                        <div>
-                        <CustomLabel ForId="Team-name" For="@(() => _TeamService.updateTeam.Description)"></CustomLabel>
+                        <CustomLabel  For="@(() => _TeamService.updateTeam.Description)"></CustomLabel>
                         <ValidationMessage For="@(() => _TeamService.updateTeam.Description)" class="validate" />
                         <TextEditor @bind-Value="_TeamService.updateTeam.Description" />
 

@@ -28,20 +28,20 @@
                 <!-- Category Info -->
                 <div class="space-y-4">
                     <div>
-                        <CustomLabel ForId="category-name" For="@(() => _CategoryService.addCategory.Title)"></CustomLabel>
+                        <CustomLabel For="@(() => _CategoryService.addCategory.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => _CategoryService.addCategory.Title)" class="validate" />
-                        <InputText id="category-name" @bind-Value="_CategoryService.addCategory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_CategoryService.addCategory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
 
                     <div>
-                        <CustomLabel ForId="category-slug" For="@(() => _CategoryService.addCategory.Slug)"></CustomLabel>
+                        <CustomLabel  For="@(() => _CategoryService.addCategory.Slug)"></CustomLabel>
                         <ValidationMessage For="@(() => _CategoryService.addCategory.Slug)" class="validate" />
-                        <InputText id="category-slug" @bind-Value="_CategoryService.addCategory.Slug" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_CategoryService.addCategory.Slug" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
 
                     <div>
 
-                        <CustomLabel ForId="category-parent" For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
+                        <CustomLabel  For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
                         <ValidationMessage For="@(() => _CategoryService.addCategory.ParentID1)" class="validate" />
                         <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( () => _CategoryService.GetCategoryParent2InAdd())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <option value="0">بدون والد (دسته اصلی)</option>
@@ -56,7 +56,7 @@
                     {
                         <div>
 
-                            <CustomLabel ForId="category-parent" For="@(() => _CategoryService.addCategory.ParentID2)"></CustomLabel>
+                            <CustomLabel  For="@(() => _CategoryService.addCategory.ParentID2)"></CustomLabel>
                             <ValidationMessage For="@(() => _CategoryService.addCategory.ParentID2)" class="validate" />
                             <InputSelect @bind-Value="_CategoryService.addCategory.ParentID2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 <option value="0">بدون والد (دسته اصلی)</option>
@@ -73,19 +73,15 @@
                         <div></div>
                     }
                 </div>
-
-
                 <!-- Settings -->
                 <div class="space-y-4">
                     <div >
-
-                        <CustomLabel ForId="category-description" For="@(() => _CategoryService.addCategory.Description)"></CustomLabel>
-                        <InputTextArea @bind-Value="_CategoryService.addCategory.Description" id="category-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                   
+                        <CustomLabel  For="@(() => _CategoryService.addCategory.Description)"></CustomLabel>
+                        <InputTextArea @bind-Value="_CategoryService.addCategory.Description"  rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
 
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _CategoryService.addCategory.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => _CategoryService.addCategory.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="_CategoryService.addCategory.Visible" Name="status">
                            <InsertUpdateVisible/>
                         </InputRadioGroup>
@@ -94,7 +90,6 @@
 
                 </div>
             </div>
-
           
              <SaveButton Disabled="@isSubmitting" />
         </div>

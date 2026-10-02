@@ -40,29 +40,29 @@
 
                     
                     <div>
-                        <CustomLabel ForId="Advertisement-Title" For="@(() => addAdvertisement.Title)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisement.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => addAdvertisement.Title)" class="validate" />
-                        <InputText id="Advertisement-Title" @bind-Value="addAdvertisement.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="addAdvertisement.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="Advertisement-SiteName" For="@(() => addAdvertisement.SiteName)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisement.SiteName)"></CustomLabel>
                         <ValidationMessage For="@(() => addAdvertisement.SiteName)" class="validate" />
-                        <InputText id="Advertisement-SiteName" @bind-Value="addAdvertisement.SiteName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="addAdvertisement.SiteName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="Advertisement-SiteUrl" For="@(() => addAdvertisement.SiteUrl)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisement.SiteUrl)"></CustomLabel>
                         <ValidationMessage For="@(() => addAdvertisement.SiteUrl)" class="validate" />
-                        <InputText id="Advertisement-SiteUrl" @bind-Value="addAdvertisement.SiteUrl" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="addAdvertisement.SiteUrl" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                 </div>
                 <!-- Settings -->
                 <div class="space-y-4">
                     <div>
-                        <CustomLabel ForId="Advertisement-description" For="@(() => addAdvertisement.Description)"></CustomLabel>
-                        <InputTextArea @bind-Value="addAdvertisement.Description" id="Advertisement-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <CustomLabel  For="@(() => addAdvertisement.Description)"></CustomLabel>
+                        <InputTextArea @bind-Value="addAdvertisement.Description"  rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => addAdvertisement.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => addAdvertisement.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="addAdvertisement.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>
@@ -116,7 +116,6 @@
                 ShowConfirmButton = true,
             });
         }
-
 
     }
     private void GoBack()

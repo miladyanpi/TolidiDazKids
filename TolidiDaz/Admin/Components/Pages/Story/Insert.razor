@@ -26,12 +26,12 @@
                 <!-- Category Info -->
                 <div class="space-y-4">
                     <div>
-                        <CustomLabel ForId="Story-Title" For="@(() => _StoryService.addStory.Title)"></CustomLabel>
+                        <CustomLabel  For="@(() => _StoryService.addStory.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => _StoryService.addStory.Title)" class="validate" />
-                        <InputText id="Story-Title" @bind-Value="_StoryService.addStory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_StoryService.addStory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="Story-StudyDuration" For="@(() => _StoryService.addStory.Url)"></CustomLabel>
+                        <CustomLabel  For="@(() => _StoryService.addStory.Url)"></CustomLabel>
                         <ValidationMessage For="@(() => _StoryService.addStory.Url)" class="validate" />
                         <InputText @bind-Value="_StoryService.addStory.Url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
@@ -40,11 +40,11 @@
                 <div class="space-y-4">
 
                     <div>
-                        <CustomLabel ForId="Story-description" For="@(() => _StoryService.addStory.Description)"></CustomLabel>
+                        <CustomLabel  For="@(() => _StoryService.addStory.Description)"></CustomLabel>
                         <TextEditor @bind-Value="_StoryService.addStory.Description" />
                     </div>
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _StoryService.addStory.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => _StoryService.addStory.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="_StoryService.addStory.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

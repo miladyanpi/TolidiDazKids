@@ -8,7 +8,6 @@
 @using Dto.Models.ResponseApi
 @using RestSharp
 @inject SweetAlertService Swal
-
 @inject IToastMessage JS
 @inject IRootApi<ResponseApiEntity<UpdateAdvertisementSingle>> RootApiUpdateAdvertisementSingle
 @attribute [Authorize(Roles = ConstantRoles.AdminName + "," + ConstantRoles.SuperAdminName)]
@@ -46,19 +45,19 @@
 
 
                     <div>
-                        <CustomLabel ForId="AdvertisementSingle-Title" For="@(() => updateAdvertisementSingle.Title)"></CustomLabel>
+                        <CustomLabel  For="@(() => updateAdvertisementSingle.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => updateAdvertisementSingle.Title)" class="validate" />
-                        <InputText id="AdvertisementSingle-Title" @bind-Value="updateAdvertisementSingle.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="updateAdvertisementSingle.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="AdvertisementSingle-SiteName" For="@(() => updateAdvertisementSingle.SiteName)"></CustomLabel>
+                        <CustomLabel  For="@(() => updateAdvertisementSingle.SiteName)"></CustomLabel>
                         <ValidationMessage For="@(() => updateAdvertisementSingle.SiteName)" class="validate" />
-                        <InputText id="AdvertisementSingle-SiteName" @bind-Value="updateAdvertisementSingle.SiteName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="updateAdvertisementSingle.SiteName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <CustomLabel ForId="AdvertisementSingle-LastName" For="@(() => updateAdvertisementSingle.SiteUrl)"></CustomLabel>
+                        <CustomLabel  For="@(() => updateAdvertisementSingle.SiteUrl)"></CustomLabel>
                         <ValidationMessage For="@(() => updateAdvertisementSingle.SiteUrl)" class="validate" />
-                        <InputText id="AdvertisementSingle-LastName" @bind-Value="updateAdvertisementSingle.SiteUrl" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="updateAdvertisementSingle.SiteUrl" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                  
 
@@ -69,11 +68,11 @@
                 <div class="space-y-4">
                     
                     <div>
-                        <CustomLabel ForId="AdvertisementSingle-description" For="@(() => updateAdvertisementSingle.Description)"></CustomLabel>
-                        <InputTextArea @bind-Value="updateAdvertisementSingle.Description" id="AdvertisementSingle-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <CustomLabel  For="@(() => updateAdvertisementSingle.Description)"></CustomLabel>
+                        <InputTextArea @bind-Value="updateAdvertisementSingle.Description"  rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => updateAdvertisementSingle.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => updateAdvertisementSingle.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="updateAdvertisementSingle.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

@@ -26,9 +26,9 @@
                 <!-- Category Info -->
                 <div class="space-y-4">
                     <div>
-                        <CustomLabel ForId="GroupBlog-Title" For="@(() => _GroupBlogService.addGroupBlog.Title)"></CustomLabel>
+                        <CustomLabel  For="@(() => _GroupBlogService.addGroupBlog.Title)"></CustomLabel>
                         <ValidationMessage For="@(() => _GroupBlogService.addGroupBlog.Title)" class="validate" />
-                        <InputText id="GroupBlog-Title" @bind-Value="_GroupBlogService.addGroupBlog.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <InputText  @bind-Value="_GroupBlogService.addGroupBlog.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                 </div>
 
@@ -36,7 +36,7 @@
                 <!-- Settings -->
                 <div class="space-y-4">
                     <div class="mb-4">
-                        <CustomLabel ForId="Visible-stock" For="@(() => _GroupBlogService.addGroupBlog.Visible)"></CustomLabel>
+                        <CustomLabel  For="@(() => _GroupBlogService.addGroupBlog.Visible)"></CustomLabel>
                         <InputRadioGroup @bind-Value="_GroupBlogService.addGroupBlog.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

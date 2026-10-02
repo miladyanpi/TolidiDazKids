@@ -40,15 +40,15 @@
                     <div class="space-y-4">
 
                         <div>
-                            <CustomLabel ForId="Story-Title" For="@(() => _StoryService.updateStory.Title)"></CustomLabel>
+                            <CustomLabel  For="@(() => _StoryService.updateStory.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _StoryService.updateStory.Title)" class="validate" />
-                            <InputText id="Story-Title" @bind-Value="_StoryService.updateStory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_StoryService.updateStory.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
                         <div>
-                            <CustomLabel ForId="Story-StudyDuration" For="@(() => _StoryService.updateStory.Url)"></CustomLabel>
+                            <CustomLabel  For="@(() => _StoryService.updateStory.Url)"></CustomLabel>
                             <ValidationMessage For="@(() => _StoryService.updateStory.Url)" class="validate" />
-                            <InputText id="Story-StudyDuration" @bind-Value="_StoryService.updateStory.Url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_StoryService.updateStory.Url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
                     </div>
@@ -56,12 +56,12 @@
                     <div class="space-y-4">
 
                         <div>
-                            <CustomLabel ForId="Story-description" For="@(() => _StoryService.updateStory.Description)"></CustomLabel>
+                            <CustomLabel  For="@(() => _StoryService.updateStory.Description)"></CustomLabel>
                             @* <InputTextArea @bind-Value="updateStory.Description" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" /> *@
                             <TextEditor @bind-Value="_StoryService.updateStory.Description" />
                         </div>
                         <div class="mb-4">
-                            <CustomLabel ForId="Visible-stock" For="@(() => _StoryService.updateStory.Visible)"></CustomLabel>
+                            <CustomLabel  For="@(() => _StoryService.updateStory.Visible)"></CustomLabel>
                             <InputRadioGroup @bind-Value="_StoryService.updateStory.Visible" Name="status">
                                 <InsertUpdateVisible />
                             </InputRadioGroup>

@@ -30,7 +30,11 @@
                 <div class="space-y-4">
                   
                     <div>
+<<<<<<< Updated upstream
                         <CustomLabel For="@(() => _TraitValueService.addTraitValue.Value)"></CustomLabel>
+=======
+                        <CustomLabel  For="@(() => _TraitValueService.addTraitValue.Value)"></CustomLabel>
+>>>>>>> Stashed changes
                         <ValidationMessage For="@(() => _TraitValueService.addTraitValue.Value)" class="validate" />
                         <InputText @bind-Value="_TraitValueService.addTraitValue.Value" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
@@ -43,7 +47,11 @@
                     @if (_TraitService.updateTrait.DisplayType == (int)TraitDisplayType.Color)
                     {
                         <div>
+<<<<<<< Updated upstream
                             <CustomLabel For="@(() => _TraitValueService.addTraitValue.DisplayColorHex)"></CustomLabel>
+=======
+                            <CustomLabel  For="@(() => _TraitValueService.addTraitValue.DisplayColorHex)"></CustomLabel>
+>>>>>>> Stashed changes
                             <ValidationMessage For="@(() => _TraitValueService.addTraitValue.DisplayColorHex)" class="validate" />
                             <input type="color" @bind="_TraitValueService.addTraitValue.DisplayColorHex" class="h-9 w-12 rounded cursor-pointer border border-gray-300" />
                             <InputText @bind-Value="_TraitValueService.addTraitValue.DisplayColorHex" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
@@ -55,7 +63,11 @@
                 </div>
                 <!-- Settings -->
                 <div class="mb-4">
+<<<<<<< Updated upstream
                     <CustomLabel For="@(() => _TraitValueService.addTraitValue.Visible)"></CustomLabel>
+=======
+                    <CustomLabel  For="@(() => _TraitValueService.addTraitValue.Visible)"></CustomLabel>
+>>>>>>> Stashed changes
                     <InputRadioGroup @bind-Value="_TraitValueService.addTraitValue.Visible" Name="status">
                         <InsertUpdateVisible />
                     </InputRadioGroup>

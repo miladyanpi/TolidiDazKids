@@ -39,6 +39,7 @@
                     <div class="space-y-4">
                       
                         <div>
+<<<<<<< Updated upstream
                             <CustomLabel  For="@(() => _TraitValueService.updateTraitValue.Value)"></CustomLabel>
                             <ValidationMessage For="@(() => _TraitValueService.updateTraitValue.Value)" class="validate" />
                             <InputText @bind-Value="_TraitValueService.updateTraitValue.Value" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
@@ -53,11 +54,35 @@
                             <ValidationMessage For="@(() => _TraitValueService.updateTraitValue.DisplayColorHex)" class="validate" />
                             <input type="color" @bind="_TraitValueService.updateTraitValue.DisplayColorHex" class="h-9 w-12 rounded cursor-pointer border border-gray-300" />
                             <InputText @bind-Value="_TraitValueService.updateTraitValue.DisplayColorHex" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+=======
+                            <CustomLabel  For="@(() => _TraitValueService.updateTraitValue.TraitID)"></CustomLabel>
+                            <ValidationMessage For="@(() => _TraitValueService.updateTraitValue.TraitID)" class="validate" />
+                            <InputSelect @bind-Value=" _TraitValueService.updateTraitValue.TraitID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                @foreach (var item in _TraitValueService.ResultTraitValues)
+                                {
+                                    <option value="@item.ID">@item.Value</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <CustomLabel  For="@(() => _TraitValueService.updateTraitValue.Value)"></CustomLabel>
+                            <ValidationMessage For="@(() => _TraitValueService.updateTraitValue.Value)" class="validate" />
+                            <InputText  @bind-Value="_TraitValueService.updateTraitValue.Value" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div>
+                            <CustomLabel  For="@(() => _TraitValueService.updateTraitValue.DisplayColorHex)"></CustomLabel>
+                            <ValidationMessage For="@(() => _TraitValueService.updateTraitValue.DisplayColorHex)" class="validate" />
+                            <InputText  @bind-Value="_TraitValueService.updateTraitValue.DisplayColorHex" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+>>>>>>> Stashed changes
                         </div>
                     </div>
                     <!-- Settings -->
                     <div class="mb-4">
+<<<<<<< Updated upstream
                         <CustomLabel For="@(() => _TraitValueService.updateTraitValue.Visible)"></CustomLabel>
+=======
+                        <CustomLabel  For="@(() => _TraitValueService.updateTraitValue.Visible)"></CustomLabel>
+>>>>>>> Stashed changes
                         <InputRadioGroup @bind-Value="_TraitValueService.updateTraitValue.Visible" Name="status">
                             <InsertUpdateVisible />
                         </InputRadioGroup>

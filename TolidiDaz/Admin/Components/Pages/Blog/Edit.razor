@@ -1,9 +1,7 @@
 ﻿@page "/UpdateBlog/{guid}"
-
 @using Admin.Services.Blog
 @using Admin.Services.GroupBlog
 @using Admin.Services.Team
-
 @inject BlogService _BlogService
 @inject GroupBlogService _GroupBlogService
 @inject TeamService _TeamService
@@ -43,7 +41,7 @@
                     <div class="space-y-4">
 
                         <div>
-                            <CustomLabel ForId="category-parent" For="@(() => _BlogService.updateBlog.GroupBlogID)"></CustomLabel>
+                            <CustomLabel  For="@(() => _BlogService.updateBlog.GroupBlogID)"></CustomLabel>
                             <ValidationMessage For="@(() => _BlogService.updateBlog.GroupBlogID)" class="validate" />
                             <InputSelect @bind-Value="_BlogService.updateBlog.GroupBlogID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _GroupBlogService.ResultGroupBlogs)
@@ -54,7 +52,7 @@
 
                         </div>
                         <div>
-                            <CustomLabel ForId="category-parent" For="@(() => _BlogService.updateBlog.TeamID)"></CustomLabel>
+                            <CustomLabel  For="@(() => _BlogService.updateBlog.TeamID)"></CustomLabel>
                             <ValidationMessage For="@(() => _BlogService.updateBlog.TeamID)" class="validate" />
                             <InputSelect @bind-Value="_BlogService.updateBlog.TeamID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _TeamService.ResultTeams)
@@ -65,15 +63,15 @@
 
                         </div>
                         <div>
-                            <CustomLabel ForId="Blog-Title" For="@(() => _BlogService.updateBlog.Title)"></CustomLabel>
+                            <CustomLabel  For="@(() => _BlogService.updateBlog.Title)"></CustomLabel>
                             <ValidationMessage For="@(() => _BlogService.updateBlog.Title)" class="validate" />
-                            <InputText id="Blog-Title" @bind-Value="_BlogService.updateBlog.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_BlogService.updateBlog.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
                         <div>
-                            <CustomLabel ForId="Blog-StudyDuration" For="@(() => _BlogService.updateBlog.StudyDuration)"></CustomLabel>
+                            <CustomLabel  For="@(() => _BlogService.updateBlog.StudyDuration)"></CustomLabel>
                             <ValidationMessage For="@(() => _BlogService.updateBlog.StudyDuration)" class="validate" />
-                            <InputText id="Blog-StudyDuration" @bind-Value="_BlogService.updateBlog.StudyDuration" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <InputText  @bind-Value="_BlogService.updateBlog.StudyDuration" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
                         <div class="form-group ">
                             <CustomLabel For="@(() => _BlogService.updateBlog.JsonLableTexts)"></CustomLabel>
@@ -81,18 +79,16 @@
                         </div>
 
                     </div>
-
-
                     <!-- Settings -->
                     <div class="space-y-4">
 
                         <div>
-                            <CustomLabel ForId="Blog-description" For="@(() => _BlogService.updateBlog.Description)"></CustomLabel>
+                            <CustomLabel  For="@(() => _BlogService.updateBlog.Description)"></CustomLabel>
                             @* <InputTextArea @bind-Value="updateBlog.Description" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" /> *@
                             <TextEditor @bind-Value="_BlogService.updateBlog.Description" />
                         </div>
                         <div class="mb-4">
-                            <CustomLabel ForId="Visible-stock" For="@(() => _BlogService.updateBlog.Visible)"></CustomLabel>
+                            <CustomLabel  For="@(() => _BlogService.updateBlog.Visible)"></CustomLabel>
                             <InputRadioGroup @bind-Value="_BlogService.updateBlog.Visible" Name="status">
                                 <InsertUpdateVisible />
                             </InputRadioGroup>

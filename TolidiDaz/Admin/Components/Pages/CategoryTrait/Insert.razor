@@ -1,4 +1,4 @@
-﻿@page "/InsertProductFeature"
+﻿@* @page "/InsertProductFeature"
 @using Admin.Services.Category
 @using Admin.Services.ProductFeature
 @inject ProductFeatureService _ProductFeatureService
@@ -8,14 +8,14 @@
     <!-- header page -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">افزودن مشخصات محصول جدید</h2>
-            <p class="text-gray-600 dark:text-gray-400">اطلاعات مشخصات محصول جدید را وارد نمایید</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">افزودن ویژگی جدید</h2>
+            <p class="text-gray-600 dark:text-gray-400">اطلاعات ویژگی جدید را وارد نمایید</p>
         </div>
         <BackButton UrlPage="ProductFeature" />
     </div>
 
     <!-- Add category form -->
-    <EditForm Model="_ProductFeatureService.addProductFeature" OnValidSubmit="HandleSubmitAsync" FormName="AddForm">
+    <EditForm Model="_ProductFeatureService.addProductFeature" OnValidSubmit="_ProductFeatureService.AddAsync" FormName="AddForm">
         <DataAnnotationsValidator />
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -27,7 +27,6 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-
                             <CustomLabel  For="@(() => _CategoryService.addCategory.ParentID1)"></CustomLabel>
                             <InputSelect @bind-Value="_CategoryService.addCategory.ParentID1" @bind-Value:after="@( ()=> _CategoryService.GetCategoryParent2InAdd())" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _CategoryService.ResultCategorys1)
@@ -38,7 +37,6 @@
 
                         </div>
                         <div>
-
                             <CustomLabel For="@(() => _ProductFeatureService.addProductFeature.CategoryID)"></CustomLabel>
                             <InputSelect @bind-Value="_ProductFeatureService.addProductFeature.CategoryID" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary outline-0 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 @foreach (var item in _CategoryService.ResultCategorys2)
@@ -53,7 +51,6 @@
                             <InputText  @bind-Value="_ProductFeatureService.addProductFeature.Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         </div>
 
-
                         <div class="mb-4">
                             <CustomLabel For="@(() => _ProductFeatureService.addProductFeature.Visible)"></CustomLabel>
                             <InputRadioGroup @bind-Value="_ProductFeatureService.addProductFeature.Visible" Name="status">
@@ -62,19 +59,23 @@
                             <ValidationMessage For="@(() => _ProductFeatureService.addProductFeature.Visible)" class="validate" />
                         </div>
 
-
                     </div>
                 </div>
-                <SaveButton Disabled="@isSubmitting"/>
+
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-500 shadow-sm dark:bg-primary-500 dark:hover:bg-primary-600">
+                        ذخیره دسته‌بندی
+                    </button>
+                </div>
             </div>
         </div>
     </EditForm>
 </main>
 
 @code {
-    private bool isSubmitting = false;
     protected override async Task OnInitializedAsync()
     {
+        _CategoryService.OnChange += HandleStateChange;
         await _CategoryService.GetAllDataAsync();
         if (_CategoryService.ResultCategorys1.Count > 0)
         {
@@ -95,19 +96,13 @@
             _CategoryService.addCategory.ParentID1 = null;
         }
     }
-    private async Task HandleSubmitAsync()
+    private async void HandleStateChange()
     {
-        if (isSubmitting) return;
-
-        try
-        {
-            isSubmitting = true;
-
-            await _ProductFeatureService.AddAsync();
-        }
-        finally
-        {
-            isSubmitting = false;
-        }
+        await InvokeAsync(StateHasChanged);
+    }
+    public void Dispose()
+    {
+        _CategoryService.OnChange -= HandleStateChange;
     }
 }
+ *@
