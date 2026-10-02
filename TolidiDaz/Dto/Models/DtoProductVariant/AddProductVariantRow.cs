@@ -1,4 +1,5 @@
 ﻿using Dto.Models.Base;
+using Dto.Models.DtoProductVariantValue;
 using Dto.Models.DtoTraitValue;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -35,7 +36,6 @@ namespace  Dto.Models.DtoProductVariant
         public string? SkuPreview { get; set; }
         public bool PriceTouched { get; set; }
         public bool StockTouched { get; set; }
-
-      
+        public List<AddProductVariantValue>? AddProductVariantValue { get; set; } = new();
     }
 }
